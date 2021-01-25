@@ -29,6 +29,7 @@ import android.view.Surface;
 import androidx.test.filters.SmallTest;
 
 import com.android.compatibility.common.util.ApiLevelUtil;
+import com.android.compatibility.common.util.MediaUtils;
 
 import org.junit.Assume;
 import org.junit.Test;
@@ -305,6 +306,13 @@ public class EncoderColorAspectsTest extends CodecEncoderTestBase {
                 mCodec.release();
                 return;
             }
+            /* TODO(b/181126614, b/268175825) */
+            if (MediaUtils.isPc()) {
+                Log.d(LOG_TAG, "test skipped due to b/181126614, b/268175825");
+                mCodec.release();
+                return;
+            }
+
             String log = String.format("format: %s \n codec: %s:: ", mConfigFormat, mCodecName);
             File tmpFile;
             int muxerFormat;
