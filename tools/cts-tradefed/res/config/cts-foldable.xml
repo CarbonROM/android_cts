@@ -33,5 +33,8 @@
          device and camera sensor. -->
     <option name="compatibility:exclude-filter" value="CtsCameraTestCases android.hardware.camera2.cts.ExtendedCameraCharacteristicsTest#testCameraOrientationAlignedWithDevice" />
     <option name="compatibility:exclude-filter" value="CtsCameraTestCases[instant] android.hardware.camera2.cts.ExtendedCameraCharacteristicsTest#testCameraOrientationAlignedWithDevice" />
+    <!-- b/193752359: OrgOwnedProfileOwnerTest#testScreenCaptureDisabled failures due to personal
+         launcher always visible on one of the screens. -->
+    <option name="compatibility:exclude-filter" value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.OrgOwnedProfileOwnerTest#testScreenCaptureDisabled" />
 
 </configuration>
