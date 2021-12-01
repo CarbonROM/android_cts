@@ -77,6 +77,9 @@ android_test {
     data: [
         ":RolePermissionOverrideTestApp",
         ":SplitBluetoothPermissionTestApp",
+	":CtsUsePermissionApp22_2",
+        ":CtsHelperAppOverlay",
+
     ],
 }
 
