@@ -44,6 +44,11 @@
             value="pm uninstall --user 0 android.security.cts" />
     </target_preparer>
 
+    <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
+        <option name="push" value="CtsUsePermissionApp22_2.apk->/data/local/tmp/cts/permission3/CtsUsePermissionApp22_2.apk" />
+        <option name="push" value="CtsHelperAppOverlay.apk->/data/local/tmp/cts/permission3/CtsHelperAppOverlay.apk" />
+    </target_preparer>
+
     <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
         <option name="package" value="android.security.cts" />
         <option name="runtime-hint" value="1h40m18s" />

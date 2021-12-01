@@ -60,6 +60,10 @@ android_test {
         "aidl/android/security/cts/IIsolatedService.aidl",
         "aidl/android/security/cts/CVE_2021_0327/IBadProvider.aidl",
     ],
+    data: [
+        ":CtsUsePermissionApp22_2",
+        ":CtsHelperAppOverlay",
+    ],
     //sdk_version: "current",
     platform_apis: true,
     // Tag this module as a cts test artifact
