@@ -42,7 +42,10 @@ import org.junit.Before;
 import org.junit.Rule;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -51,6 +54,13 @@ import java.util.concurrent.TimeUnit;
 public abstract class InputTestCase {
     private static final String TAG = "InputTestCase";
     private static final float TOLERANCE = 0.005f;
+
+    // Ignore comparing input values for these axes. This is used to prevent breakages caused by
+    // OEMs using custom key layouts to remap GAS/BRAKE to RTRIGGER/LTRIGGER (for example,
+    // b/197062720).
+    private static final Set<Integer> IGNORE_AXES = new HashSet<>(Arrays.asList(
+            MotionEvent.AXIS_LTRIGGER, MotionEvent.AXIS_RTRIGGER,
+            MotionEvent.AXIS_GAS, MotionEvent.AXIS_BRAKE));
 
     private final BlockingQueue<InputEvent> mEvents;
 
@@ -148,9 +158,25 @@ public abstract class InputTestCase {
                     mLastButtonState ^ event.getButtonState(), event.getActionButton());
             mLastButtonState = event.getButtonState();
         }
-        for (int axis = MotionEvent.AXIS_X; axis <= MotionEvent.AXIS_GENERIC_16; axis++) {
-            assertEquals(mCurrentTestCase + " (" + MotionEvent.axisToString(axis) + ")",
-                    expectedEvent.getAxisValue(axis), event.getAxisValue(axis), TOLERANCE);
+        assertAxis(mCurrentTestCase, expectedEvent, event);
+    }
+
+    /**
+     * Asserts motion event axis values. Separate this into a different method to allow individual
+     * test case to specify it.
+     *
+     * @param expectedSource expected source flag specified in JSON files.
+     * @param actualSource actual source flag received in the test app.
+     */
+    void assertAxis(String testCase, MotionEvent expectedEvent, MotionEvent actualEvent) {
+        for (int i = 0; i < actualEvent.getPointerCount(); i++) {
+            for (int axis = MotionEvent.AXIS_X; axis <= MotionEvent.AXIS_GENERIC_16; axis++) {
+                if (IGNORE_AXES.contains(axis)) continue;
+                assertEquals(testCase + " pointer " + i
+                        + " (" + MotionEvent.axisToString(axis) + ")",
+                        expectedEvent.getAxisValue(axis, i), actualEvent.getAxisValue(axis, i),
+                        TOLERANCE);
+            }
         }
     }
 
