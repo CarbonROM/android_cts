@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.provider.Settings;
+import android.util.FeatureFlagUtils;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
@@ -57,7 +58,13 @@ public class SettingsMultiPaneDeepLinkTest {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mIsSplitSupported = SplitController.getInstance().isSplitSupported();
+                boolean isFlagEnabled =
+                    FeatureFlagUtils.isEnabled(InstrumentationRegistry.getInstrumentation()
+                        .getTargetContext(), "settings_support_large_screen");
+
+                boolean isSplitSupported = SplitController.getInstance().isSplitSupported();
+
+                mIsSplitSupported = isFlagEnabled && isSplitSupported;
             }
         });
         mDeepLinkIntentResolveInfo = InstrumentationRegistry.getInstrumentation().getContext()
