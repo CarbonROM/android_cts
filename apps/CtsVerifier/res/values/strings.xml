@@ -5068,6 +5068,16 @@ You should be prompted to select credentials; choose the ones you just installed
        input jack and BT01 input plug to the USB interface output jack.
        \nThe Virtual MIDI test does not require any MIDI interface hardware.
     </string>
+    <string name="analog_headset_test_info_tv">This test tests the following functionality with respect to wired analog headsets.\n
+        1. Correct audio playback.\n
+        2. Plug intents.\n
+        \nTo execute test:\n
+        1. Plug in an Android-compatible, analog headset. Verify connection/recognition.\n
+        2. Play test tone and verify correct behavior.\n
+        \nTo run this test it is necessary to have an Android device with a 3.5mm analog headset jack and a compatible analog headset.\n
+        \n(see <a href="https://source.android.com/devices/accessories/headset/plug-headset-spec">3.5 mm Headset: Accessory Specification</a> and
+        <a href="https://source.android.com/compatibility/android-cdd#7_8_2_1_analog_audio_ports">Android CDD § 7.8.2.1. Analog Audio Ports</a>)
+    </string>
 
     <string name="midiHasMIDILbl">Has MIDI Support</string>
 
