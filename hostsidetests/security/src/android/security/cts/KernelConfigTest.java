@@ -327,6 +327,9 @@ public class KernelConfigTest extends DeviceTestCase implements IBuildReceiver, 
             mitigations = lookupMitigations();
             if (mitigations != null) {
                 for (String mitigation : mitigations) {
+                    // the option is removed from kernel >= 5.10
+                    if(!CpuFeatures.kernelVersionLessThan(mDevice, 5, 10) && mitigation == "CONFIG_HARDEN_BRANCH_PREDICTOR=y")
+                        continue;
                     assertTrue("Linux kernel must have " + mitigation + " enabled.",
                             configSet.contains(mitigation));
                 }
