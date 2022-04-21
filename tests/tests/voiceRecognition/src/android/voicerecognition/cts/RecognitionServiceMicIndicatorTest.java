@@ -66,7 +66,7 @@ public final class RecognitionServiceMicIndicatorTest {
     private final String PRIVACY_CHIP_ID = "privacy_chip";
     private final String PRIVACY_DIALOG_PACKAGE_NAME = "com.android.systemui";
     private final String PRIVACY_DIALOG_CONTENT_ID = "text";
-    private final String CAR_PRIVACY_DIALOG_CONTENT_ID = "car_ui_list_item_title";
+    private final String CAR_PRIVACY_DIALOG_CONTENT_ID = "qc_title";
     private final String TV_MIC_INDICATOR_WINDOW_TITLE = "MicrophoneCaptureIndicator";
     // The cts app label
     private final String APP_LABEL = "CtsVoiceRecognitionTestCases";
@@ -237,14 +237,7 @@ public final class RecognitionServiceMicIndicatorTest {
                         .collect(Collectors.joining("\n"));
         Log.i(TAG, "Retrieved dialog description " + dialogDescription);
 
-        if (isCar()) {
-            // Make sure Voice recognizer's app label is present in dialog.
-            assertWithMessage(
-                    "Voice recognition service can blame the calling app name " + APP_LABEL
-                            + ", but does not find it.")
-                    .that(dialogDescription)
-                    .contains(APP_LABEL);
-        } else if (trustVoiceService) {
+        if (trustVoiceService) {
             // Check trust recognizer can blame calling apmic permission
             assertWithMessage(
                     "Trusted voice recognition service can blame the calling app name " + APP_LABEL
