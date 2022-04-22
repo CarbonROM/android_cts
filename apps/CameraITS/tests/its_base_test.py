@@ -176,6 +176,8 @@ class ItsBaseTest(base_test.BaseTestClass):
             # For some tablets the values are in constant forms such as ROTATION_90
             if 'ROTATION_90' in landscape_val:
                 landscape_val = '1'
+            elif 'ROTATION_0' in landscape_val:
+                landscape_val = '0'
             logging.debug('Changing the orientation to landscape mode.')
             self.tablet.adb.shell(['settings', 'put', 'system', 'user_rotation',
                                    landscape_val])
