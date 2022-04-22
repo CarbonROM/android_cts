@@ -46,8 +46,10 @@ public class CellInfoTest {
     private boolean isCamped() {
         ServiceState ss = mTm.getServiceState();
         if (ss == null) return false;
-        return (ss.getState() == ServiceState.STATE_IN_SERVICE
-                || ss.getState() == ServiceState.STATE_EMERGENCY_ONLY);
+        if (ss.getState() == ServiceState.STATE_EMERGENCY_ONLY) return true;
+        if (ss.getState() == ServiceState.STATE_IN_SERVICE) return true;
+        if (mTm.getDataNetworkType() != TelephonyManager.NETWORK_TYPE_UNKNOWN) return true;
+        return false;
     }
 
     @Before
