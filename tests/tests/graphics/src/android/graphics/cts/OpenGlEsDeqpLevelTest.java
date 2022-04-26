@@ -27,6 +27,7 @@ import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
+import com.android.compatibility.common.util.CddTest;
 import com.android.compatibility.common.util.PropertyUtil;
 
 import org.junit.Before;
@@ -54,6 +55,7 @@ public class OpenGlEsDeqpLevelTest {
         mPm = InstrumentationRegistry.getTargetContext().getPackageManager();
     }
 
+    @CddTest(requirement = "7.1.4.1/C-2-3,C-2-4")
     @Test
     public void testOpenGlEsDeqpLevel() {
         assumeTrue(
