@@ -19,6 +19,8 @@ package android.security.cts;
 import static android.view.Display.DEFAULT_DISPLAY;
 import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.Manifest;
 import android.app.WallpaperManager;
 import android.content.Context;
@@ -29,6 +31,7 @@ import android.view.Display;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
+
 import com.android.sts.common.util.StsExtraBusinessLogicTestCase;
 
 import org.junit.After;
@@ -40,12 +43,16 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class WallpaperManagerTest extends StsExtraBusinessLogicTestCase {
 
+    private WallpaperManager mWallpaperManager;
+
     @Before
     public void setUp() {
         InstrumentationRegistry
                 .getInstrumentation()
                 .getUiAutomation()
                 .adoptShellPermissionIdentity(Manifest.permission.SET_WALLPAPER_HINTS);
+        mWallpaperManager = WallpaperManager.getInstance(getContext());
+        assumeTrue("Device does not support wallpapers", mWallpaperManager.isWallpaperSupported());
     }
 
     @After
@@ -58,15 +65,13 @@ public class WallpaperManagerTest extends StsExtraBusinessLogicTestCase {
     @Test
     @AsbSecurityTest(cveBugId = 204316511)
     public void testSetDisplayPadding() {
-        WallpaperManager wallpaperManager = WallpaperManager.getInstance(getContext());
-
         Rect validRect = new Rect(1, 1, 1, 1);
         // This should work, no exception expected
-        wallpaperManager.setDisplayPadding(validRect);
+        mWallpaperManager.setDisplayPadding(validRect);
 
         Rect negativeRect = new Rect(-1, 0 , 0, 0);
         try {
-            wallpaperManager.setDisplayPadding(negativeRect);
+            mWallpaperManager.setDisplayPadding(negativeRect);
             Assert.fail("setDisplayPadding should fail for a Rect with negative values");
         } catch (IllegalArgumentException e) {
             // Expected exception
@@ -80,7 +85,7 @@ public class WallpaperManagerTest extends StsExtraBusinessLogicTestCase {
 
         Rect tooWideRect = new Rect(0, 0, display.getMaximumSizeDimension() + 1, 0);
         try {
-            wallpaperManager.setDisplayPadding(tooWideRect);
+            mWallpaperManager.setDisplayPadding(tooWideRect);
             Assert.fail("setDisplayPadding should fail for a Rect width larger than "
                     + display.getMaximumSizeDimension());
         } catch (IllegalArgumentException e) {
@@ -89,7 +94,7 @@ public class WallpaperManagerTest extends StsExtraBusinessLogicTestCase {
 
         Rect tooHighRect = new Rect(0, 0, 0, display.getMaximumSizeDimension() + 1);
         try {
-            wallpaperManager.setDisplayPadding(tooHighRect);
+            mWallpaperManager.setDisplayPadding(tooHighRect);
             Assert.fail("setDisplayPadding should fail for a Rect height larger than "
                     + display.getMaximumSizeDimension());
         } catch (IllegalArgumentException e) {
