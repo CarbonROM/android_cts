@@ -74,6 +74,7 @@ public class SplitActivityLifecycleTest extends TaskFragmentOrganizerTestBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        assumeTrue(supportsMultiWindow());
         // Launch activities in fullscreen, otherwise, some tests fail on devices which use freeform
         // as the default windowing mode, because tests' prerequisite are that activity A, B, and C
         // need to overlay completely, but they can be partially overlay as freeform windows.
