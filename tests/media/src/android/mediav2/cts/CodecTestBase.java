@@ -37,6 +37,7 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
@@ -1162,6 +1163,14 @@ abstract class CodecTestBase {
     public void isCodecNameValid() {
         if (mCodecName != null && mCodecName.startsWith(INVALID_CODEC)) {
             fail("no valid component available for current test ");
+        }
+    }
+
+    @After
+    public void tearDown() {
+        if (mCodec != null) {
+            mCodec.release();
+            mCodec = null;
         }
     }
 }
