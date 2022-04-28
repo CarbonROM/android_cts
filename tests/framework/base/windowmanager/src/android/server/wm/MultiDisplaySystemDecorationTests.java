@@ -497,9 +497,11 @@ public class MultiDisplaySystemDecorationTests extends MultiDisplayTestBase {
         final DisplayContent defDisplay = mWmState.getDisplay(DEFAULT_DISPLAY);
         final ImeEventStream stream = mockImeSession.openEventStream();
 
-        // Tap default display as top focused display & request focus on EditText to show
-        // soft input.
-        tapOnDisplayCenter(defDisplay.mId);
+        // Tap on the imeTestActivity task center instead of the display center because
+        // the activity might not be spanning the entire display
+        WindowManagerState.Task imeTestActivityTask = mWmState
+                .getTaskByActivity(imeTestActivitySession.getActivity().getComponentName());
+        tapOnTaskCenter(imeTestActivityTask);
         expectEvent(stream, editorMatcher("onStartInput",
                 imeTestActivitySession.getActivity().mEditText.getPrivateImeOptions()), TIMEOUT);
         showSoftInputAndAssertImeShownOnDisplay(defDisplay.mId, imeTestActivitySession, stream);
@@ -511,8 +513,11 @@ public class MultiDisplaySystemDecorationTests extends MultiDisplayTestBase {
                 imeTestActivitySession2.getActivity().mEditText.getPrivateImeOptions()), TIMEOUT);
         showSoftInputAndAssertImeShownOnDisplay(newDisplay.mId, imeTestActivitySession2, stream);
 
-        // Tap default display again to make sure the IME window will come back.
-        tapOnDisplayCenter(defDisplay.mId);
+        // Tap on the imeTestActivity task center instead of the display center because
+        // the activity might not be spanning the entire display
+        imeTestActivityTask = mWmState
+                .getTaskByActivity(imeTestActivitySession.getActivity().getComponentName());
+        tapOnTaskCenter(imeTestActivityTask);
         expectEvent(stream, editorMatcher("onStartInput",
                 imeTestActivitySession.getActivity().mEditText.getPrivateImeOptions()), TIMEOUT);
         showSoftInputAndAssertImeShownOnDisplay(defDisplay.mId, imeTestActivitySession, stream);
