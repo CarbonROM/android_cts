@@ -17,7 +17,6 @@ package com.android.bedstead.dpmwrapper;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.os.UserHandle;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
@@ -26,18 +25,24 @@ final class GenericManagerImpl implements GenericManager {
 
     private static final String TAG = GenericManagerImpl.class.getSimpleName();
 
-    private final UserHandle mUser;
+    private String mUserIdentifier;
     private final ContentResolver mContentResolver;
 
     GenericManagerImpl(Context context) {
-        mUser = context.getUser();
+        try  {
+            mUserIdentifier = String.valueOf(context.getUser().getIdentifier());
+        } catch (Throwable e) {
+            Log.w(TAG, "Error while extracting User data from " + context + " : " + e);
+            mUserIdentifier = "N/A";
+        }
         mContentResolver = context.getContentResolver();
     }
 
     @Override
     public int getSecureIntSettings(String setting) throws SettingNotFoundException {
         int value = Settings.Secure.getInt(mContentResolver, setting);
-        Log.d(TAG, "getSecureIntSettings(" + setting + ") for user " + mUser + ": " + value);
+        Log.d(TAG,
+                "getSecureIntSettings(" + setting + ") for user " + mUserIdentifier + ": " + value);
         return value;
     }
 }
