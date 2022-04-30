@@ -904,6 +904,7 @@ public class DeviceOwnerTest extends BaseDeviceOwnerTest {
     }
 
     @Test
+    @Ignore("b/230738884")
     public void testSetUserControlDisabledPackages_multiUser_verifyMetricIsLogged()
             throws Exception {
         assumeCanCreateAdditionalUsers(1);
@@ -931,6 +932,7 @@ public class DeviceOwnerTest extends BaseDeviceOwnerTest {
     }
 
     @Test
+    @Ignore("b/230738884")
     public void testSetUserControlDisabledPackages_multiUser_verifyPackageNotStopped()
             throws Exception {
         assumeCanCreateAdditionalUsers(1);
@@ -954,6 +956,7 @@ public class DeviceOwnerTest extends BaseDeviceOwnerTest {
     }
 
     @Test
+    @Ignore("b/230738884")
     public void testSetUserControlDisabledPackages_multiUser_reboot_verifyPackageNotStopped()
             throws Exception {
         assumeCanCreateAdditionalUsers(1);
