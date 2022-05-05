@@ -76,7 +76,8 @@ public class DecoderTestAacFormat {
                 {R.raw.noise_6ch_44khz_aot5_dr_sbr_sig2_mp4, 6},
         };
         for (int[] sample: samples) {
-            for (String codecName : DecoderTest.codecsFor(sample[0] /* resource */, mResources)) {
+            for (String codecName : DecoderTest.codecsFor(
+                        sample[0] /* resource */, mResources, DecoderTest.CODEC_DEFAULT)) {
                 // verify correct number of channels is observed without downmixing
                 AudioParameter chanParams = new AudioParameter();
                 decodeUpdateFormat(codecName, sample[0] /*resource*/, chanParams, 0 /*no downmix*/);
