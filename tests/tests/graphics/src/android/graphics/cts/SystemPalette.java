@@ -32,6 +32,7 @@ import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -66,6 +67,7 @@ public class SystemPalette {
     }
 
     @Test
+    @Ignore
     public void testAllColorsBelongToSameFamily() {
         final Context context = getInstrumentation().getTargetContext();
         List<int[]> allPalettes = Arrays.asList(getAllAccent1Colors(context),
