@@ -59,7 +59,9 @@ public class TaskFragmentOrganizerTestBase extends WindowManagerTestBase {
 
     @After
     public void tearDown() {
-        mTaskFragmentOrganizer.unregisterOrganizer();
+        if (mTaskFragmentOrganizer != null) {
+            mTaskFragmentOrganizer.unregisterOrganizer();
+        }
     }
 
     public static IBinder getActivityToken(@NonNull Activity activity) {
