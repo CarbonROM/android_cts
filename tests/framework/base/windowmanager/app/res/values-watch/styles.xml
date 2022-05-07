@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2016 The Android Open Source Project
+  ~ Copyright (C) 2022 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
   ~ distributed under the License is distributed on an "AS IS" BASIS,
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
-  ~ limitations under the License
+  ~ limitations under the License.
   -->
 
 <resources>
@@ -21,6 +21,14 @@
         <item name="@android:windowIsFloating">true</item>
         <!-- Likewise, for the purpose of CTS, make this non-swipeable, as there are visibility
              implications there as well -->
+        <item name="@android:windowSwipeToDismiss">false</item>
+    </style>
+
+    <style name="TranslucentTheme">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowDisablePreview">true</item>
+        <!-- disable swipe dismiss as it affects occlusion of translucent activities -->
         <item name="@android:windowSwipeToDismiss">false</item>
     </style>
 </resources>
