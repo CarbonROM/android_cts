@@ -241,7 +241,7 @@ public class ImeInsetsVisibilityTest extends EndToEndImeTestBase {
             layout.setGravity(Gravity.BOTTOM);
             if (useDialogTheme) {
                 // Create a floating Dialog
-                activity.setTheme(android.R.style.Theme_Material_Dialog);
+                activity.setTheme(R.style.ImeInsetsVisibilityDialogTheme);
                 TextView textView = new TextView(activity);
                 textView.setText("I'm a TextView");
                 textView.setHeight(activity.getWindowManager().getMaximumWindowMetrics()
