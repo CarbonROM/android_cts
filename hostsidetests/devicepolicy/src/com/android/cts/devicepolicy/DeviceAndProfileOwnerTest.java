@@ -1227,6 +1227,8 @@ public abstract class DeviceAndProfileOwnerTest extends BaseDevicePolicyTest {
         executeDeviceTestClass(".KeyManagementTest");
     }
 
+    @TemporarilyIgnoreOnHeadlessSystemUserMode(bugId = "218408549",
+            reason = "Will be migrated to new test infra")
     @Test
     public void testInstallKeyPairLogged() throws Exception {
         assertMetricsLogged(getDevice(), () -> {
