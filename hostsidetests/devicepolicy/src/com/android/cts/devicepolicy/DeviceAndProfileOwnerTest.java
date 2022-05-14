@@ -28,6 +28,7 @@ import android.platform.test.annotations.LargeTest;
 import android.platform.test.annotations.RequiresDevice;
 import android.stats.devicepolicy.EventId;
 
+import com.android.cts.devicepolicy.DeviceAdminFeaturesCheckerRule.IgnoreOnHeadlessSystemUserMode;
 import com.android.cts.devicepolicy.annotations.LockSettingsTest;
 import com.android.cts.devicepolicy.metrics.DevicePolicyEventLogVerifier;
 import com.android.cts.devicepolicy.metrics.DevicePolicyEventWrapper;
@@ -737,6 +738,8 @@ public abstract class DeviceAndProfileOwnerTest extends BaseDevicePolicyTest {
         executeDeviceTestMethod(".ApplicationHiddenTest", "testCannotHidePolicyExemptApps");
     }
 
+    @IgnoreOnHeadlessSystemUserMode(
+            reason = "TODO(b/197859595) - Will be migrated to new test infra")
     @Test
     public void testAccountManagement_deviceAndProfileOwnerAlwaysAllowed() throws Exception {
         installAppAsUser(ACCOUNT_MANAGEMENT_APK, mUserId);
@@ -1324,6 +1327,8 @@ public abstract class DeviceAndProfileOwnerTest extends BaseDevicePolicyTest {
         executeDeviceTestClass(".KeyManagementTest");
     }
 
+    @IgnoreOnHeadlessSystemUserMode(
+            reason = "TODO(b/218408549) - Will be migrated to new test infra")
     @Test
     public void testInstallKeyPairLogged() throws Exception {
         assertMetricsLogged(getDevice(), () -> {
