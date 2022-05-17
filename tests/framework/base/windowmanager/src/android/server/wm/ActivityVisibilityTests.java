@@ -354,6 +354,11 @@ public class ActivityVisibilityTests extends ActivityManagerTestBase {
                 .setWindowingMode(WINDOWING_MODE_FULLSCREEN)
                 .setIntentFlags(FLAG_ACTIVITY_NEW_TASK).execute();
         waitAndAssertResumedActivity(BROADCAST_RECEIVER_ACTIVITY,"Activity must be resumed");
+        // Home activity can still be visible if the BROADCAST_RECEIVER_ACTIVITY is not in the
+        // same TaskDisplayArea.
+        assumeTrue("Should launch on same TaskDisplayArea" ,
+                mWmState.getTaskDisplayArea(BROADCAST_RECEIVER_ACTIVITY) ==
+                        mWmState.getTaskDisplayArea(mWmState.getHomeActivityName()));
         final int taskId = mWmState.getTaskByActivity(BROADCAST_RECEIVER_ACTIVITY).mTaskId;
 
         try {
