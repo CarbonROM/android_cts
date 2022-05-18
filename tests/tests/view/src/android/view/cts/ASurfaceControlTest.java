@@ -51,6 +51,7 @@ import static android.view.cts.util.ASurfaceControlTestUtils.setZOrder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -112,6 +113,7 @@ public class ASurfaceControlTest {
     @Before
     public void setup() {
         mActivityRule.getScenario().onActivity(activity -> mActivity = activity);
+        assumeFalse(mActivity.isOnWatch());
     }
 
     ///////////////////////////////////////////////////////////////////////////
