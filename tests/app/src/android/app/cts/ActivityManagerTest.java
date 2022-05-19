@@ -44,6 +44,7 @@ import android.platform.test.annotations.RestrictedBuildTest;
 import android.support.test.uiautomator.UiDevice;
 import android.test.InstrumentationTestCase;
 import android.util.Log;
+import android.os.PowerManager;
 
 import com.android.compatibility.common.util.AmMonitor;
 import com.android.compatibility.common.util.SystemUtil;
@@ -94,21 +95,25 @@ public class ActivityManagerTest extends InstrumentationTestCase {
 
     private Context mTargetContext;
     private ActivityManager mActivityManager;
+    private PowerManager mPowerManager;
     private Intent mIntent;
     private List<Activity> mStartedActivityList;
     private int mErrorProcessID;
     private Instrumentation mInstrumentation;
+    private PowerManager.WakeLock mLock;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         mInstrumentation = getInstrumentation();
+        mPowerManager = (PowerManager) mInstrumentation.getContext().getSystemService(Context.POWER_SERVICE);
         mTargetContext = mInstrumentation.getTargetContext();
         mActivityManager = (ActivityManager) mInstrumentation.getContext()
                 .getSystemService(Context.ACTIVITY_SERVICE);
         mStartedActivityList = new ArrayList<Activity>();
         mErrorProcessID = -1;
         startSubActivity(ScreenOnActivity.class);
+        mLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
     }
 
     @Override
@@ -122,6 +127,9 @@ public class ActivityManagerTest extends InstrumentationTestCase {
         }
         if (mErrorProcessID != -1) {
             android.os.Process.killProcess(mErrorProcessID);
+        }
+        if (mLock.isHeld()) {
+            mLock.release();
         }
     }
 
@@ -927,7 +935,9 @@ public class ActivityManagerTest extends InstrumentationTestCase {
         if (screenon) {
             executeAndLogShellCommand("input keyevent KEYCODE_WAKEUP");
             executeAndLogShellCommand("wm dismiss-keyguard");
+            if (mLock.isHeld()) mLock.release();
         } else {
+            if (!mLock.isHeld()) mLock.acquire();
             executeAndLogShellCommand("input keyevent KEYCODE_SLEEP");
         }
         // Since the screen on/off intent is ordered, they will not be sent right now.
