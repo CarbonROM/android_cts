@@ -51,6 +51,8 @@ import android.os.BatteryManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.os.PowerManager;
+
 import android.provider.Settings;
 import android.service.notification.NotificationListenerService;
 import android.util.Log;
@@ -131,6 +133,8 @@ public abstract class AbstractRestrictBackgroundNetworkTestCase {
     private int mMyUid;
     private MyServiceClient mServiceClient;
     private String mDeviceIdleConstantsSetting;
+    private PowerManager mPowerManager;
+    private PowerManager.WakeLock mLock;
 
     @Rule
     public final RuleChain mRuleChain = RuleChain.outerRule(new RequiredPropertiesRule())
@@ -145,11 +149,13 @@ public abstract class AbstractRestrictBackgroundNetworkTestCase {
         mCm = getConnectivityManager();
         mUid = getUid(TEST_APP2_PKG);
         mMyUid = getUid(mContext.getPackageName());
+        mPowerManager = mContext.getSystemService(PowerManager.class);
         mServiceClient = new MyServiceClient(mContext);
         mServiceClient.bind();
         mDeviceIdleConstantsSetting = "device_idle_constants";
         executeShellCommand("cmd netpolicy start-watching " + mUid);
         setAppIdle(false);
+        mLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 
         Log.i(TAG, "Apps status:\n"
                 + "\ttest app: uid=" + mMyUid + ", state=" + getProcessStateByUid(mMyUid) + "\n"
@@ -159,6 +165,7 @@ public abstract class AbstractRestrictBackgroundNetworkTestCase {
     protected void tearDown() throws Exception {
         executeShellCommand("cmd netpolicy stop-watching");
         mServiceClient.unbind();
+        if (mLock.isHeld()) mLock.release();
     }
 
     protected int getUid(String packageName) throws Exception {
@@ -615,11 +622,13 @@ public abstract class AbstractRestrictBackgroundNetworkTestCase {
     }
 
     protected void turnScreenOff() throws Exception {
+        if (!mLock.isHeld()) mLock.acquire();
         executeSilentShellCommand("input keyevent KEYCODE_SLEEP");
     }
 
     protected void turnScreenOn() throws Exception {
         executeSilentShellCommand("input keyevent KEYCODE_WAKEUP");
+        if (mLock.isHeld()) mLock.release();
         executeSilentShellCommand("wm dismiss-keyguard");
     }
 
