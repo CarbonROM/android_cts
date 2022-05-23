@@ -284,4 +284,9 @@
     <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.ActivityTests#testFinishAffinity_differentAffinity" />
     <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.ActivityTests#testFinishAffinity_multiTask" />
 
+     <!-- b/232962177 -->
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.lifecycle.ActivityLifecycleTests#testLocalRecreate" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.lifecycle.ActivityLifecycleTests#testOnNewIntentFromHidden" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.lifecycle.ActivityLifecycleTests#testTranslucentMovedIntoStack" />
+
 </configuration>
