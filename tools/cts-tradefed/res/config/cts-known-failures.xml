@@ -280,4 +280,8 @@
     <!-- b/232209413 -->
     <option name="compatibility:exclude-filter" value="CtsDpiTestCases android.dpi.cts.ConfigurationScreenLayoutTest" />
 
+    <!-- b/232830864 -->
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.ActivityTests#testFinishAffinity_differentAffinity" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.ActivityTests#testFinishAffinity_multiTask" />
+
 </configuration>
