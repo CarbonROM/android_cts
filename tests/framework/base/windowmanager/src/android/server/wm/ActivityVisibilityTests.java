@@ -398,6 +398,14 @@ public class ActivityVisibilityTests extends ActivityManagerTestBase {
         // Launch a different activity on top.
         launchActivity(BROADCAST_RECEIVER_ACTIVITY, WINDOWING_MODE_FULLSCREEN);
         mWmState.waitForActivityState(BROADCAST_RECEIVER_ACTIVITY, STATE_RESUMED);
+        // Assert activity state and visibility only if both tasks were launched
+        // in the same task display area.
+        WindowManagerState.DisplayArea firstTaskTda = mWmState
+                .getTaskDisplayArea(MOVE_TASK_TO_BACK_ACTIVITY);
+        WindowManagerState.DisplayArea secondTaskTda = mWmState
+                .getTaskDisplayArea(BROADCAST_RECEIVER_ACTIVITY);
+        assumeTrue("Tasks were not launched in the same display area ",
+                firstTaskTda == secondTaskTda);
         mWmState.waitForActivityState(MOVE_TASK_TO_BACK_ACTIVITY,STATE_STOPPED);
         final boolean shouldBeVisible =
                 !mWmState.isBehindOpaqueActivities(MOVE_TASK_TO_BACK_ACTIVITY);
