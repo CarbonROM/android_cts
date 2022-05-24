@@ -741,7 +741,8 @@ public class ActivityLifecycleClientTestBase extends MultiDisplayTestBase {
                     new ArrayList<LifecycleLog.ActivityCallback>(
                             Arrays.asList(ON_MULTI_WINDOW_MODE_CHANGED, ON_TOP_POSITION_LOST,
                                     ON_PAUSE, ON_STOP, ON_DESTROY, PRE_ON_CREATE, ON_CREATE,
-                                    ON_START, ON_POST_CREATE, ON_RESUME, ON_TOP_POSITION_GAINED));
+                                    ON_START, ON_POST_CREATE, ON_RESUME, ON_TOP_POSITION_GAINED,
+                                    ON_TOP_POSITION_LOST));
             final List<LifecycleLog.ActivityCallback> extraSequenceForMinimizedDock =
                     LifecycleVerifier.appendMinimizedDockTransitionTrail(extraSequence);
             final int displayWindowingMode =
