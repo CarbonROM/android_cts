@@ -48,7 +48,7 @@ public final class HdmiCecTvPowerToggleTest extends BaseHdmiCecCtsTest {
     private static final int ON = 0x0;
     private static final int OFF = 0x1;
 
-    private static final LogicalAddress PLAYBACK_DEVICE = LogicalAddress.PLAYBACK_1;
+    private static final int DUT_DEVICE_TYPE = HdmiCecConstants.CEC_DEVICE_TYPE_PLAYBACK_DEVICE;
     private static final String POWER_CONTROL_MODE =
             "hdmi_control_send_standby_on_sleep";
     @Rule
@@ -60,7 +60,7 @@ public final class HdmiCecTvPowerToggleTest extends BaseHdmiCecCtsTest {
                     .around(hdmiCecClient);
 
     public HdmiCecTvPowerToggleTest() {
-        super(HdmiCecConstants.CEC_DEVICE_TYPE_PLAYBACK_DEVICE);
+        super(DUT_DEVICE_TYPE);
     }
 
     private String setPowerControlMode(String valToSet) throws Exception {
@@ -79,6 +79,7 @@ public final class HdmiCecTvPowerToggleTest extends BaseHdmiCecCtsTest {
     @Test
     public void cectTvPowerToggleTest_awake_noActiveSource_tvOn() throws Exception {
         ITestDevice device = getDevice();
+        LogicalAddress dutLogicalAddress = getTargetLogicalAddress(device, DUT_DEVICE_TYPE);
         // Make sure the device is not booting up/in standby
         device.waitForBootComplete(HdmiCecConstants.REBOOT_TIMEOUT);
         String previousPowerControlMode = setPowerControlMode("to_tv");
@@ -86,7 +87,7 @@ public final class HdmiCecTvPowerToggleTest extends BaseHdmiCecCtsTest {
             device.executeShellCommand("cmd hdmi_control cec_setting set hdmi_cec_enabled 0");
             device.executeShellCommand("cmd hdmi_control cec_setting set hdmi_cec_enabled 1");
             hdmiCecClient.checkExpectedOutput(LogicalAddress.TV, CecOperand.GIVE_POWER_STATUS);
-            hdmiCecClient.sendCecMessage(LogicalAddress.TV, PLAYBACK_DEVICE,
+            hdmiCecClient.sendCecMessage(LogicalAddress.TV, dutLogicalAddress,
                     CecOperand.REPORT_POWER_STATUS, CecMessage.formatParams(OFF));
             TimeUnit.SECONDS.sleep(HdmiCecConstants.DEVICE_WAIT_TIME_SECONDS);
             hdmiCecClient.sendCecMessage(LogicalAddress.TV, LogicalAddress.BROADCAST,
@@ -95,7 +96,7 @@ public final class HdmiCecTvPowerToggleTest extends BaseHdmiCecCtsTest {
             hdmiCecClient.clearClientOutput();
             device.executeShellCommand("input keyevent KEYCODE_TV_POWER");
             hdmiCecClient.checkExpectedOutput(LogicalAddress.TV, CecOperand.GIVE_POWER_STATUS);
-            hdmiCecClient.sendCecMessage(LogicalAddress.TV, PLAYBACK_DEVICE,
+            hdmiCecClient.sendCecMessage(LogicalAddress.TV, dutLogicalAddress,
                     CecOperand.REPORT_POWER_STATUS, CecMessage.formatParams(ON));
             // Verify that device is asleep and <Standby> was sent to TV.
             hdmiCecClient.checkExpectedOutput(LogicalAddress.TV, CecOperand.STANDBY);
@@ -113,6 +114,7 @@ public final class HdmiCecTvPowerToggleTest extends BaseHdmiCecCtsTest {
     @Test
     public void cectTvPowerToggleTest_awake_activeSource_tvOn() throws Exception {
         ITestDevice device = getDevice();
+        LogicalAddress dutLogicalAddress = getTargetLogicalAddress(device, DUT_DEVICE_TYPE);
         // Make sure the device is not booting up/in standby
         device.waitForBootComplete(HdmiCecConstants.REBOOT_TIMEOUT);
         String previousPowerControlMode = setPowerControlMode("to_tv");
@@ -120,7 +122,7 @@ public final class HdmiCecTvPowerToggleTest extends BaseHdmiCecCtsTest {
             device.executeShellCommand("cmd hdmi_control cec_setting set hdmi_cec_enabled 0");
             device.executeShellCommand("cmd hdmi_control cec_setting set hdmi_cec_enabled 1");
             hdmiCecClient.checkExpectedOutput(LogicalAddress.TV, CecOperand.GIVE_POWER_STATUS);
-            hdmiCecClient.sendCecMessage(LogicalAddress.TV, PLAYBACK_DEVICE,
+            hdmiCecClient.sendCecMessage(LogicalAddress.TV, dutLogicalAddress,
                     CecOperand.REPORT_POWER_STATUS, CecMessage.formatParams(OFF));
             TimeUnit.SECONDS.sleep(HdmiCecConstants.DEVICE_WAIT_TIME_SECONDS);
             device.executeShellCommand("input keyevent KEYCODE_HOME");
@@ -128,7 +130,7 @@ public final class HdmiCecTvPowerToggleTest extends BaseHdmiCecCtsTest {
             hdmiCecClient.clearClientOutput();
             device.executeShellCommand("input keyevent KEYCODE_TV_POWER");
             hdmiCecClient.checkExpectedOutput(LogicalAddress.TV, CecOperand.GIVE_POWER_STATUS);
-            hdmiCecClient.sendCecMessage(LogicalAddress.TV, PLAYBACK_DEVICE,
+            hdmiCecClient.sendCecMessage(LogicalAddress.TV, dutLogicalAddress,
                     CecOperand.REPORT_POWER_STATUS, CecMessage.formatParams(ON));
             // Verify that device is asleep and <Standby> was sent to TV.
             hdmiCecClient.checkExpectedOutput(LogicalAddress.TV, CecOperand.STANDBY);
@@ -146,6 +148,7 @@ public final class HdmiCecTvPowerToggleTest extends BaseHdmiCecCtsTest {
     @Test
     public void cectTvPowerToggleTest_asleep_tvOn() throws Exception {
         ITestDevice device = getDevice();
+        LogicalAddress dutLogicalAddress = getTargetLogicalAddress(device, DUT_DEVICE_TYPE);
         // Make sure the device is not booting up/in standby
         device.waitForBootComplete(HdmiCecConstants.REBOOT_TIMEOUT);
         String previousPowerControlMode = setPowerControlMode("to_tv");
@@ -153,7 +156,7 @@ public final class HdmiCecTvPowerToggleTest extends BaseHdmiCecCtsTest {
             device.executeShellCommand("cmd hdmi_control cec_setting set hdmi_cec_enabled 0");
             device.executeShellCommand("cmd hdmi_control cec_setting set hdmi_cec_enabled 1");
             hdmiCecClient.checkExpectedOutput(LogicalAddress.TV, CecOperand.GIVE_POWER_STATUS);
-            hdmiCecClient.sendCecMessage(LogicalAddress.TV, PLAYBACK_DEVICE,
+            hdmiCecClient.sendCecMessage(LogicalAddress.TV, dutLogicalAddress,
                     CecOperand.REPORT_POWER_STATUS, CecMessage.formatParams(OFF));
             TimeUnit.SECONDS.sleep(HdmiCecConstants.DEVICE_WAIT_TIME_SECONDS);
             device.executeShellCommand("input keyevent KEYCODE_SLEEP");
@@ -161,7 +164,7 @@ public final class HdmiCecTvPowerToggleTest extends BaseHdmiCecCtsTest {
             hdmiCecClient.clearClientOutput();
             device.executeShellCommand("input keyevent KEYCODE_TV_POWER");
             hdmiCecClient.checkExpectedOutput(LogicalAddress.TV, CecOperand.GIVE_POWER_STATUS);
-            hdmiCecClient.sendCecMessage(LogicalAddress.TV, PLAYBACK_DEVICE,
+            hdmiCecClient.sendCecMessage(LogicalAddress.TV, dutLogicalAddress,
                     CecOperand.REPORT_POWER_STATUS, CecMessage.formatParams(ON));
             // Verify that device is asleep and <Standby> was sent to TV.
             hdmiCecClient.checkExpectedOutput(LogicalAddress.TV, CecOperand.STANDBY);
@@ -179,6 +182,7 @@ public final class HdmiCecTvPowerToggleTest extends BaseHdmiCecCtsTest {
     @Test
     public void cectTvPowerToggleTest_asleep_tvOff() throws Exception {
         ITestDevice device = getDevice();
+        LogicalAddress dutLogicalAddress = getTargetLogicalAddress(device, DUT_DEVICE_TYPE);
         // Make sure the device is not booting up/in standby
         device.waitForBootComplete(HdmiCecConstants.REBOOT_TIMEOUT);
         String previousPowerControlMode = setPowerControlMode("to_tv");
@@ -186,7 +190,7 @@ public final class HdmiCecTvPowerToggleTest extends BaseHdmiCecCtsTest {
             device.executeShellCommand("cmd hdmi_control cec_setting set hdmi_cec_enabled 0");
             device.executeShellCommand("cmd hdmi_control cec_setting set hdmi_cec_enabled 1");
             hdmiCecClient.checkExpectedOutput(LogicalAddress.TV, CecOperand.GIVE_POWER_STATUS);
-            hdmiCecClient.sendCecMessage(LogicalAddress.TV, PLAYBACK_DEVICE,
+            hdmiCecClient.sendCecMessage(LogicalAddress.TV, dutLogicalAddress,
                     CecOperand.REPORT_POWER_STATUS, CecMessage.formatParams(OFF));
             TimeUnit.SECONDS.sleep(HdmiCecConstants.DEVICE_WAIT_TIME_SECONDS);
             device.executeShellCommand("input keyevent KEYCODE_SLEEP");
@@ -194,7 +198,7 @@ public final class HdmiCecTvPowerToggleTest extends BaseHdmiCecCtsTest {
             hdmiCecClient.clearClientOutput();
             device.executeShellCommand("input keyevent KEYCODE_TV_POWER");
             hdmiCecClient.checkExpectedOutput(LogicalAddress.TV, CecOperand.GIVE_POWER_STATUS);
-            hdmiCecClient.sendCecMessage(LogicalAddress.TV, PLAYBACK_DEVICE,
+            hdmiCecClient.sendCecMessage(LogicalAddress.TV, dutLogicalAddress,
                     CecOperand.REPORT_POWER_STATUS, CecMessage.formatParams(OFF));
             // Verify that device is awake and <Text View On> and <Active Source> were sent.
             hdmiCecClient.checkExpectedOutput(LogicalAddress.TV, CecOperand.TEXT_VIEW_ON);
