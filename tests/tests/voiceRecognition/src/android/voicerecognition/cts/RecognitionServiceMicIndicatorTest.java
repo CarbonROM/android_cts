@@ -66,7 +66,7 @@ public final class RecognitionServiceMicIndicatorTest {
     private final String PRIVACY_CHIP_ID = "privacy_chip";
     private final String PRIVACY_DIALOG_PACKAGE_NAME = "com.android.systemui";
     private final String PRIVACY_DIALOG_CONTENT_ID = "text";
-    private final String CAR_PRIVACY_DIALOG_CONTENT_ID = "mic_privacy_panel";
+    private final String CAR_PRIVACY_DIALOG_CONTENT_ID = "qc_title";
     private final String CAR_PRIVACY_DIALOG_APP_LABEL_CONTENT_ID = "qc_title";
     private final String TV_MIC_INDICATOR_WINDOW_TITLE = "MicrophoneCaptureIndicator";
     // The cts app label
