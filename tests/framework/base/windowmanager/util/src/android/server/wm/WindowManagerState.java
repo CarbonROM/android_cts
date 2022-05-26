@@ -36,6 +36,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import android.app.ActivityTaskManager;
 import android.content.ComponentName;
@@ -48,6 +49,7 @@ import android.util.SparseArray;
 import android.view.WindowManager;
 import android.view.nano.DisplayInfoProto;
 import android.view.nano.ViewProtoEnums;
+import android.window.DisplayAreaOrganizer;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -496,6 +498,18 @@ public class WindowManagerState {
         return result.stream().findFirst().orElse(null);
     }
 
+    List<DisplayArea> getTaskDisplayAreas(ComponentName activityName) {
+        final List<DisplayArea> result = new ArrayList<>();
+        for (DisplayContent display : mDisplays) {
+            final List<DisplayArea> tdas = display.getTaskDisplayAreas(activityName);
+            if (tdas != null) {
+                result.addAll(tdas);
+            }
+        }
+
+        return result;
+    }
+
     @Nullable
     DisplayArea getDisplayArea(String windowName) {
         final List<DisplayArea> result = new ArrayList<>();
@@ -509,6 +523,18 @@ public class WindowManagerState {
                 .that(result.size()).isAtMost(1);
 
         return result.stream().findFirst().orElse(null);
+    }
+
+    public int getTaskDisplayAreaFeatureId(ComponentName activityName) {
+        List<DisplayArea> displayAreas = getTaskDisplayAreas(activityName);
+        if (displayAreas != null) {
+
+            assumeTrue("There should be only one task display area for a given activity",
+                    displayAreas.size() == 1);
+
+            return displayAreas.get(0).getFeatureId();
+        }
+        return DisplayAreaOrganizer.FEATURE_UNDEFINED;
     }
 
     int getFrontRootTaskId(int displayId) {
@@ -1224,6 +1250,14 @@ public class WindowManagerState {
                     .that(result.size()).isAtMost(1);
 
             return result.stream().findFirst().orElse(null);
+        }
+
+        List<DisplayArea> getTaskDisplayAreas(ComponentName activityName) {
+            final List<DisplayArea> taskDisplayAreas = getAllTaskDisplayAreas();
+
+            return taskDisplayAreas.stream()
+                    .filter(tda -> tda.containsActivity(activityName))
+                    .collect(Collectors.toList());
         }
 
         List<DisplayArea> getAllChildDisplayAreas() {
