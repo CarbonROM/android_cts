@@ -268,4 +268,13 @@
     <!-- b/225190177 -->
     <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.MultiDisplaySystemDecorationTests#testImeWindowCanSwitchToDifferentDisplays" />
 
+    <!-- b/227769241 -->
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.AppConfigurationTests#testTranslucentAppOrientationRequests" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.AppConfigurationTests#testTranslucentActivityPermitted" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.AppConfigurationTests#testTaskMoveToBackOrientation" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.AppConfigurationTests#testTaskCloseRestoreFixedOrientation" />
+
+    <!-- b/231676309 -->
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.AppConfigurationTests#testFixedOrientationWhenRotating" />
+
 </configuration>
