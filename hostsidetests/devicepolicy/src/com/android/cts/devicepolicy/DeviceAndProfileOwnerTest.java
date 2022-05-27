@@ -1172,7 +1172,24 @@ public abstract class DeviceAndProfileOwnerTest extends BaseDevicePolicyTest {
         }
         try {
             installAppAsUser(INTENT_RECEIVER_APK, mUserId);
-            executeDeviceTestClass(".LockTaskTest");
+            //executeDeviceTestClass(".LockTaskTest");
+            executeDeviceTestMethod(".LockTaskTest", "testActivityOptions_nonWhitelisted");
+            executeDeviceTestMethod(".LockTaskTest", "testActivityOptions_whitelisted");
+            executeDeviceTestMethod(".LockTaskTest", "testCannotFinish");
+            executeDeviceTestMethod(".LockTaskTest", "testManifestArgument_cannotFinish");
+            executeDeviceTestMethod(".LockTaskTest", "testManifestArgument_nonWhitelisted");
+            executeDeviceTestMethod(".LockTaskTest", "testManifestArgument_updateWhitelisting");
+            executeDeviceTestMethod(".LockTaskTest", "testManifestArgument_whitelisted");
+            executeDeviceTestMethod(".LockTaskTest", "testSetLockTaskFeatures");
+            executeDeviceTestMethod(".LockTaskTest", "testSetLockTaskPackages");
+            executeDeviceTestMethod(".LockTaskTest", "testStartActivity_newTask_blockInTask");
+            executeDeviceTestMethod(".LockTaskTest", "testStartActivity_outsideTaskNonWhitelisted");
+            executeDeviceTestMethod(".LockTaskTest", "testStartActivity_outsideTaskWhitelisted");
+            executeDeviceTestMethod(".LockTaskTest", "testStartActivity_withinTask");
+            executeDeviceTestMethod(".LockTaskTest", "testStartActivity_withinTask_blockInTask");
+            executeDeviceTestMethod(".LockTaskTest", "testStartLockTask");
+            executeDeviceTestMethod(".LockTaskTest", "testUpdateWhitelisting");
+            executeDeviceTestMethod(".LockTaskTest", "testUpdateWhitelisting_twoTasks");
             if (isStatsdEnabled(getDevice())) {
                 assertMetricsLogged(
                         getDevice(),
