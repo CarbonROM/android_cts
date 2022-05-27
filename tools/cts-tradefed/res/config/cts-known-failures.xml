@@ -277,4 +277,7 @@
     <!-- b/231676309 -->
     <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.AppConfigurationTests#testFixedOrientationWhenRotating" />
 
+    <!-- b/232209413 -->
+    <option name="compatibility:exclude-filter" value="CtsDpiTestCases android.dpi.cts.ConfigurationScreenLayoutTest" />
+
 </configuration>
