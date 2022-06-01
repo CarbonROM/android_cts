@@ -29,6 +29,8 @@
     Bug: 206897736 android.intent.action.MANAGE_PERMISSION_USAGE
     Bug: 206897736 android.intent.action.VIEW_APP_FEATURES
     Bug: 209528070 android.intent.action.APPLICATION_LOCALE_CHANGED
+    Bug: 234104089 android.intent.action.SAFETY_CENTER
+    Bug: 234104089 android.intent.action.VIEW_SAFETY_CENTER_QS
 -->
 <dynamicConfig>
     <entry key ="intent_whitelist">
@@ -46,5 +48,7 @@
       <value>android.intent.action.MANAGE_PERMISSION_USAGE</value>
       <value>android.intent.action.VIEW_APP_FEATURES</value>
       <value>android.intent.action.APPLICATION_LOCALE_CHANGED</value>
+      <value>android.intent.action.SAFETY_CENTER</value>
+      <value>android.intent.action.VIEW_SAFETY_CENTER_QS</value>
     </entry>
 </dynamicConfig>
