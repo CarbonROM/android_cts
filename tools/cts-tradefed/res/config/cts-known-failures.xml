@@ -280,4 +280,13 @@
     <!-- b/232209413 -->
     <option name="compatibility:exclude-filter" value="CtsDpiTestCases android.dpi.cts.ConfigurationScreenLayoutTest" />
 
+    <!-- b/232830864 -->
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.ActivityTests#testFinishAffinity_differentAffinity" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.ActivityTests#testFinishAffinity_multiTask" />
+
+     <!-- b/232962177 -->
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.lifecycle.ActivityLifecycleTests#testLocalRecreate" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.lifecycle.ActivityLifecycleTests#testOnNewIntentFromHidden" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.lifecycle.ActivityLifecycleTests#testTranslucentMovedIntoStack" />
+
 </configuration>
