@@ -121,10 +121,6 @@ public class EncodeVirtualDisplayWithCompositionTestImpl {
         public void onBufferReady(ByteBuffer data, MediaCodec.BufferInfo info) {
             mCodecBufferReceived = true;
         }
-        @Override
-        public void onError(String errorMessage) {
-            fail(errorMessage);
-        }
     };
 
     /* TEST_COLORS static initialization; need ARGB for ColorDrawable */
@@ -217,11 +213,6 @@ public class EncodeVirtualDisplayWithCompositionTestImpl {
                         Log.i(TAG, "onBufferReady l:" + info.size);
                     }
                     handleEncodedData(data, info);
-                }
-
-                @Override
-                public void onError(String errorMessage) {
-                    fail(errorMessage);
                 }
 
                 private void handleEncodedData(ByteBuffer data, BufferInfo info) {
@@ -504,7 +495,6 @@ public class EncodeVirtualDisplayWithCompositionTestImpl {
     interface EncoderEventListener {
         public void onCodecConfig(ByteBuffer data, MediaCodec.BufferInfo info);
         public void onBufferReady(ByteBuffer data, MediaCodec.BufferInfo info);
-        public void onError(String errorMessage);
     }
 
     private class EncodingHelper {
@@ -517,6 +507,7 @@ public class EncodeVirtualDisplayWithCompositionTestImpl {
         private Thread mEncodingThread;
         private Surface mEncodingSurface;
         private Semaphore mInitCompleted = new Semaphore(0);
+        private Exception mEncodingError;
 
         Surface startEncoding(String mimeType, int w, int h, EncoderEventListener eventListener) {
             mStopEncoding = false;
@@ -524,6 +515,7 @@ public class EncodeVirtualDisplayWithCompositionTestImpl {
             mW = w;
             mH = h;
             mEventListener = eventListener;
+            mEncodingError = null;
             mEncodingThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -531,7 +523,9 @@ public class EncodeVirtualDisplayWithCompositionTestImpl {
                         doEncoding();
                     } catch (Exception e) {
                         e.printStackTrace();
-                        mEventListener.onError(e.toString());
+                        // Throwing the exception here will crash the thread and subsequently the
+                        // entire test process. We save it here and throw later in stopEncoding().
+                        mEncodingError = e;
                     }
                 }
             });
@@ -550,7 +544,7 @@ public class EncodeVirtualDisplayWithCompositionTestImpl {
             return mEncodingSurface;
         }
 
-        void stopEncoding() {
+        void stopEncoding() throws Exception {
             try {
                 mStopEncoding = true;
                 mEncodingThread.join();
@@ -558,6 +552,10 @@ public class EncodeVirtualDisplayWithCompositionTestImpl {
                 // just ignore
             } finally {
                 mEncodingThread = null;
+            }
+            // Throw here if any error occurred in the encoding thread.
+            if (mEncodingError != null) {
+                throw mEncodingError;
             }
         }
 
