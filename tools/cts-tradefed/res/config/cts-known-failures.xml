@@ -289,4 +289,12 @@
     <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.lifecycle.ActivityLifecycleTests#testOnNewIntentFromHidden" />
     <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.lifecycle.ActivityLifecycleTests#testTranslucentMovedIntoStack" />
 
+    <!-- b/224400993 -->
+    <option name="compatibility:exclude-filter"
+        value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedDeviceOwnerTest#testSuspendPackage" />
+    <option name="compatibility:exclude-filter"
+        value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedManagedProfileOwnerTest#testSuspendPackage" />
+    <option name="compatibility:exclude-filter"
+        value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedProfileOwnerTest#testSuspendPackage" />
+
 </configuration>
