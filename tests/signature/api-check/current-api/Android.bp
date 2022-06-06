@@ -19,7 +19,7 @@ package {
 android_test {
     name: "CtsCurrentApiSignatureTestCases",
     defaults: [
-        "signature-api-check-defaults",
+        "signature-api-check-dynamic-config-defaults",
     ],
     java_resources: [
         ":cts-current-api-gz",

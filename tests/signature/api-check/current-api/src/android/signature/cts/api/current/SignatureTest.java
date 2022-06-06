@@ -16,5 +16,7 @@
 
 package android.signature.cts.api.current;
 
-public class SignatureTest extends android.signature.cts.api.SignatureTest {
+import java.android.signature.cts.api.dynamic.DynamicConfigSignatureTest;
+
+public class SignatureTest extends DynamicConfigSignatureTest {
 }
