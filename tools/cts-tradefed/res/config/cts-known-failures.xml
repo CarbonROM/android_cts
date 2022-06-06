@@ -293,4 +293,10 @@
     <!-- b/225190177 -->
     <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.MultiDisplaySystemDecorationTests#testImeWindowCanSwitchToDifferentDisplays" />
 
+    <!-- b/233720451 -->
+    <option name="compatibility:exclude-filter" value="CtsJvmtiRunTest910HostTestCases android.jvmti.cts.JvmtiHostTest910#testJvmti" />
+    <option name="compatibility:exclude-filter" value="CtsJvmtiRunTest912HostTestCases android.jvmti.cts.JvmtiHostTest912#testJvmti" />
+    <option name="compatibility:exclude-filter" value="CtsJvmtiRunTest913HostTestCases android.jvmti.cts.JvmtiHostTest913#testJvmti" />
+    <option name="compatibility:exclude-filter" value="CtsJvmtiRunTest988HostTestCases android.jvmti.cts.JvmtiHostTest988#testJvmti" />
+
 </configuration>
