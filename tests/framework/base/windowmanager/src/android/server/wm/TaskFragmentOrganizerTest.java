@@ -24,6 +24,8 @@ import static android.server.wm.app.Components.LAUNCHING_ACTIVITY;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -78,6 +80,7 @@ public class TaskFragmentOrganizerTest extends TaskFragmentOrganizerTestBase {
      */
     @Test
     public void testCreateTaskFragment() {
+        assumeTrue("MultiWindow are not supported.", supportsMultiWindow());
         mWmState.computeState(mOwnerActivityName);
         Task parentTask = mWmState.getRootTask(mOwnerActivity.getTaskId());
         final int originalTaskFragCount = parentTask.getTaskFragments().size();
