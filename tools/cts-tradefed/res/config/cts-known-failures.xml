@@ -300,4 +300,13 @@
     <option name="compatibility:exclude-filter"
         value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedProfileOwnerTest#testSuspendPackage" />
 
+    <!-- b/233294162 -->
+    <option name="compatibility:exclude-filter" value="CtsViewTestCases android.view.cts.AttachedSurfaceControlTest#testOnBufferTransformHintChangedListener" />
+    <option name="compatibility:exclude-filter" value="CtsViewTestCases[foldable:1:OPEN] android.view.cts.AttachedSurfaceControlTest#testOnBufferTransformHintChangedListener" />
+    <option name="compatibility:exclude-filter" value="CtsViewTestCases[foldable:2:HALF-OPEN] android.view.cts.AttachedSurfaceControlTest#testOnBufferTransformHintChangedListener" />
+    <!-- b/233298534 -->
+    <option name="compatibility:exclude-filter" value="CtsViewTestCases android.view.cts.AttachedSurfaceControlTest#testOnBufferTransformHintChangesFromLandToSea" />
+    <option name="compatibility:exclude-filter" value="CtsViewTestCases[foldable:1:OPEN] android.view.cts.AttachedSurfaceControlTest#testOnBufferTransformHintChangesFromLandToSea" />
+    <option name="compatibility:exclude-filter" value="CtsViewTestCases[foldable:2:HALF-OPEN] android.view.cts.AttachedSurfaceControlTest#testOnBufferTransformHintChangesFromLandToSea" />
+
 </configuration>
