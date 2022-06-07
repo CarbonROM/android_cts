@@ -279,6 +279,9 @@
 
     <!-- b/232209413 -->
     <option name="compatibility:exclude-filter" value="CtsDpiTestCases android.dpi.cts.ConfigurationScreenLayoutTest" />
+    <option name="compatibility:exclude-filter" value="CtsDpiTestCases[foldable:1:OPEN] android.dpi.cts.ConfigurationScreenLayoutTest" />
+    <option name="compatibility:exclude-filter" value="CtsDpiTestCases[foldable:2:HALF-OPEN] android.dpi.cts.ConfigurationScreenLayoutTest" />
+    <option name="compatibility:exclude-filter" value="CtsDpiTestCases[instant] android.dpi.cts.ConfigurationScreenLayoutTest" />
 
     <!-- b/232830864 -->
     <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.lifecycle.ActivityTests#testFinishAffinity_differentAffinity" />
