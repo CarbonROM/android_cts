@@ -295,6 +295,15 @@
     <!-- b/235525919 -->
     <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.ActivityMetricsLoggerTests#testAppRelaunchSetsWaitResultDelayData" />
 
+    <!-- b/232962180 -->
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.TransitionSelectionTests#testCloseTask_BothWallpaper" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.TransitionSelectionTests#testCloseTask_BothWallpaper_SlowStop" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.TransitionSelectionTests#testCloseTask_BothWallpaper_Translucent" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.TransitionSelectionTests#testCloseTask_BottomWallpaper_TopNonResizable" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.TransitionSelectionTests#testCloseTask_BottomWallpaper_TopNonResizable_SlowStop" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.TransitionSelectionTests#testOpenTask_BothWallpaper" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.TransitionSelectionTests#testOpenTask_BottomWallpaper_TopNonResizable" />
+
     <!-- b/224400993 -->
     <option name="compatibility:exclude-filter"
         value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedDeviceOwnerTest#testSuspendPackage" />
