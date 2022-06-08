@@ -80,6 +80,10 @@ public class GnssLocationUpdateIntervalTest extends GnssTestCase {
                 MIN_HARDWARE_YEAR_MEASUREMENTS_REQUIRED, true)) {
             return;
         }
+        if (TestMeasurementUtil.isAutomotiveDevice(getContext())) {
+            Log.i(TAG, "Test is being skipped because the system has the AUTOMOTIVE feature.");
+            return;
+        }
 
         for (int fixIntervalMillis : FIX_INTERVALS_MILLIS) {
             testLocationUpdatesAtInterval(fixIntervalMillis);
