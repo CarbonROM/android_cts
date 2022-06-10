@@ -300,6 +300,11 @@
     <option name="compatibility:exclude-filter"
         value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedProfileOwnerTest#testSuspendPackage" />
 
+    <!-- b/231671153: OrgOwnedProfileOwnerTest#testScreenCaptureDisabled failures due to personal
+            launcher always visible on one of the screens. -->
+    <option name="compatibility:exclude-filter"
+        value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.OrgOwnedProfileOwnerTest#testScreenCaptureDisabled" />
+
     <!-- b/233294162 -->
     <option name="compatibility:exclude-filter" value="CtsViewTestCases android.view.cts.AttachedSurfaceControlTest#testOnBufferTransformHintChangedListener" />
     <option name="compatibility:exclude-filter" value="CtsViewTestCases[foldable:1:OPEN] android.view.cts.AttachedSurfaceControlTest#testOnBufferTransformHintChangedListener" />
