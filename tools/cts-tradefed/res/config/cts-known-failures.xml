@@ -314,4 +314,10 @@
     <option name="compatibility:exclude-filter" value="CtsViewTestCases[foldable:1:OPEN] android.view.cts.AttachedSurfaceControlTest#testOnBufferTransformHintChangesFromLandToSea" />
     <option name="compatibility:exclude-filter" value="CtsViewTestCases[foldable:2:HALF-OPEN] android.view.cts.AttachedSurfaceControlTest#testOnBufferTransformHintChangesFromLandToSea" />
 
+    <!-- b/233720451 -->
+    <option name="compatibility:exclude-filter" value="CtsJvmtiRunTest910HostTestCases android.jvmti.cts.JvmtiHostTest910#testJvmti" />
+    <option name="compatibility:exclude-filter" value="CtsJvmtiRunTest912HostTestCases android.jvmti.cts.JvmtiHostTest912#testJvmti" />
+    <option name="compatibility:exclude-filter" value="CtsJvmtiRunTest913HostTestCases android.jvmti.cts.JvmtiHostTest913#testJvmti" />
+    <option name="compatibility:exclude-filter" value="CtsJvmtiRunTest988HostTestCases android.jvmti.cts.JvmtiHostTest988#testJvmti" />
+
 </configuration>
