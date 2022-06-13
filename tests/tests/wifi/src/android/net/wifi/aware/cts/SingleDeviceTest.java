@@ -543,7 +543,7 @@ public class SingleDeviceTest extends WifiJUnit3TestBase {
     /**
      * Validate that can attach to Wi-Fi Aware.
      */
-    public void testAttachNoIdentity() {
+    public void testAttachNoIdentity() throws InterruptedException {
         if (!TestUtils.shouldTestWifiAware(getContext())) {
             return;
         }
@@ -551,6 +551,7 @@ public class SingleDeviceTest extends WifiJUnit3TestBase {
         WifiAwareSession session = attachAndGetSession();
         session.close();
         if (WifiBuildCompat.isPlatformOrWifiModuleAtLeastS(getContext())) {
+            Thread.sleep(WAIT_FOR_AWARE_INTERFACE_CREATION_SEC * 1000);
             assertFalse(mWifiAwareManager.isDeviceAttached());
         }
     }
