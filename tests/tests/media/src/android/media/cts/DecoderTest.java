@@ -60,7 +60,9 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.CRC32;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -89,6 +91,11 @@ public class DecoderTest extends MediaPlayerTestBase {
     private static final int CONFIG_MODE_NONE = 0;
     private static final int CONFIG_MODE_QUEUE = 1;
 
+    private static final int CODEC_ALL = 0; // All codecs must support
+    private static final int CODEC_ANY = 1; // At least one codec must support
+    private static final int CODEC_DEFAULT = 2; // Default codec must support
+    private static final int CODEC_OPTIONAL = 3; // Codec support is optional
+
     private Resources mResources;
     short[] mMasterBuffer;
 
@@ -101,6 +108,7 @@ public class DecoderTest extends MediaPlayerTestBase {
     private static final String MODULE_NAME = "CtsMediaTestCases";
     private DynamicConfigDeviceSide dynamicConfig;
     private DisplayManager mDisplayManager;
+    static final Map<String, String> mDefaultDecoders = new HashMap<>();
 
     @Override
     protected void setUp() throws Exception {
@@ -136,6 +144,18 @@ public class DecoderTest extends MediaPlayerTestBase {
             mMediaCodecPlayer.reset();
             mMediaCodecPlayer = null;
         }
+    }
+
+    static boolean isDefaultCodec(String codecName, String mime) throws IOException {
+        if (mDefaultDecoders.containsKey(mime)) {
+            return mDefaultDecoders.get(mime).equalsIgnoreCase(codecName);
+        }
+        MediaCodec codec = MediaCodec.createDecoderByType(mime);
+        boolean isDefault = codec.getName().equalsIgnoreCase(codecName);
+        mDefaultDecoders.put(mime, codec.getName());
+        codec.release();
+
+        return isDefault;
     }
 
     // TODO: add similar tests for other audio and video formats
@@ -1376,7 +1396,7 @@ public class DecoderTest extends MediaPlayerTestBase {
         };
 
         for (int[] sample: samples) {
-            for (String codecName : codecsFor(sample[0])) {
+            for (String codecName : codecsFor(sample[0], mResources, CODEC_DEFAULT)) {
                 AudioParameter decParams = new AudioParameter();
                 short[] decSamples = decodeToMemory(codecName, decParams, sample[0] /* resource */,
                         RESET_MODE_NONE, CONFIG_MODE_NONE, -1, null);
@@ -1396,7 +1416,7 @@ public class DecoderTest extends MediaPlayerTestBase {
             {R.raw.noise_6ch_44khz_aot5_dr_sbr_sig2_mp4, 6},
         };
         for (int [] sample: samples) {
-            for (String codecName : codecsFor(sample[0] /* resource */)) {
+            for (String codecName : codecsFor(sample[0], mResources, CODEC_DEFAULT)) {
                 AudioParameter decParams = new AudioParameter();
                 short[] decSamples = decodeToMemory(codecName, decParams, sample[0] /* resource */,
                         RESET_MODE_NONE, CONFIG_MODE_NONE, -1, null);
@@ -1416,7 +1436,7 @@ public class DecoderTest extends MediaPlayerTestBase {
                 R.raw.noise_2ch_48khz_aot29_dr_sbr_sig2_mp4
         };
         for (int sample: samples) {
-            for (String codecName : codecsFor(sample)) {
+            for (String codecName : codecsFor(sample, mResources, CODEC_DEFAULT)) {
                 AudioParameter decParams = new AudioParameter();
                 short[] decSamples = decodeToMemory(codecName, decParams, sample,
                         RESET_MODE_NONE, CONFIG_MODE_NONE, -1, null);
@@ -1430,20 +1450,20 @@ public class DecoderTest extends MediaPlayerTestBase {
      */
     public void testDecodeAacEldM4a() throws Exception {
         // mono
-        decodeNtest(R.raw.sinesweep1_1ch_16khz_aot39_fl480_mp4, 40.f);
-        decodeNtest(R.raw.sinesweep1_1ch_22khz_aot39_fl512_mp4, 40.f);
-        decodeNtest(R.raw.sinesweep1_1ch_24khz_aot39_fl480_mp4, 40.f);
-        decodeNtest(R.raw.sinesweep1_1ch_32khz_aot39_fl512_mp4, 40.f);
-        decodeNtest(R.raw.sinesweep1_1ch_44khz_aot39_fl480_mp4, 40.f);
-        decodeNtest(R.raw.sinesweep1_1ch_48khz_aot39_fl512_mp4, 40.f);
+        decodeNtest(R.raw.sinesweep1_1ch_16khz_aot39_fl480_mp4, 40.f, CODEC_DEFAULT);
+        decodeNtest(R.raw.sinesweep1_1ch_22khz_aot39_fl512_mp4, 40.f, CODEC_DEFAULT);
+        decodeNtest(R.raw.sinesweep1_1ch_24khz_aot39_fl480_mp4, 40.f, CODEC_DEFAULT);
+        decodeNtest(R.raw.sinesweep1_1ch_32khz_aot39_fl512_mp4, 40.f, CODEC_DEFAULT);
+        decodeNtest(R.raw.sinesweep1_1ch_44khz_aot39_fl480_mp4, 40.f, CODEC_DEFAULT);
+        decodeNtest(R.raw.sinesweep1_1ch_48khz_aot39_fl512_mp4, 40.f, CODEC_DEFAULT);
 
         // stereo
-        decodeNtest(R.raw.sinesweep_2ch_16khz_aot39_fl512_mp4, 40.f);
-        decodeNtest(R.raw.sinesweep_2ch_22khz_aot39_fl480_mp4, 40.f);
-        decodeNtest(R.raw.sinesweep_2ch_24khz_aot39_fl512_mp4, 40.f);
-        decodeNtest(R.raw.sinesweep_2ch_32khz_aot39_fl480_mp4, 40.f);
-        decodeNtest(R.raw.sinesweep_2ch_44khz_aot39_fl512_mp4, 40.f);
-        decodeNtest(R.raw.sinesweep_2ch_48khz_aot39_fl480_mp4, 40.f);
+        decodeNtest(R.raw.sinesweep_2ch_16khz_aot39_fl512_mp4, 40.f, CODEC_DEFAULT);
+        decodeNtest(R.raw.sinesweep_2ch_22khz_aot39_fl480_mp4, 40.f, CODEC_DEFAULT);
+        decodeNtest(R.raw.sinesweep_2ch_24khz_aot39_fl512_mp4, 40.f, CODEC_DEFAULT);
+        decodeNtest(R.raw.sinesweep_2ch_32khz_aot39_fl480_mp4, 40.f, CODEC_DEFAULT);
+        decodeNtest(R.raw.sinesweep_2ch_44khz_aot39_fl512_mp4, 40.f, CODEC_DEFAULT);
+        decodeNtest(R.raw.sinesweep_2ch_48khz_aot39_fl480_mp4, 40.f, CODEC_DEFAULT);
 
         AudioParameter decParams = new AudioParameter();
         int [][] samples = {
@@ -1461,7 +1481,7 @@ public class DecoderTest extends MediaPlayerTestBase {
         };
         
         for (int [] sample: samples) {
-            for (String codecName : codecsFor(sample[0])) {
+            for (String codecName : codecsFor(sample[0], mResources, CODEC_DEFAULT)) {
                 short[] decSamples = decodeToMemory(codecName, decParams, sample[0] /* resource */,
                         RESET_MODE_NONE, CONFIG_MODE_NONE, -1, null);
                 checkEnergy(decSamples, decParams, sample[1] /* number of channels */);
@@ -1702,9 +1722,14 @@ public class DecoderTest extends MediaPlayerTestBase {
      * @throws Exception
      */
     private void decodeNtest(int testinput, float maxerror) throws Exception {
+        decodeNtest(testinput, maxerror, CODEC_ALL);
+    }
+
+    private void decodeNtest(int testinput, float maxerror, int codecSupportMode)
+            throws Exception {
         String localTag = TAG + "#decodeNtest";
 
-        for (String codecName: codecsFor(testinput)) {
+        for (String codecName: codecsFor(testinput, mResources, codecSupportMode)) {
             AudioParameter decParams = new AudioParameter();
             short[] decoded = decodeToMemory(codecName, decParams, testinput,
                     RESET_MODE_NONE, CONFIG_MODE_NONE, -1, null);
@@ -1751,10 +1776,15 @@ public class DecoderTest extends MediaPlayerTestBase {
     }
 
     private List<String> codecsFor(int resource) throws IOException {
-        return codecsFor(resource, mResources);
+        return codecsFor(resource, mResources, CODEC_ALL);
     }
 
     protected static List<String> codecsFor(int resource, Resources resources) throws IOException {
+        return codecsFor(resource, resources, CODEC_ALL);
+    }
+
+    protected static List<String> codecsFor(int resource, Resources resources, int codecSupportMode)
+            throws IOException {
         MediaExtractor ex = new MediaExtractor();
         AssetFileDescriptor fd = resources.openRawResourceFd(resource);
         try {
@@ -1774,7 +1804,18 @@ public class DecoderTest extends MediaPlayerTestBase {
             try {
                 MediaCodecInfo.CodecCapabilities caps = info.getCapabilitiesForType(mime);
                 if (caps != null) {
-                    matchingCodecs.add(info.getName());
+                    if (codecSupportMode == CODEC_ALL) {
+                        matchingCodecs.add(info.getName());
+                    } else if (codecSupportMode == CODEC_DEFAULT) {
+                        if (caps.isFormatSupported(format)) {
+                            matchingCodecs.add(info.getName());
+                        } else if (isDefaultCodec(info.getName(), mime)) {
+                            fail(info.getName() + " which is a default decoder for mime " + mime +
+                                   ", does not declare support for " + format.toString());
+                        }
+                    } else {
+                        fail("Unhandled codec support mode " + codecSupportMode);
+                    }
                 }
             } catch (IllegalArgumentException e) {
                 // type is not supported
