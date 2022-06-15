@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemProperties;
 
 import com.android.cts.verifier.R;
 import com.android.cts.verifier.nfc.NfcDialogs;
@@ -23,7 +24,8 @@ public class ScreenOffPaymentEmulatorActivity extends BaseEmulatorActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pass_fail_text);
         setPassFailButtonClickListeners();
-        if (Build.VERSION.DEVICE_INITIAL_SDK_INT >= Build.VERSION_CODES.S) {
+        int firstSdk = SystemProperties.getInt("ro.product.first_api_level", 0);
+        if (firstSdk >= Build.VERSION_CODES.S) {
             getPassButton().setEnabled(false);
         } else {
             getPassButton().setEnabled(true);
