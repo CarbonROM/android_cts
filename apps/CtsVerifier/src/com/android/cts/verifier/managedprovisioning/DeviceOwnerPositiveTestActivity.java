@@ -93,6 +93,8 @@ public class DeviceOwnerPositiveTestActivity extends PassFailButtons.TestListAct
     private static final String DISABLE_USB_DATA_SIGNALING_TEST_ID = "DISABLE_USB_DATA_SIGNALING";
     private static final String SET_REQUIRED_PASSWORD_COMPLEXITY_ID =
             "SET_REQUIRED_PASSWORD_COMPLEXITY";
+    private static final String ACTION_CONNECT_INPUT =
+            "com.google.android.intent.action.CONNECT_INPUT";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -346,7 +348,8 @@ public class DeviceOwnerPositiveTestActivity extends PassFailButtons.TestListAct
                                             UserManager.DISALLOW_CONFIG_BLUETOOTH, true)),
                             new ButtonInfo(
                                     R.string.device_owner_settings_go,
-                                    new Intent(Settings.ACTION_BLUETOOTH_SETTINGS)),
+                                    new Intent(Utils.isTV(this) ? ACTION_CONNECT_INPUT
+                                            : Settings.ACTION_BLUETOOTH_SETTINGS)),
                             new ButtonInfo(
                                     R.string.device_owner_user_restriction_unset,
                                     CommandReceiverActivity.createSetCurrentUserRestrictionIntent(
@@ -355,9 +358,7 @@ public class DeviceOwnerPositiveTestActivity extends PassFailButtons.TestListAct
         }
 
         // DISALLOW_USB_FILE_TRANSFER
-        if (FeatureUtil.isUsbFileTransferSupported(this)
-                && !packageManager.hasSystemFeature(PackageManager.FEATURE_TELEVISION)
-                && !packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)) {
+        if (FeatureUtil.isUsbFileTransferSupported(this) && !Utils.isTV(this)) {
             adapter.add(createInteractiveTestItem(this, DISALLOW_USB_FILE_TRANSFER_ID,
                     R.string.device_owner_disallow_usb_file_transfer_test,
                     R.string.device_owner_disallow_usb_file_transfer_test_info,
@@ -414,9 +415,7 @@ public class DeviceOwnerPositiveTestActivity extends PassFailButtons.TestListAct
 
         // setLockTaskFeatures
         // TODO(b/189282625): replace FEATURE_WATCH with a more specific feature
-        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH)
-                && !packageManager.hasSystemFeature(PackageManager.FEATURE_TELEVISION)
-                && !packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)) {
+        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH) && !Utils.isTV(this)) {
             final Intent lockTaskUiTestIntent = new Intent(this, LockTaskUiTestActivity.class);
             lockTaskUiTestIntent.putExtra(LockTaskUiTestActivity.EXTRA_TEST_ID,
                     LOCK_TASK_UI_TEST_ID);
