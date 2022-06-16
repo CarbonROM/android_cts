@@ -1839,6 +1839,10 @@ public class WindowManagerState {
             return mIsOrganized;
         }
 
+        public Rect getAppBounds() {
+            return mFullConfiguration.windowConfiguration.getAppBounds();
+        }
+
         @Override
         public Rect getBounds() {
             if (mBounds == null) {
