@@ -77,6 +77,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
         const val DENY_RADIO_BUTTON = "com.android.permissioncontroller:id/deny_radio_button"
 
         const val ALLOW_BUTTON_TEXT = "grant_dialog_button_allow"
+        const val ALLOW_ALL_FILES_BUTTON_TEXT = "app_permission_button_allow_all_files"
         const val ALLOW_FOREGROUND_BUTTON_TEXT = "grant_dialog_button_allow_foreground"
         const val ALLOW_FOREGROUND_PREFERENCE_TEXT = "permission_access_only_foreground"
         const val ASK_BUTTON_TEXT = "app_permission_button_ask"
@@ -472,7 +473,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
                                 By.text(getPermissionControllerString(
                                         ALLOW_FOREGROUND_PREFERENCE_TEXT))
                             } else {
-                                By.text(getPermissionControllerString(ALLOW_BUTTON_TEXT))
+                                byAnyText(getPermissionControllerResString(ALLOW_BUTTON_TEXT),getPermissionControllerResString(ALLOW_ALL_FILES_BUTTON_TEXT))
                             }
                         PermissionState.DENIED ->
                             if (!isLegacyApp && hasAskButton(permission)) {
