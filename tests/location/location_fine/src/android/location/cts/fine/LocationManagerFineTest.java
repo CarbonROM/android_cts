@@ -844,6 +844,7 @@ public class LocationManagerFineTest {
     }
 
     @Test
+    @AppModeFull(reason = "Instant apps can't hold INTERACT_ACROSS_USERS permission")
     public void testAddProviderRequestListener() throws Exception {
         InstrumentationRegistry.getInstrumentation().getUiAutomation()
                 .adoptShellPermissionIdentity(Manifest.permission.LOCATION_HARDWARE);
