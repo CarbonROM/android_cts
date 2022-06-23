@@ -323,20 +323,23 @@ public class DeviceOwnerPositiveTestActivity extends PassFailButtons.TestListAct
         }
 
         // setKeyguardDisabled
-        adapter.add(createInteractiveTestItem(this, DISABLE_KEYGUARD_TEST_ID,
-                R.string.device_owner_disable_keyguard_test,
-                R.string.device_owner_disable_keyguard_test_info,
-                new ButtonInfo[] {
-                        new ButtonInfo(
-                                R.string.device_owner_disable_keyguard_button,
-                                createDeviceOwnerIntentWithBooleanParameter(
-                                        CommandReceiverActivity.COMMAND_SET_KEYGUARD_DISABLED,
-                                                true)),
-                        new ButtonInfo(
-                                R.string.device_owner_reenable_keyguard_button,
-                                createDeviceOwnerIntentWithBooleanParameter(
-                                        CommandReceiverActivity.COMMAND_SET_KEYGUARD_DISABLED,
-                                                false))}));
+        // Without PIN/Password watches don't have any lockscreen, so this policy isn't applicable
+        if(!packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
+            adapter.add(createInteractiveTestItem(this, DISABLE_KEYGUARD_TEST_ID,
+                    R.string.device_owner_disable_keyguard_test,
+                    R.string.device_owner_disable_keyguard_test_info,
+                    new ButtonInfo[]{
+                            new ButtonInfo(
+                                    R.string.device_owner_disable_keyguard_button,
+                                    createDeviceOwnerIntentWithBooleanParameter(
+                                            CommandReceiverActivity.COMMAND_SET_KEYGUARD_DISABLED,
+                                            true)),
+                            new ButtonInfo(
+                                    R.string.device_owner_reenable_keyguard_button,
+                                    createDeviceOwnerIntentWithBooleanParameter(
+                                            CommandReceiverActivity.COMMAND_SET_KEYGUARD_DISABLED,
+                                            false))}));
+        }
 
         // setLockTaskFeatures
         // TODO(b/189282625): replace FEATURE_WATCH with a more specific feature
