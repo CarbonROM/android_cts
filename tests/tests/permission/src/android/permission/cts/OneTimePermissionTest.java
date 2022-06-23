@@ -40,6 +40,8 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.android.compatibility.common.util.SystemUtil;
 import com.android.compatibility.common.util.UiAutomatorUtils;
 
+import android.app.DreamManager;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -68,7 +70,6 @@ public class OneTimePermissionTest {
             UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
     private final ActivityManager mActivityManager =
             mContext.getSystemService(ActivityManager.class);
-
     private String mOldOneTimePermissionTimeoutValue;
 
     @Rule
@@ -229,8 +230,14 @@ public class OneTimePermissionTest {
 
     private void exitApp() {
         eventually(() -> {
+            DreamManager mDreamManager = mContext.getSystemService(DreamManager.class);
             mUiDevice.pressHome();
             mUiDevice.pressBack();
+            runWithShellPermissionIdentity(() -> {
+                if (mDreamManager.isDreaming()) {
+                    mDreamManager.stopDream();
+                }
+            });
             runWithShellPermissionIdentity(() -> {
                 if (mActivityManager.getPackageImportance(APP_PKG_NAME)
                         <= IMPORTANCE_FOREGROUND) {
