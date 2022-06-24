@@ -54,7 +54,6 @@ import static org.junit.Assert.assertThrows;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.annotation.RequiresFeature;
 import android.app.AppOpsManager;
 import android.app.admin.DevicePolicyManager;
 import android.app.admin.FullyManagedDeviceProvisioningParams;
@@ -106,6 +105,7 @@ import com.android.bedstead.nene.users.UserReference;
 import com.android.bedstead.nene.users.UserType;
 import com.android.bedstead.remotedpc.RemoteDpc;
 import com.android.bedstead.testapp.TestAppInstance;
+import com.android.compatibility.common.util.ApiTest;
 import com.android.compatibility.common.util.SystemUtil;
 import com.android.eventlib.events.broadcastreceivers.BroadcastReceivedEvent;
 
@@ -1354,7 +1354,8 @@ public final class DevicePolicyManagerTest {
     @RequireRunOnSecondaryUser
     @EnsureHasNoProfileOwner
     @RequireNotHeadlessSystemUserMode
-    @RequiresFeature(FEATURE_DEVICE_ADMIN)
+    @RequireFeature(FEATURE_DEVICE_ADMIN)
+    @ApiTest(apis = "android.app.admin.DevicePolicyManager#checkProvisioningPrecondition")
     public void checkProvisioningPreCondition_actionDO_onNonSystemUser_returnsNotSystemUser() {
         boolean setupComplete = TestApis.users().current().getSetupComplete();
         TestApis.users().current().setSetupComplete(false);
