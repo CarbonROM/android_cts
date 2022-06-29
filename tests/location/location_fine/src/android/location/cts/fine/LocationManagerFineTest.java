@@ -171,22 +171,6 @@ public class LocationManagerFineTest {
     @Test
     public void testIsLocationEnabled() {
         assertThat(mManager.isLocationEnabled()).isTrue();
-
-        try {
-            mContext.createContextAsUser(UserHandle.CURRENT, 0).getSystemService(
-                    LocationManager.class).isLocationEnabled();
-            fail();
-        } catch (SecurityException e) {
-            // pass
-        }
-
-        try {
-            mContext.createContextAsUser(UserHandle.ALL, 0).getSystemService(
-                    LocationManager.class).isLocationEnabled();
-            fail();
-        } catch (SecurityException e) {
-            // pass
-        }
     }
 
     @Test
