@@ -408,6 +408,10 @@
 
         <activity android:name="android.server.wm.WindowInputTests$TestActivity" />
 
+        <activity android:name="android.server.wm.ActivityRecordInputSinkTestsActivity"
+                  android:theme="@android:style/Theme.Material.NoActionBar"
+                  android:exported="true"/>
+
         <service android:name="android.view.cts.surfacevalidator.LocalMediaProjectionService"
                  android:foregroundServiceType="mediaProjection"
                  android:enabled="true">
@@ -421,6 +425,10 @@
 
         <activity android:name="android.server.wm.ForceRelayoutTestBase$TestActivity"
                   android:exported="true" />
+
+        <activity android:name="android.server.wm.overlay.TranslucentFloatingActivity"
+                  android:theme="@style/TranslucentFloatingTheme"
+                  android:exported="true"/>
     </application>
 
     <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
