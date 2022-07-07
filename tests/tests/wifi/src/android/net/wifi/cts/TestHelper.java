@@ -226,11 +226,12 @@ public class TestHelper {
                 .setBssid(MacAddress.fromString(network.BSSID));
     }
 
-    private static class TestNetworkCallback extends ConnectivityManager.NetworkCallback {
-        private final CountDownLatch mCountDownLatch;
+    public static class TestNetworkCallback extends ConnectivityManager.NetworkCallback {
+        private CountDownLatch mCountDownLatch;
         public boolean onAvailableCalled = false;
         public boolean onUnavailableCalled = false;
         public NetworkCapabilities networkCapabilities;
+        public boolean onLostCalled = false;
 
         TestNetworkCallback(@NonNull CountDownLatch countDownLatch) {
             mCountDownLatch = countDownLatch;
@@ -257,6 +258,21 @@ public class TestHelper {
         public void onUnavailable() {
             onUnavailableCalled = true;
             mCountDownLatch.countDown();
+        }
+        @Override
+        public void onLost(Network network) {
+            onLostCalled = true;
+            mCountDownLatch.countDown();
+        }
+
+        boolean waitForAnyCallback(int timeout) {
+            try {
+                boolean noTimeout = mCountDownLatch.await(timeout, TimeUnit.MILLISECONDS);
+                mCountDownLatch = new CountDownLatch(1);
+                return noTimeout;
+            } catch (InterruptedException e) {
+                return false;
+            }
         }
     }
 
