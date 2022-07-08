@@ -74,6 +74,7 @@ import java.util.stream.Collectors;
  * Build/Install/Run:
  *     atest CtsWindowManagerJetpackTestCases:ExtensionWindowLayoutComponentTest
  */
+@Presubmit
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class ExtensionWindowLayoutComponentTest extends WindowManagerJetpackTestBase {
