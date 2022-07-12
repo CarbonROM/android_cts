@@ -123,4 +123,14 @@
 
     <!-- CtsCameraTestCases 12.1_r2 (b/234409652) Devices with variable geomerty cannot satisfy this requirement -->
     <option name="compatibility:exclude-filter" value="CtsCameraTestCases android.hardware.camera2.cts.ExtendedCameraCharacteristicsTest#testCameraOrientationAlignedWithDevice"/>
+
+     <!-- b/238200108 -->
+    <option name="compatibility:exclude-filter" value="CtsScopedStorageDeviceOnlyTest android.scopedstorage.cts.device.ScopedStorageDeviceTest#testOpenContentResolverFirstWriteFilePath[volume=external]" />
+    <option name="compatibility:exclude-filter" value="CtsScopedStorageDeviceOnlyTest android.scopedstorage.cts.device.ScopedStorageDeviceTest#testOpenContentResolverDup[volume=external]" />
+    <option name="compatibility:exclude-filter" value="CtsScopedStorageDeviceOnlyTest android.scopedstorage.cts.device.ScopedStorageDeviceTest#testOpenContentResolverFirstWriteContentResolver[volume=external]" />
+    <option name="compatibility:exclude-filter" value="CtsScopedStorageDeviceOnlyTest android.scopedstorage.cts.device.ScopedStorageDeviceTest#testOpenContentResolverWriteOnly[volume=external]" />
+    <option name="compatibility:exclude-filter" value="CtsScopedStorageDeviceOnlyTest android.scopedstorage.cts.device.ScopedStorageDeviceTest#testOpenContentResolverFirstWriteFilePath[volume=volume_public]" />
+    <option name="compatibility:exclude-filter" value="CtsScopedStorageDeviceOnlyTest android.scopedstorage.cts.device.ScopedStorageDeviceTest#testOpenContentResolverDup[volume=volume_public]" />
+    <option name="compatibility:exclude-filter" value="CtsScopedStorageDeviceOnlyTest android.scopedstorage.cts.device.ScopedStorageDeviceTest#testOpenContentResolverFirstWriteContentResolver[volume=volume_public]" />
+    <option name="compatibility:exclude-filter" value="CtsScopedStorageDeviceOnlyTest android.scopedstorage.cts.device.ScopedStorageDeviceTest#testOpenContentResolverWriteOnly[volume=volume_public]" />
 </configuration>
