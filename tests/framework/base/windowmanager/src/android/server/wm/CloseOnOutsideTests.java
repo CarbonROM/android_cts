@@ -20,7 +20,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import android.app.Instrumentation;
+import android.graphics.Insets;
 import android.util.DisplayMetrics;
+import android.view.WindowInsets;
+import android.view.WindowMetrics;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -63,8 +66,22 @@ public class CloseOnOutsideTests {
     private void touchAndAssert(boolean shouldBeFinishing) {
         DisplayMetrics displayMetrics =
                 mTestActivity.getActivity().getResources().getDisplayMetrics();
-        int width = (int) (displayMetrics.widthPixels * 0.875f);
-        int height = (int) (displayMetrics.heightPixels * 0.875f);
+        WindowMetrics windowMetrics =
+                mTestActivity.getActivity().getWindowManager().getCurrentWindowMetrics();
+        Insets systemBarInsets =
+                windowMetrics.getWindowInsets().getInsets(WindowInsets.Type.systemBars());
+        Insets statusBarInsets =
+                windowMetrics.getWindowInsets().getInsets(WindowInsets.Type.statusBars());
+
+        // DisplayMetrics.widthPixels and DisplayMetrics.heightPixels
+        // do not include the navigation bar size, so subtract the status bar size.
+        int appAreaWidth =
+                displayMetrics.widthPixels - statusBarInsets.left - statusBarInsets.right;
+        int appAreaHeight =
+                displayMetrics.heightPixels - statusBarInsets.top - statusBarInsets.bottom;
+
+        int width = (int) (systemBarInsets.left + (appAreaWidth * 0.875f));
+        int height = (int) (systemBarInsets.top + (appAreaHeight * 0.875f));
 
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
 
