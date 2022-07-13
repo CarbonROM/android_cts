@@ -299,4 +299,9 @@
     <option name="compatibility:exclude-filter" value="CtsJvmtiRunTest913HostTestCases android.jvmti.cts.JvmtiHostTest913#testJvmti" />
     <option name="compatibility:exclude-filter" value="CtsJvmtiRunTest988HostTestCases android.jvmti.cts.JvmtiHostTest988#testJvmti" />
 
+    <!-- b/238849936 -->
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.PinnedStackTests#testPipFromTaskWithMultipleActivitiesAndFinishOriginalTask" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.SplitActivityLifecycleTest#testTranslucentAdjacentTaskFragment" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.TaskFragmentOrganizerPolicyTest#testStartAnotherAppActivityInTaskFragment" />
+
 </configuration>
