@@ -51,6 +51,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.app.Instrumentation;
 import android.graphics.Insets;
+import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.platform.test.annotations.Presubmit;
 import android.server.wm.WindowInsetsAnimationTestBase.TestActivity;
@@ -103,7 +104,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(Parameterized.class)
 public class WindowInsetsAnimationControllerTests extends WindowManagerTestBase {
 
-    TestActivity mActivity;
+    ControllerTestActivity mActivity;
     View mRootView;
     ControlListener mListener;
     CancellationSignal mCancellationSignal = new CancellationSignal();
@@ -138,6 +139,16 @@ public class WindowInsetsAnimationControllerTests extends WindowManagerTestBase 
         };
     }
 
+    public static class ControllerTestActivity extends TestActivity {
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            // Ensure to set animation callback to null before starting a test. Otherwise, launching
+            // this activity might trigger some inset animation accidentally.
+            mView.setWindowInsetsAnimationCallback(null);
+        }
+    }
+
     @Before
     public void setUpWindowInsetsAnimationControllerTests() throws Throwable {
         final ImeEventStream mockImeEventStream;
@@ -155,7 +166,8 @@ public class WindowInsetsAnimationControllerTests extends WindowManagerTestBase 
             mockImeEventStream = null;
         }
 
-        mActivity = startActivityInWindowingMode(TestActivity.class, WINDOWING_MODE_FULLSCREEN);
+        mActivity = startActivityInWindowingMode(ControllerTestActivity.class,
+                WINDOWING_MODE_FULLSCREEN);
         mRootView = mActivity.getWindow().getDecorView();
         mListener = new ControlListener(mErrorCollector);
         assumeTestCompatibility();
