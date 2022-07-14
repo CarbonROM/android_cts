@@ -778,7 +778,7 @@
     <!-- BLE Advertising Set test strings -->
     <string name="ble_advertising_set_test_name">Bluetooth LE Advertising Set Test</string>
     <string name="ble_advertising_set_test_info">Bluetooth LE Advertising Set tests AdvertisingSet and AdvertisingSetCallback APIs.</string>
-    <string name="ble_advertising_set_test_instruction">Press the \"Set Up\" button first, then start the test by pressing the \"Start Test\" button. UI thread may freeze for a few seconds while enabling/disabling bluetooth adapter.</string>
+    <string name="ble_advertising_set_test_instruction">Press the \"Start Test\" button. UI thread may freeze for a few seconds while enabling/disabling bluetooth adapter.</string>
     <string name="ble_advertising_set_start_test">Start Test</string>
     <string name="ble_advertising_set_running_test">Running Test...</string>
     <string name="ble_advertising_set_finished_test">Finished Test</string>
