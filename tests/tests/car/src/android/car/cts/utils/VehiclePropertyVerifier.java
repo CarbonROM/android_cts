@@ -39,6 +39,7 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class VehiclePropertyVerifier<T> {
     private final static String CAR_PROPERTY_VALUE_SOURCE_GETTER = "Getter";
@@ -189,6 +190,8 @@ public class VehiclePropertyVerifier<T> {
             verifySetterWithConfigArrayValues(carPropertyConfig, carPropertyManager);
         } else if (!mPossibleCarPropertyValues.isEmpty()) {
             verifySetterWithPossibleCarPropertyValues(carPropertyConfig, carPropertyManager);
+        } else {
+            verifySetterWithMinMaxValues(carPropertyConfig, carPropertyManager);
         }
     }
 
@@ -208,17 +211,40 @@ public class VehiclePropertyVerifier<T> {
             CarPropertyManager carPropertyManager, Collection<Integer> valuesToSet) {
         for (Integer valueToSet : valuesToSet) {
             for (int areaId : carPropertyConfig.getAreaIds()) {
-                CarPropertyValue<Integer> currentCarPropertyValue = carPropertyManager.getProperty(
-                        mPropertyId, areaId);
-                verifyCarPropertyValue(carPropertyConfig, currentCarPropertyValue, areaId,
-                        CAR_PROPERTY_VALUE_SOURCE_GETTER);
-                if (currentCarPropertyValue.getValue().equals(valueToSet)) {
-                    continue;
-                }
-                verifySetProperty((CarPropertyConfig<Integer>) carPropertyConfig,
-                        carPropertyManager, areaId, valueToSet);
+                verifyIntegerSetProperty(carPropertyConfig, carPropertyManager, areaId, valueToSet);
             }
         }
+    }
+
+    private void verifySetterWithMinMaxValues(CarPropertyConfig<?> carPropertyConfig,
+            CarPropertyManager carPropertyManager) {
+        for (int areaId : carPropertyConfig.getAreaIds()) {
+            if (carPropertyConfig.getMinValue(areaId) == null || carPropertyConfig.getMinValue(
+                    areaId) == null) {
+                continue;
+            }
+            List<Integer> valuesToSet = IntStream.rangeClosed(
+                    ((Integer) carPropertyConfig.getMinValue(areaId)).intValue(),
+                    ((Integer) carPropertyConfig.getMaxValue(areaId)).intValue()).boxed().collect(
+                    Collectors.toList());
+
+            for (Integer valueToSet : valuesToSet) {
+                verifyIntegerSetProperty(carPropertyConfig, carPropertyManager, areaId, valueToSet);
+            }
+        }
+    }
+
+    private void verifyIntegerSetProperty(CarPropertyConfig<?> carPropertyConfig,
+            CarPropertyManager carPropertyManager, int areaId, Integer valueToSet) {
+        CarPropertyValue<Integer> currentCarPropertyValue = carPropertyManager.getProperty(
+                mPropertyId, areaId);
+        verifyCarPropertyValue(carPropertyConfig, currentCarPropertyValue, areaId,
+                CAR_PROPERTY_VALUE_SOURCE_GETTER);
+        if (currentCarPropertyValue.getValue().equals(valueToSet)) {
+            return;
+        }
+        verifySetProperty((CarPropertyConfig<Integer>) carPropertyConfig, carPropertyManager,
+                areaId, valueToSet);
     }
 
     private <T> void verifySetProperty(CarPropertyConfig<T> carPropertyConfig,
