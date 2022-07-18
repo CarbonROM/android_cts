@@ -32,7 +32,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -143,11 +142,11 @@ public class PassFailButtons {
 
     public static class Activity extends android.app.Activity implements PassFailActivity {
         private WakeLock mWakeLock;
-        private final CtsVerifierReportLog mReportLog;
+        private CtsVerifierReportLog mReportLog;
         private final TestResultHistoryCollection mHistoryCollection;
 
         public Activity() {
-            this.mReportLog = new CtsVerifierReportLog(getReportFileName(), getReportSectionName());
+            newReportLog();
             this.mHistoryCollection = new TestResultHistoryCollection();
         }
 
@@ -204,6 +203,11 @@ public class PassFailButtons {
             PassFailButtons.setTestResultAndFinishHelper(
                     this, getTestId(), getTestDetails(), passed, getReportLog(),
                     getHistoryCollection());
+        }
+
+        protected CtsVerifierReportLog newReportLog() {
+            return mReportLog = new CtsVerifierReportLog(
+                    getReportFileName(), getReportSectionName());
         }
 
         @Override
