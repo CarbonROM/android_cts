@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Geocoder;
+import android.platform.test.annotations.AppModeFull;
 import android.test.AndroidTestCase;
 
 import java.io.IOException;
@@ -63,6 +64,7 @@ public class GeocoderTest extends AndroidTestCase {
         return pm.queryIntentServices(intent, flags).isEmpty();
     }
 
+    @AppModeFull(reason = "b/238831704 - Test cases don't apply for Instant apps")
     public void testGetFromLocation() throws IOException, InterruptedException {
         Geocoder geocoder = new Geocoder(getContext());
 
