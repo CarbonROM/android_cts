@@ -48,10 +48,13 @@
         <option name="run-command" value="mkdir -p /data/local/tmp/cts/security" />
         <option name="teardown-command" value="rm -rf /data/local/tmp/cts"/>
     </target_preparer>
+
     <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
         <option name="cleanup" value="true" />
         <option name="push" value="RolePermissionOverrideTestApp.apk->/data/local/tmp/cts/security/RolePermissionOverrideTestApp.apk" />
         <option name="push" value="SplitBluetoothPermissionTestApp.apk->/data/local/tmp/cts/security/SplitBluetoothPermissionTestApp.apk" />
+        <option name="push" value="CtsUsePermissionApp22_2.apk->/data/local/tmp/cts/permission3/CtsUsePermissionApp22_2.apk" />
+        <option name="push" value="CtsHelperAppOverlay.apk->/data/local/tmp/cts/permission3/CtsHelperAppOverlay.apk" />
     </target_preparer>
 
     <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
