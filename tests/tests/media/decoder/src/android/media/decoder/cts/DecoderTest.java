@@ -73,6 +73,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 
 import com.android.compatibility.common.util.ApiLevelUtil;
+import com.android.compatibility.common.util.ApiTest;
 import com.android.compatibility.common.util.CddTest;
 import com.android.compatibility.common.util.DeviceReportLog;
 import com.android.compatibility.common.util.DynamicConfigDeviceSide;
@@ -140,8 +141,6 @@ public class DecoderTest extends MediaTestBase {
     private DynamicConfigDeviceSide dynamicConfig;
     private DisplayManager mDisplayManager;
     static final Map<String, String> sDefaultDecoders = new HashMap<>();
-
-    private static boolean mIsAtLeastS = ApiLevelUtil.isAtLeast(Build.VERSION_CODES.S);
 
     protected static AssetFileDescriptor getAssetFileDescriptorFor(final String res)
             throws FileNotFoundException {
@@ -3920,8 +3919,8 @@ public class DecoderTest extends MediaTestBase {
     /**
      * Test tunneled video playback mode with HEVC if supported
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
     public void testTunneledVideoPlaybackHevc() throws Exception {
         tunneledVideoPlayback(MediaFormat.MIMETYPE_VIDEO_HEVC,
                     "video_1280x720_mkv_h265_500kbps_25fps_aac_stereo_128kbps_44100hz.mkv");
@@ -3930,8 +3929,8 @@ public class DecoderTest extends MediaTestBase {
     /**
      * Test tunneled video playback mode with AVC if supported
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
     public void testTunneledVideoPlaybackAvc() throws Exception {
         tunneledVideoPlayback(MediaFormat.MIMETYPE_VIDEO_AVC,
                 "video_480x360_mp4_h264_1000kbps_25fps_aac_stereo_128kbps_44100hz.mp4");
@@ -3940,8 +3939,8 @@ public class DecoderTest extends MediaTestBase {
     /**
      * Test tunneled video playback mode with VP9 if supported
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
     public void testTunneledVideoPlaybackVp9() throws Exception {
         tunneledVideoPlayback(MediaFormat.MIMETYPE_VIDEO_VP9,
                     "bbb_s1_640x360_webm_vp9_0p21_1600kbps_30fps_vorbis_stereo_128kbps_48000hz.webm");
@@ -3988,8 +3987,8 @@ public class DecoderTest extends MediaTestBase {
     /**
      * Test tunneled video playback flush with HEVC if supported
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
     public void testTunneledVideoFlushHevc() throws Exception {
         testTunneledVideoFlush(MediaFormat.MIMETYPE_VIDEO_HEVC,
                 "video_1280x720_mkv_h265_500kbps_25fps_aac_stereo_128kbps_44100hz.mkv");
@@ -3998,8 +3997,8 @@ public class DecoderTest extends MediaTestBase {
     /**
      * Test tunneled video playback flush with AVC if supported
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
     public void testTunneledVideoFlushAvc() throws Exception {
         testTunneledVideoFlush(MediaFormat.MIMETYPE_VIDEO_AVC,
                 "video_480x360_mp4_h264_1000kbps_25fps_aac_stereo_128kbps_44100hz.mp4");
@@ -4008,23 +4007,19 @@ public class DecoderTest extends MediaTestBase {
     /**
      * Test tunneled video playback flush with VP9 if supported
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
     public void testTunneledVideoFlushVp9() throws Exception {
         testTunneledVideoFlush(MediaFormat.MIMETYPE_VIDEO_VP9,
                 "bbb_s1_640x360_webm_vp9_0p21_1600kbps_30fps_vorbis_stereo_128kbps_48000hz.webm");
     }
 
     /**
-     * Test tunneled video peek renders the first frame when on
+     * Test that the first frame is rendered when video peek is on in tunneled mode.
      *
      * TODO(b/182915887): Test all the codecs advertised by the DUT for the provided test content
      */
     private void testTunneledVideoPeekOn(String mimeType, String videoName) throws Exception {
-        if (!MediaUtils.check(mIsAtLeastS, "testTunneledVideoPeekOn requires Android 12")) {
-            return;
-        }
-
         if (!MediaUtils.check(isVideoFeatureSupported(mimeType, FEATURE_TunneledPlayback),
                     "No tunneled video playback codec found for MIME " + mimeType)) {
             return;
@@ -4058,30 +4053,30 @@ public class DecoderTest extends MediaTestBase {
     }
 
     /**
-     * Test tunneled video peek with HEVC renders the first frame when on
+     * Test that the first frame is rendered when video peek is on for HEVC in tunneled mode.
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodec#PARAMETER_KEY_TUNNEL_PEEK"})
     public void testTunneledVideoPeekOnHevc() throws Exception {
         testTunneledVideoPeekOn(MediaFormat.MIMETYPE_VIDEO_HEVC,
                 "video_1280x720_mkv_h265_500kbps_25fps_aac_stereo_128kbps_44100hz.mkv");
     }
 
     /**
-     * Test tunneled video peek with AVC renders the first frame when on
+     * Test that the first frame is rendered when video peek is on for AVC in tunneled mode.
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodec#PARAMETER_KEY_TUNNEL_PEEK"})
     public void testTunneledVideoPeekOnAvc() throws Exception {
         testTunneledVideoPeekOn(MediaFormat.MIMETYPE_VIDEO_AVC,
                 "video_480x360_mp4_h264_1000kbps_25fps_aac_stereo_128kbps_44100hz.mp4");
     }
 
     /**
-     * Test tunneled video peek with VP9 renders the first frame when on
+     * Test that the first frame is rendered when video peek is on for VP9 in tunneled mode.
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodec#PARAMETER_KEY_TUNNEL_PEEK"})
     public void testTunneledVideoPeekOnVp9() throws Exception {
         testTunneledVideoPeekOn(MediaFormat.MIMETYPE_VIDEO_VP9,
                 "bbb_s1_640x360_webm_vp9_0p21_1600kbps_30fps_vorbis_stereo_128kbps_48000hz.webm");
@@ -4089,15 +4084,11 @@ public class DecoderTest extends MediaTestBase {
 
 
     /**
-     * Test tunneled video peek doesn't render the first frame when off and then turned on
+     * Test that peek off doesn't render the first frame until turned on in tunneled mode.
      *
      * TODO(b/182915887): Test all the codecs advertised by the DUT for the provided test content
      */
     private void testTunneledVideoPeekOff(String mimeType, String videoName) throws Exception {
-        if (!MediaUtils.check(mIsAtLeastS, "testTunneledVideoPeekOff requires Android 12")) {
-            return;
-        }
-
         if (!MediaUtils.check(isVideoFeatureSupported(mimeType, FEATURE_TunneledPlayback),
                     "No tunneled video playback codec found for MIME " + mimeType)) {
             return;
@@ -4138,75 +4129,40 @@ public class DecoderTest extends MediaTestBase {
     }
 
     /**
-     * Test tunneled video peek with HEVC doesn't render the first frame when off and then turned on
+     * Test that peek off doesn't render the first frame until turned on for HEC in tunneled mode.
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodec#PARAMETER_KEY_TUNNEL_PEEK"})
     public void testTunneledVideoPeekOffHevc() throws Exception {
         testTunneledVideoPeekOff(MediaFormat.MIMETYPE_VIDEO_HEVC,
                 "video_1280x720_mkv_h265_500kbps_25fps_aac_stereo_128kbps_44100hz.mkv");
     }
 
     /**
-     * Test tunneled video peek with AVC doesn't render the first frame when off and then turned on
+     * Test that peek off doesn't render the first frame until turned on for AVC in tunneled mode.
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodec#PARAMETER_KEY_TUNNEL_PEEK"})
     public void testTunneledVideoPeekOffAvc() throws Exception {
         testTunneledVideoPeekOff(MediaFormat.MIMETYPE_VIDEO_AVC,
                 "video_480x360_mp4_h264_1000kbps_25fps_aac_stereo_128kbps_44100hz.mp4");
     }
 
     /**
-     * Test tunneled video peek with VP9 doesn't render the first frame when off and then turned on
+     * Test that peek off doesn't render the first frame until turned on for VP9 in tunneled mode.
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodec#PARAMETER_KEY_TUNNEL_PEEK"})
     public void testTunneledVideoPeekOffVp9() throws Exception {
         testTunneledVideoPeekOff(MediaFormat.MIMETYPE_VIDEO_VP9,
                 "bbb_s1_640x360_webm_vp9_0p21_1600kbps_30fps_vorbis_stereo_128kbps_48000hz.webm");
     }
 
-    /**
-     * Test tunneled audio PTS gaps with HEVC if supported.
-     * If there exist PTS Gaps in AudioTrack playback, the framePosition returned by
-     * AudioTrack#getTimestamp must not advance for any silent frames rendered to fill the
-     * gap.
-     */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
-    @Test
-    public void testTunneledAudioPtsGapsHevc() throws Exception {
-        testTunneledAudioPtsGaps(MediaFormat.MIMETYPE_VIDEO_HEVC,
-                "video_1280x720_mkv_h265_500kbps_25fps_aac_stereo_128kbps_44100hz.mkv");
-    }
-
-    /**
-     * Test tunneled audio PTS gaps with AVC if supported
-     * If there exist PTS Gaps in AudioTrack playback, the framePosition returned by
-     * AudioTrack#getTimestamp must not advance for any silent frames rendered to fill the
-     * gap.
-     */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
-    @Test
-    public void testTunneledAudioPtsGapsAvc() throws Exception {
-        testTunneledAudioPtsGaps(MediaFormat.MIMETYPE_VIDEO_AVC,
-                "video_480x360_mp4_h264_1000kbps_25fps_aac_stereo_128kbps_44100hz.mp4");
-    }
-
-    /**
-     * Test tunneled audio PTS gaps with VP9 if supported
-     * If there exist PTS Gaps in AudioTrack playback, the framePosition returned by
-     * AudioTrack#getTimestamp must not advance for any silent frames rendered to fill the
-     * gap.
-     */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
-    @Test
-    public void testTunneledAudioPtsGapsVp9() throws Exception {
-        testTunneledAudioPtsGaps(MediaFormat.MIMETYPE_VIDEO_VP9,
-                "bbb_s1_640x360_webm_vp9_0p21_1600kbps_30fps_vorbis_stereo_128kbps_48000hz.webm");
-    }
-
-    private void testTunneledAudioPtsGaps(String mimeType, String fileName) throws Exception {
+   /**
+    * Test that audio timestamps don't progress during audio PTS gaps in tunneled mode.
+    */
+   private void testTunneledAudioProgressWithPtsGaps(String mimeType, String fileName)
+            throws Exception {
         if (!MediaUtils.check(isVideoFeatureSupported(mimeType, FEATURE_TunneledPlayback),
                     "No tunneled video playback codec found for MIME " + mimeType)) {
             return;
@@ -4286,37 +4242,40 @@ public class DecoderTest extends MediaTestBase {
     }
 
     /**
-     * Test tunneled audioTimestamp progress with underrun, with HEVC if supported
+     * Test that audio timestamps don't progress during audio PTS gaps for HEVC in tunneled mode.
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
-    public void testTunneledAudioTimestampProgressWithUnderrunHevc() throws Exception {
-        testTunneledAudioTimestampProgressWithUnderrun(MediaFormat.MIMETYPE_VIDEO_HEVC,
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
+    public void testTunneledAudioProgressWithPtsGapsHevc() throws Exception {
+        testTunneledAudioProgressWithPtsGaps(MediaFormat.MIMETYPE_VIDEO_HEVC,
                 "video_1280x720_mkv_h265_500kbps_25fps_aac_stereo_128kbps_44100hz.mkv");
     }
 
     /**
-     * Test tunneled audioTimestamp progress with underrun, with AVC if supported.
+     * Test that audio timestamps don't progress during audio PTS gaps for AVC in tunneled mode.
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
-    public void testTunneledAudioTimestampProgressWithUnderrunAvc() throws Exception {
-        testTunneledAudioTimestampProgressWithUnderrun(MediaFormat.MIMETYPE_VIDEO_AVC,
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
+    public void testTunneledAudioProgressWithPtsGapsAvc() throws Exception {
+        testTunneledAudioProgressWithPtsGaps(MediaFormat.MIMETYPE_VIDEO_AVC,
                 "video_480x360_mp4_h264_1000kbps_25fps_aac_stereo_128kbps_44100hz.mp4");
     }
 
     /**
-     *  Test tunneled audioTimestamp progress with underrun, with VP9 if supported.
+     * Test that audio timestamps don't progress during audio PTS gaps for VP9 in tunneled mode.
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
-    public void testTunneledAudioTimestampProgressWithUnderrunVp9() throws Exception {
-        testTunneledAudioTimestampProgressWithUnderrun(MediaFormat.MIMETYPE_VIDEO_VP9,
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
+    public void testTunneledAudioProgressWithPtsGapsVp9() throws Exception {
+        testTunneledAudioProgressWithPtsGaps(MediaFormat.MIMETYPE_VIDEO_VP9,
                 "bbb_s1_640x360_webm_vp9_0p21_1600kbps_30fps_vorbis_stereo_128kbps_48000hz.webm");
     }
 
-    private void testTunneledAudioTimestampProgressWithUnderrun(
-            String mimeType, String fileName) throws Exception {
+    /**
+     * Test that audio timestamps stop progressing during underrun in tunneled mode.
+     */
+    private void testTunneledAudioProgressWithUnderrun(String mimeType, String fileName)
+            throws Exception {
         if (!MediaUtils.check(isVideoFeatureSupported(mimeType, FEATURE_TunneledPlayback),
                 "No tunneled video playback codec found for MIME " + mimeType)) {
             return;
@@ -4374,9 +4333,39 @@ public class DecoderTest extends MediaTestBase {
     }
 
     /**
-     * Test accurate video rendering after a video MediaCodec flush.
+     * Test that audio timestamps stop progressing during underrun for HEVC in tunneled mode.
+     */
+    @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
+    public void testTunneledAudioProgressWithUnderrunHevc() throws Exception {
+        testTunneledAudioProgressWithUnderrun(MediaFormat.MIMETYPE_VIDEO_HEVC,
+                "video_1280x720_mkv_h265_500kbps_25fps_aac_stereo_128kbps_44100hz.mkv");
+    }
+
+    /**
+     * Test that audio timestamps stop progressing during underrun for AVC in tunneled mode.
+     */
+    @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
+    public void testTunneledAudioProgressWithUnderrunAvc() throws Exception {
+        testTunneledAudioProgressWithUnderrun(MediaFormat.MIMETYPE_VIDEO_AVC,
+                "video_480x360_mp4_h264_1000kbps_25fps_aac_stereo_128kbps_44100hz.mp4");
+    }
+
+    /**
+     * Test that audio timestamps stop progressing during underrun for VP9 in tunneled mode.
+     */
+    @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
+    public void testTunneledAudioProgressWithUnderrunVp9() throws Exception {
+        testTunneledAudioProgressWithUnderrun(MediaFormat.MIMETYPE_VIDEO_VP9,
+                "bbb_s1_640x360_webm_vp9_0p21_1600kbps_30fps_vorbis_stereo_128kbps_48000hz.webm");
+    }
+
+    /**
+     * Test accurate video rendering after a flush in tunneled mode.
      *
-     * On some devices, queuing content when the player is paused, then triggering a flush, then
+     * Test On some devices, queuing content when the player is paused, then triggering a flush, then
      * queuing more content does not behave as expected. The queued content gets lost and the flush
      * is really only applied once playback has resumed.
      *
@@ -4384,10 +4373,6 @@ public class DecoderTest extends MediaTestBase {
      */
     private void testTunneledAccurateVideoFlush(String mimeType, String videoName)
             throws Exception {
-        if (!MediaUtils.check(mIsAtLeastS, "testTunneledAccurateVideoFlush requires Android 12")) {
-            return;
-        }
-
         if (!MediaUtils.check(isVideoFeatureSupported(mimeType, FEATURE_TunneledPlayback),
                     "No tunneled video playback codec found for MIME " + mimeType)) {
             return;
@@ -4536,8 +4521,8 @@ public class DecoderTest extends MediaTestBase {
     /**
      * Test accurate video rendering after a video MediaCodec flush with HEVC if supported
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
     public void testTunneledAccurateVideoFlushHevc() throws Exception {
         testTunneledAccurateVideoFlush(MediaFormat.MIMETYPE_VIDEO_HEVC,
                 "video_1280x720_mkv_h265_500kbps_25fps_aac_stereo_128kbps_44100hz.mkv");
@@ -4546,8 +4531,8 @@ public class DecoderTest extends MediaTestBase {
     /**
      * Test accurate video rendering after a video MediaCodec flush with AVC if supported
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
     public void testTunneledAccurateVideoFlushAvc() throws Exception {
         testTunneledAccurateVideoFlush(MediaFormat.MIMETYPE_VIDEO_AVC,
                 "video_480x360_mp4_h264_1000kbps_25fps_aac_stereo_128kbps_44100hz.mp4");
@@ -4556,49 +4541,18 @@ public class DecoderTest extends MediaTestBase {
     /**
      * Test accurate video rendering after a video MediaCodec flush with VP9 if supported
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
     public void testTunneledAccurateVideoFlushVp9() throws Exception {
         testTunneledAccurateVideoFlush(MediaFormat.MIMETYPE_VIDEO_VP9,
                 "bbb_s1_640x360_webm_vp9_0p21_1600kbps_30fps_vorbis_stereo_128kbps_48000hz.webm");
     }
 
     /**
-     * Test tunneled audioTimestamp progress with HEVC if supported
+     * Test that audio timestamps stop progressing during pause in tunneled mode.
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
-    @Test
-    public void testTunneledAudioTimestampProgressHevc() throws Exception {
-        testTunneledAudioTimestampProgress(MediaFormat.MIMETYPE_VIDEO_HEVC,
-                "video_1280x720_mkv_h265_500kbps_25fps_aac_stereo_128kbps_44100hz.mkv");
-    }
-
-    /**
-     * Test tunneled audioTimestamp progress with AVC if supported
-     */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
-    @Test
-    public void testTunneledAudioTimestampProgressAvc() throws Exception {
-        testTunneledAudioTimestampProgress(MediaFormat.MIMETYPE_VIDEO_AVC,
-                "video_480x360_mp4_h264_1000kbps_25fps_aac_stereo_128kbps_44100hz.mp4");
-    }
-
-    /**
-     * Test tunneled audioTimestamp progress with VP9 if supported
-     */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
-    @Test
-    public void testTunneledAudioTimestampProgressVp9() throws Exception {
-        testTunneledAudioTimestampProgress(MediaFormat.MIMETYPE_VIDEO_VP9,
-                "bbb_s1_640x360_webm_vp9_0p21_1600kbps_30fps_vorbis_stereo_128kbps_48000hz.webm");
-    }
-
-    /**
-     * Test that AudioTrack timestamps don't advance after pause.
-     */
-    private void
-    testTunneledAudioTimestampProgress(String mimeType, String videoName) throws Exception
-    {
+    private void testTunneledAudioProgressWithPause(String mimeType, String videoName)
+            throws Exception {
         if (!MediaUtils.check(isVideoFeatureSupported(mimeType, FEATURE_TunneledPlayback),
                     "No tunneled video playback codec found for MIME " + mimeType)) {
             return;
@@ -4646,10 +4600,39 @@ public class DecoderTest extends MediaTestBase {
         assertEquals(audioTimestampAfterPause.nanoTime, mMediaCodecPlayer.getTimestamp().nanoTime);
     }
 
+
     /**
-     * Test tunneled audio underrun, if supported.
-     *
-     * Underrun test with lower pts after underrun.
+     * Test that audio timestamps stop progressing during pause for HEVC in tunneled mode.
+     */
+    @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
+    public void testTunneledAudioProgressWithPauseHevc() throws Exception {
+        testTunneledAudioProgressWithPause(MediaFormat.MIMETYPE_VIDEO_HEVC,
+                "video_1280x720_mkv_h265_500kbps_25fps_aac_stereo_128kbps_44100hz.mkv");
+    }
+
+    /**
+     * Test that audio timestamps stop progressing during pause for AVC in tunneled mode.
+     */
+    @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
+    public void testTunneledAudioProgressWithPauseAvc() throws Exception {
+        testTunneledAudioProgressWithPause(MediaFormat.MIMETYPE_VIDEO_AVC,
+                "video_480x360_mp4_h264_1000kbps_25fps_aac_stereo_128kbps_44100hz.mp4");
+    }
+
+    /**
+     * Test that audio timestamps stop progressing during pause for VP9 in tunneled mode.
+     */
+    @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
+    public void testTunneledAudioProgressWithPauseVp9() throws Exception {
+        testTunneledAudioProgressWithPause(MediaFormat.MIMETYPE_VIDEO_VP9,
+                "bbb_s1_640x360_webm_vp9_0p21_1600kbps_30fps_vorbis_stereo_128kbps_48000hz.webm");
+    }
+
+    /**
+     * Test that audio underrun pauses video and resumes in-sync in tunneled mode.
      *
      * TODO(b/182915887): Test all the codecs advertised by the DUT for the provided test content
      */
@@ -4809,30 +4792,30 @@ public class DecoderTest extends MediaTestBase {
     }
 
     /**
-     * Test tunneled audio underrun with HEVC if supported
+     * Test that audio underrun pauses video and resumes in-sync for HEVC in tunneled mode.
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
     public void testTunneledAudioUnderrunHevc() throws Exception {
         tunneledAudioUnderrun(MediaFormat.MIMETYPE_VIDEO_HEVC,
                 "video_1280x720_mkv_h265_500kbps_25fps_aac_stereo_128kbps_44100hz.mkv");
     }
 
     /**
-     * Test tunneled audio underrun with AVC if supported
+     * Test that audio underrun pauses video and resumes in-sync for AVC in tunneled mode.
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
     public void testTunneledAudioUnderrunAvc() throws Exception {
         tunneledAudioUnderrun(MediaFormat.MIMETYPE_VIDEO_AVC,
                 "video_480x360_mp4_h264_1000kbps_25fps_aac_stereo_128kbps_44100hz.mp4");
     }
 
     /**
-     * Test tunneled audio underrun with VP9 if supported
+     * Test that audio underrun pauses video and resumes in-sync for VP9 in tunneled mode.
      */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
+    @ApiTest(apis={"android.media.MediaCodecInfo.CodecCapabilities#FEATURE_TunneledPlayback"})
     public void testTunneledAudioUnderrunVp9() throws Exception {
         tunneledAudioUnderrun(MediaFormat.MIMETYPE_VIDEO_VP9,
                 "bbb_s1_640x360_webm_vp9_0p21_1600kbps_30fps_vorbis_stereo_128kbps_48000hz.webm");
