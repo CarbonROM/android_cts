@@ -662,29 +662,27 @@ public class CarPropertyManagerTest extends CarApiTestBase {
     public void testDoorPosIfSupported() {
         adoptSystemLevelPermission(/* Car.PERMISSION_CONTROL_CAR_DOORS = */
                 "android.car.permission.CONTROL_CAR_DOORS", () -> {
-                VehiclePropertyVerifier.newBuilder(VehiclePropertyIds.DOOR_POS,
-                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
-                    VehicleAreaType.VEHICLE_AREA_TYPE_DOOR,
-                    CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE,
-                    Integer.class).setCarPropertyValueVerifier(
-                        (carPropertyConfig, carPropertyValue) -> {
-                            assertWithMessage(
-                                "DOOR_POS Integer value must be greater than or equal 0").that(
-                                    (Integer) carPropertyValue.getValue()).isAtLeast(0);
-                        }).build().verify(mCarPropertyManager);
-            });
+                    VehiclePropertyVerifier.newBuilder(VehiclePropertyIds.DOOR_POS,
+                            CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
+                            VehicleAreaType.VEHICLE_AREA_TYPE_DOOR,
+                            CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE,
+                            Integer.class).requireMinMaxValues().requireMinValuesToBeZero().build()
+                            .verify(mCarPropertyManager);
+                });
     }
 
     @Test
     public void testDoorMoveIfSupported() {
         adoptSystemLevelPermission(/* Car.PERMISSION_CONTROL_CAR_DOORS = */
                 "android.car.permission.CONTROL_CAR_DOORS", () -> {
-                VehiclePropertyVerifier.newBuilder(VehiclePropertyIds.DOOR_MOVE,
-                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
-                    VehicleAreaType.VEHICLE_AREA_TYPE_DOOR,
-                    CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE,
-                    Integer.class).build().verify(mCarPropertyManager);
-            });
+                    VehiclePropertyVerifier.newBuilder(VehiclePropertyIds.DOOR_MOVE,
+                            CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
+                            VehicleAreaType.VEHICLE_AREA_TYPE_DOOR,
+                            CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE,
+                            Integer.class).requireMinMaxValues()
+                            .requireZeroToBeContainedInMinMaxRanges().build().verify(
+                            mCarPropertyManager);
+                });
     }
 
     @Test
@@ -739,7 +737,7 @@ public class CarPropertyManagerTest extends CarApiTestBase {
                             CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ,
                             VehicleAreaType.VEHICLE_AREA_TYPE_WHEEL,
                             CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS,
-                            Float.class).setCarPropertyValueVerifier(
+                            Float.class).requireMinMaxValues().setCarPropertyValueVerifier(
                                     (carPropertyConfig, carPropertyValue) -> assertWithMessage(
                                             "TIRE_PRESSURE Float value"
                                                     + " at Area ID equals to "
