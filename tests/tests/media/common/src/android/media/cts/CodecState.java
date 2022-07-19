@@ -169,13 +169,15 @@ public class CodecState {
         }
     }
 
-    public void start() {
+    public void startCodec() {
         mCodec.start();
         mCodecInputBuffers = mCodec.getInputBuffers();
         if (!mIsTunneled || mIsAudio) {
             mCodecOutputBuffers = mCodec.getOutputBuffers();
         }
+    }
 
+    public void play() {
         if (mAudioTrack != null) {
             mAudioTrack.play();
         }
@@ -358,7 +360,7 @@ public class CodecState {
                 return null;
             }
 
-            if (mIsTunneled && !mIsAudio) {
+            if (mIsTunneled) {
                 if (mFirstSampleTimeUs == -1) {
                     mFirstSampleTimeUs = sampleTime;
                 }
