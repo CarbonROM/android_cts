@@ -3884,11 +3884,10 @@ public class DecoderTest extends MediaTestBase {
         Uri mediaUri = Uri.fromFile(new File(mInpPrefix, videoName));
         mMediaCodecPlayer.setAudioDataSource(mediaUri, null);
         mMediaCodecPlayer.setVideoDataSource(mediaUri, null);
-        assertTrue("MediaCodecPlayer.start() failed!", mMediaCodecPlayer.start());
         assertTrue("MediaCodecPlayer.prepare() failed!", mMediaCodecPlayer.prepare());
+        mMediaCodecPlayer.startCodec();
 
-        // starts video playback
-        mMediaCodecPlayer.startThread();
+        mMediaCodecPlayer.play();
         sleepUntil(() ->
                 mMediaCodecPlayer.getCurrentPosition() > CodecState.UNINITIALIZED_TIMESTAMP
                 && mMediaCodecPlayer.getTimestamp() != null
@@ -3966,11 +3965,10 @@ public class DecoderTest extends MediaTestBase {
         Uri mediaUri = Uri.fromFile(new File(mInpPrefix, videoName));
         mMediaCodecPlayer.setAudioDataSource(mediaUri, null);
         mMediaCodecPlayer.setVideoDataSource(mediaUri, null);
-        assertTrue("MediaCodecPlayer.start() failed!", mMediaCodecPlayer.start());
         assertTrue("MediaCodecPlayer.prepare() failed!", mMediaCodecPlayer.prepare());
+        mMediaCodecPlayer.startCodec();
 
-        // starts video playback
-        mMediaCodecPlayer.startThread();
+        mMediaCodecPlayer.play();
         sleepUntil(() ->
                 mMediaCodecPlayer.getCurrentPosition() > CodecState.UNINITIALIZED_TIMESTAMP
                 && mMediaCodecPlayer.getTimestamp() != null
@@ -4040,9 +4038,8 @@ public class DecoderTest extends MediaTestBase {
         Uri mediaUri = Uri.fromFile(new File(mInpPrefix, videoName));
         mMediaCodecPlayer.setAudioDataSource(mediaUri, null);
         mMediaCodecPlayer.setVideoDataSource(mediaUri, null);
-        assertTrue("MediaCodecPlayer.start() failed!", mMediaCodecPlayer.start());
         assertTrue("MediaCodecPlayer.prepare() failed!", mMediaCodecPlayer.prepare());
-        mMediaCodecPlayer.start();
+        mMediaCodecPlayer.startCodec();
         mMediaCodecPlayer.setVideoPeek(true); // Enable video peek
 
         // Assert that onFirstTunnelFrameReady is called
@@ -4114,9 +4111,8 @@ public class DecoderTest extends MediaTestBase {
         Uri mediaUri = Uri.fromFile(new File(mInpPrefix, videoName));
         mMediaCodecPlayer.setAudioDataSource(mediaUri, null);
         mMediaCodecPlayer.setVideoDataSource(mediaUri, null);
-        assertTrue("MediaCodecPlayer.start() failed!", mMediaCodecPlayer.start());
         assertTrue("MediaCodecPlayer.prepare() failed!", mMediaCodecPlayer.prepare());
-        mMediaCodecPlayer.start();
+        mMediaCodecPlayer.startCodec();
         mMediaCodecPlayer.setVideoPeek(false); // Disable video peek
 
         // Assert that onFirstTunnelFrameReady is called
@@ -4224,11 +4220,10 @@ public class DecoderTest extends MediaTestBase {
         final Uri mediaUri = Uri.fromFile(new File(mInpPrefix, fileName));
         mMediaCodecPlayer.setAudioDataSource(mediaUri, null);
         mMediaCodecPlayer.setVideoDataSource(mediaUri, null);
-        assertTrue("MediaCodecPlayer.start() failed!", mMediaCodecPlayer.start());
         assertTrue("MediaCodecPlayer.prepare() failed!", mMediaCodecPlayer.prepare());
+        mMediaCodecPlayer.startCodec();
 
-        // starts video playback
-        mMediaCodecPlayer.startThread();
+        mMediaCodecPlayer.play();
         sleepUntil(() ->
                 mMediaCodecPlayer.getCurrentPosition() > CodecState.UNINITIALIZED_TIMESTAMP
                 && mMediaCodecPlayer.getTimestamp() != null
@@ -4335,11 +4330,10 @@ public class DecoderTest extends MediaTestBase {
         final Uri mediaUri = Uri.fromFile(new File(mInpPrefix, fileName));
         mMediaCodecPlayer.setAudioDataSource(mediaUri, null);
         mMediaCodecPlayer.setVideoDataSource(mediaUri, null);
-        assertTrue("MediaCodecPlayer.start() failed!", mMediaCodecPlayer.start());
         assertTrue("MediaCodecPlayer.prepare() failed!", mMediaCodecPlayer.prepare());
+        mMediaCodecPlayer.startCodec();
 
-        // starts video playback
-        mMediaCodecPlayer.startThread();
+        mMediaCodecPlayer.play();
         sleepUntil(() ->
                 mMediaCodecPlayer.getCurrentPosition() > CodecState.UNINITIALIZED_TIMESTAMP
                 && mMediaCodecPlayer.getTimestamp() != null
@@ -4414,15 +4408,14 @@ public class DecoderTest extends MediaTestBase {
         Uri mediaUri = Uri.fromFile(new File(mInpPrefix, videoName));
         mMediaCodecPlayer.setAudioDataSource(mediaUri, null);
         mMediaCodecPlayer.setVideoDataSource(mediaUri, null);
-        assertTrue("MediaCodecPlayer.start() failed!", mMediaCodecPlayer.start());
         assertTrue("MediaCodecPlayer.prepare() failed!", mMediaCodecPlayer.prepare());
+        mMediaCodecPlayer.startCodec();
         // Video peek might interfere with the test: we want to ensure that queuing more data during
         // a pause does not cause displaying more video frames, which is precisely what video peek
         // does.
         mMediaCodecPlayer.setVideoPeek(false);
 
-        // starts video playback
-        mMediaCodecPlayer.startThread();
+        mMediaCodecPlayer.play();
         sleepUntil(() ->
                 mMediaCodecPlayer.getCurrentPosition() > CodecState.UNINITIALIZED_TIMESTAMP
                 && mMediaCodecPlayer.getTimestamp() != null
@@ -4434,22 +4427,72 @@ public class DecoderTest extends MediaTestBase {
         assertNotEquals("Audio timestamp has a zero frame position",
                 mMediaCodecPlayer.getTimestamp().framePosition, 0);
 
+        // Allow some time for playback to commence
+        Thread.sleep(500);
+
         // Pause playback
         mMediaCodecPlayer.pause();
-        // Allow some time for playback to pause
-        Thread.sleep(maxDrainTimeMs);
 
-        // Verify that playback has paused
-        long pauseAudioFramePositionUs = mMediaCodecPlayer.getTimestamp().framePosition;
-        long pauseVideoPositionUs = mMediaCodecPlayer.getVideoTimeUs();
-        Thread.sleep(maxDrainTimeMs);
-        assertEquals(mMediaCodecPlayer.getTimestamp().framePosition, pauseAudioFramePositionUs);
+        // Wait for audio to pause
+        AudioTimestamp pauseAudioTimestamp;
+        {
+            AudioTimestamp currentAudioTimestamp = mMediaCodecPlayer.getTimestamp();
+            long startTimeMs = System.currentTimeMillis();
+            do {
+                // If it takes longer to pause, the UX won't feel responsive to the user
+                int audioPauseTimeoutMs = 250;
+                assertTrue(String.format("No audio pause after %d milliseconds",
+                                audioPauseTimeoutMs),
+                        System.currentTimeMillis() - startTimeMs < audioPauseTimeoutMs);
+                pauseAudioTimestamp = currentAudioTimestamp;
+                Thread.sleep(50);
+                currentAudioTimestamp = mMediaCodecPlayer.getTimestamp();
+            } while (currentAudioTimestamp.framePosition != pauseAudioTimestamp.framePosition);
+        }
+        long pauseAudioSystemTimeMs = pauseAudioTimestamp.nanoTime / 1000 / 1000;
+
+        // Wait for video to pause
+        long pauseVideoSystemTimeNs;
+        long pauseVideoPositionUs;
+        {
+            long currentVideoSystemTimeNs = mMediaCodecPlayer.getCurrentRenderedSystemTimeNano();
+            long startTimeMs = System.currentTimeMillis();
+            do {
+                int videoUnderrunTimeoutMs = 2000;
+                assertTrue(String.format("No video pause after %d milliseconds",
+                                videoUnderrunTimeoutMs),
+                        System.currentTimeMillis() - startTimeMs < videoUnderrunTimeoutMs);
+                pauseVideoSystemTimeNs = currentVideoSystemTimeNs;
+                Thread.sleep(250); // onFrameRendered can get delayed in the Framework
+                currentVideoSystemTimeNs = mMediaCodecPlayer.getCurrentRenderedSystemTimeNano();
+            } while (currentVideoSystemTimeNs != pauseVideoSystemTimeNs);
+            pauseVideoPositionUs = mMediaCodecPlayer.getVideoTimeUs();
+        }
+        long pauseVideoSystemTimeMs = pauseVideoSystemTimeNs / 1000 / 1000;
+
+        // Video should not continue running for a long period of time after audio pauses
+        long pauseVideoToleranceMs = 500;
+        assertTrue(String.format(
+                        "Video ran %d milliseconds longer than audio (video:%d audio:%d)",
+                        pauseVideoToleranceMs, pauseVideoSystemTimeMs, pauseAudioSystemTimeMs),
+                pauseVideoSystemTimeMs - pauseAudioSystemTimeMs < pauseVideoToleranceMs);
+
+        // Verify that playback stays paused
+        Thread.sleep(500);
+        assertEquals(mMediaCodecPlayer.getTimestamp().framePosition, pauseAudioTimestamp.framePosition);
+        assertEquals(mMediaCodecPlayer.getCurrentRenderedSystemTimeNano(), pauseVideoSystemTimeNs);
         assertEquals(mMediaCodecPlayer.getVideoTimeUs(), pauseVideoPositionUs);
 
-        // Verify audio and video are in sync
-        assertTrue(String.format("Video pts (%d) is ahead of audio pts (%d)",
-                        pauseVideoPositionUs, pauseAudioFramePositionUs),
-                pauseVideoPositionUs <= pauseAudioFramePositionUs);
+        // Verify audio and video are roughly in sync when paused
+        long framePosition = mMediaCodecPlayer.getTimestamp().framePosition;
+        long playbackRateFps = mMediaCodecPlayer.getAudioTrack().getPlaybackRate();
+        long pauseAudioPositionMs = pauseAudioTimestamp.framePosition * 1000 / playbackRateFps;
+        long pauseVideoPositionMs = pauseVideoPositionUs / 1000;
+        long deltaMs = pauseVideoPositionMs - pauseAudioPositionMs;
+        assertTrue(String.format(
+                        "Video is %d milliseconds out of sync from audio (video:%d audio:%d)",
+                        deltaMs, pauseVideoPositionMs, pauseAudioPositionMs),
+                deltaMs > -80 && deltaMs < pauseVideoToleranceMs);
 
         // Flush both audio and video pipelines
         mMediaCodecPlayer.flush();
@@ -4568,11 +4611,10 @@ public class DecoderTest extends MediaTestBase {
         Uri mediaUri = Uri.fromFile(new File(mInpPrefix, videoName));
         mMediaCodecPlayer.setAudioDataSource(mediaUri, null);
         mMediaCodecPlayer.setVideoDataSource(mediaUri, null);
-        assertTrue("MediaCodecPlayer.start() failed!", mMediaCodecPlayer.start());
         assertTrue("MediaCodecPlayer.prepare() failed!", mMediaCodecPlayer.prepare());
+        mMediaCodecPlayer.startCodec();
 
-        // starts video playback
-        mMediaCodecPlayer.startThread();
+        mMediaCodecPlayer.play();
         sleepUntil(() ->
                 mMediaCodecPlayer.getCurrentPosition() > CodecState.UNINITIALIZED_TIMESTAMP
                 && mMediaCodecPlayer.getTimestamp() != null
@@ -4625,11 +4667,10 @@ public class DecoderTest extends MediaTestBase {
         Uri mediaUri = Uri.fromFile(new File(mInpPrefix, videoName));
         mMediaCodecPlayer.setAudioDataSource(mediaUri, null);
         mMediaCodecPlayer.setVideoDataSource(mediaUri, null);
-        assertTrue("MediaCodecPlayer.start() failed!", mMediaCodecPlayer.start());
         assertTrue("MediaCodecPlayer.prepare() failed!", mMediaCodecPlayer.prepare());
+        mMediaCodecPlayer.startCodec();
 
-        // Starts video playback
-        mMediaCodecPlayer.startThread();
+        mMediaCodecPlayer.play();
         sleepUntil(() ->
                 mMediaCodecPlayer.getCurrentPosition() > CodecState.UNINITIALIZED_TIMESTAMP
                 && mMediaCodecPlayer.getTimestamp() != null
