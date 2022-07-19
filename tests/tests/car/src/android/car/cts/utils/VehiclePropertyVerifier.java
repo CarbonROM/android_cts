@@ -322,6 +322,12 @@ public class VehiclePropertyVerifier<T> {
         assertWithMessage(mPropertyName + " must be " + mPropertyType + " type property")
                 .that(carPropertyConfig.getPropertyType()).isEqualTo(mPropertyType);
 
+        assertWithMessage(mPropertyName + "'s must have at least 1 area ID defined").that(
+                carPropertyConfig.getAreaIds().length).isAtLeast(1);
+        assertWithMessage(mPropertyName + "'s area IDs must all be unique: " + Arrays.toString(
+                carPropertyConfig.getAreaIds())).that(ImmutableSet.copyOf(Arrays.stream(
+                carPropertyConfig.getAreaIds()).boxed().collect(Collectors.toList())).size()
+                == carPropertyConfig.getAreaIds().length).isTrue();
         if (mAreaIdsVerifier.isPresent()) {
             mAreaIdsVerifier.get().verify(carPropertyConfig.getAreaIds());
         } else if (mAreaType == VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL) {
@@ -330,11 +336,6 @@ public class VehiclePropertyVerifier<T> {
                             + areaTypeToString(mAreaType))
                     .that(carPropertyConfig.getAreaIds()).isEqualTo(new int[]{0});
         } else if (mAreaType == VehicleAreaType.VEHICLE_AREA_TYPE_WHEEL) {
-            assertWithMessage(mPropertyName + "'s Area IDs must all be unique").that(
-                    ImmutableSet.copyOf(Arrays.stream(
-                            carPropertyConfig.getAreaIds()).boxed().collect(
-                            Collectors.toList())).size()
-                            == carPropertyConfig.getAreaIds().length).isTrue();
             for (int areaId : carPropertyConfig.getAreaIds()) {
                 assertWithMessage(mPropertyName + "'s area ID: " + areaId
                         + " must be a valid VehicleAreaWheel area ID").that(
