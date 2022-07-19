@@ -336,4 +336,9 @@
     <!-- b/198682652 -->
     <option name="compatibility:exclude-filter" value="CtsTelephonyTestCases android.telephony.cts.TelephonyCallbackTest#testOnLinkCapacityEstimateChangedByRegisterPhoneStateListener" />
 
+    <!-- b/238849936 -->
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.PinnedStackTests#testPipFromTaskWithMultipleActivitiesAndFinishOriginalTask" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.SplitActivityLifecycleTest#testTranslucentAdjacentTaskFragment" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.TaskFragmentOrganizerPolicyTest#testStartAnotherAppActivityInTaskFragment" />
+
 </configuration>
