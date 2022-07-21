@@ -26,6 +26,7 @@
     Bug: 150153196 android.intent.action.LOAD_DATA (system in API 30)
     Bug: 150153196 android.intent.action.PACKAGE_UNSUSPENDED_MANUALLY (system in API 30)
     Bug: 165343131 android.intent.action.CREATE_REMINDER (system in API 30)
+    Bug: 238841916 android.intent.action.TIPS_CONFIG_PROVIDER
 -->
 <dynamicConfig>
     <entry key ="intent_whitelist">
@@ -40,5 +41,6 @@
       <value>android.intent.action.LOAD_DATA</value>
       <value>android.intent.action.PACKAGE_UNSUSPENDED_MANUALLY</value>
       <value>android.intent.action.CREATE_REMINDER</value>
+      <value>android.intent.action.TIPS_CONFIG_PROVIDER</value>
     </entry>
 </dynamicConfig>
