@@ -73,8 +73,8 @@ public class ConfigurationTest extends AndroidTestCase {
         allowedDensities.add(DisplayMetrics.DENSITY_XXHIGH);
         allowedDensities.add(DisplayMetrics.DENSITY_560);
         allowedDensities.add(DisplayMetrics.DENSITY_XXXHIGH);
-        assertTrue("DisplayMetrics#densityDpi must be one of the DisplayMetrics.DENSITY_* values: "
-                + allowedDensities, allowedDensities.contains(metrics.densityDpi));
+        assertTrue("DisplayMetrics.DENSITY_DEVICE_STABLE must be one of the DisplayMetrics.DENSITY_* values: "
+                + allowedDensities, allowedDensities.contains(DisplayMetrics.DENSITY_DEVICE_STABLE));
 
         assertEquals(metrics.density,
                 (float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT,
