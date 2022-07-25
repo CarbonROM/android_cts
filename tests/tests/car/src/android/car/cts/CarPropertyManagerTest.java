@@ -115,6 +115,10 @@ public class CarPropertyManagerTest extends CarApiTestBase {
             ImmutableSet.<Integer>builder().add(/*VehicleLightSwitch.OFF=*/0,
                     /*VehicleLightSwitch.ON=*/1, /*VehicleLightSwitch.DAYTIME_RUNNING=*/2,
                     /*VehicleLightSwitch.AUTOMATIC=*/256).build();
+    private static final ImmutableSet<Integer> HVAC_TEMPERATURE_DISPLAY_UNITS =
+            ImmutableSet.<Integer>builder().add(VehicleUnit.CELSIUS,
+                    VehicleUnit.FAHRENHEIT).build();
+
     /** contains property Ids for the properties required by CDD */
     private final ArraySet<Integer> mPropertyIds = new ArraySet<>();
     private CarPropertyManager mCarPropertyManager;
@@ -1495,6 +1499,42 @@ public class CarPropertyManagerTest extends CarApiTestBase {
                     CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE,
                     Integer.class).requireMinMaxValues().requireMinValuesToBeZero().build().verify(
                     mCarPropertyManager);
+        });
+    }
+
+    @Test
+    public void testHvacSteeringWheelHeatIfSupported() {
+        adoptSystemLevelPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE, () -> {
+            VehiclePropertyVerifier.newBuilder(VehiclePropertyIds.HVAC_STEERING_WHEEL_HEAT,
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
+                    VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
+                    CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE,
+                    Integer.class).requireMinMaxValues().requireZeroToBeContainedInMinMaxRanges()
+                    .build().verify(mCarPropertyManager);
+        });
+    }
+
+    @Test
+    public void testHvacTemperatureDisplayUnitsIfSupported() {
+        adoptSystemLevelPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE, () -> {
+            VehiclePropertyVerifier.newBuilder(VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS,
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
+                    VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
+                    CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE,
+                    Integer.class).setPossibleConfigArrayValues(
+                    HVAC_TEMPERATURE_DISPLAY_UNITS).requirePropertyValueTobeInConfigArray()
+                    .verifySetterWithConfigArrayValues().build().verify(mCarPropertyManager);
+        });
+    }
+
+    @Test
+    public void testHvacTemperatureValueSuggestionIfSupported() {
+        adoptSystemLevelPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE, () -> {
+            VehiclePropertyVerifier.newBuilder(VehiclePropertyIds.HVAC_TEMPERATURE_VALUE_SUGGESTION,
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
+                    VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
+                    CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE,
+                    Float[].class).build().verify(mCarPropertyManager);
         });
     }
 
