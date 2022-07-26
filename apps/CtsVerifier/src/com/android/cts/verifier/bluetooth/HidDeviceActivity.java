@@ -163,7 +163,7 @@ public class HidDeviceActivity extends PassFailButtons.Activity {
             }
         });
 
-        if (isAndroidTv()) {
+        if (isAndroidTv() || isAndroidWear()) {
             startForegroundService(new Intent(getApplication(),
                   FocusLossPreventionService.class));
         }
@@ -174,7 +174,7 @@ public class HidDeviceActivity extends PassFailButtons.Activity {
         super.onDestroy();
         unregister();
 
-        if (isAndroidTv()) {
+        if (isAndroidTv() || isAndroidWear()) {
             stopService(new Intent(getApplication(),
                   FocusLossPreventionService.class));
         }
@@ -306,4 +306,10 @@ public class HidDeviceActivity extends PassFailButtons.Activity {
         return pm.hasSystemFeature(PackageManager.FEATURE_TELEVISION)
                   || pm.hasSystemFeature(PackageManager.FEATURE_LEANBACK);
     }
+
+    private boolean isAndroidWear() {
+        final PackageManager pm = getApplicationContext().getPackageManager();
+        return pm.hasSystemFeature(PackageManager.FEATURE_WATCH);
+    }
+
 }
