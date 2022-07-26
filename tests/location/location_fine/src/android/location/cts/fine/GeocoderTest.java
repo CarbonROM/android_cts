@@ -132,6 +132,7 @@ public class GeocoderTest {
         }
     }
 
+    @AppModeFull(reason = "b/238831704 - Test cases don't apply for Instant apps")
     @Test
     public void testGetFromLocationName() throws IOException, InterruptedException {
         Geocoder geocoder = new Geocoder(mContext, Locale.US);
