@@ -1243,16 +1243,44 @@ public class TelephonyManagerTest {
     public void testGetNetworkCountryIso() {
         if (mPackageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
             String countryCode = mTelephonyManager.getNetworkCountryIso();
-            assertTrue("Country code '" + countryCode + "' did not match "
-                            + ISO_COUNTRY_CODE_PATTERN,
-                    Pattern.matches(ISO_COUNTRY_CODE_PATTERN, countryCode));
+            ServiceState serviceState = mTelephonyManager.getServiceState();
+            if (serviceState != null && (serviceState.getState()
+                    == ServiceState.STATE_IN_SERVICE || serviceState.getState()
+                    == ServiceState.STATE_EMERGENCY_ONLY)) {
+                assertTrue("Country code '" + countryCode + "' did not match "
+                                + ISO_COUNTRY_CODE_PATTERN,
+                        Pattern.matches(ISO_COUNTRY_CODE_PATTERN, countryCode));
+            } else {
+                assertTrue("Country code could be empty when out of service",
+                        Pattern.matches(ISO_COUNTRY_CODE_PATTERN, countryCode)
+                        || TextUtils.isEmpty(countryCode));
+            }
+
+            int[] allSubs = ShellIdentityUtils.invokeMethodWithShellPermissions(
+                    mSubscriptionManager, (sm) -> sm.getActiveSubscriptionIdList());
+            for (int i : allSubs) {
+                countryCode = mTelephonyManager.getNetworkCountryIso(
+                        SubscriptionManager.getSlotIndex(i));
+                serviceState = mTelephonyManager.createForSubscriptionId(i).getServiceState();
+
+                if (serviceState != null && (serviceState.getState()
+                        == ServiceState.STATE_IN_SERVICE || serviceState.getState()
+                        == ServiceState.STATE_EMERGENCY_ONLY)) {
+                    assertTrue("Country code '" + countryCode + "' did not match "
+                                    + ISO_COUNTRY_CODE_PATTERN + " for slot " + i,
+                            Pattern.matches(ISO_COUNTRY_CODE_PATTERN, countryCode));
+                } else {
+                    assertTrue("Country code could be empty when out of service",
+                            Pattern.matches(ISO_COUNTRY_CODE_PATTERN, countryCode)
+                            || TextUtils.isEmpty(countryCode));
+                }
+            }
 
             for (int i = 0; i < mTelephonyManager.getPhoneCount(); i++) {
                 countryCode = mTelephonyManager.getNetworkCountryIso(i);
-
-                assertTrue("Country code '" + countryCode + "' did not match "
-                                + ISO_COUNTRY_CODE_PATTERN + " for slot " + i,
-                        Pattern.matches(ISO_COUNTRY_CODE_PATTERN, countryCode));
+                assertTrue("Country code must match " + ISO_COUNTRY_CODE_PATTERN + "or empty",
+                        Pattern.matches(ISO_COUNTRY_CODE_PATTERN, countryCode)
+                        || TextUtils.isEmpty(countryCode));
             }
         } else {
             // Non-telephony may still have the property defined if it has a SIM.
