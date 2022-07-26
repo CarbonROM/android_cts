@@ -31,6 +31,7 @@
     Bug: 218245704 android.intent.action.ACTION_PACKAGE_CHANGED (fixed in TTS 20220209)
     Bug: 234104089 android.intent.action.SAFETY_CENTER
     Bug: 234104089 android.intent.action.VIEW_SAFETY_CENTER_QS
+    Bug: 238841916 android.intent.action.TIPS_CONFIG_PROVIDER
 -->
 <dynamicConfig>
     <entry key ="intent_whitelist">
@@ -50,5 +51,6 @@
       <value>android.intent.action.ACTION_PACKAGE_CHANGED</value>
       <value>android.intent.action.SAFETY_CENTER</value>
       <value>android.intent.action.VIEW_SAFETY_CENTER_QS</value>
+      <value>android.intent.action.TIPS_CONFIG_PROVIDER</value>
     </entry>
 </dynamicConfig>
