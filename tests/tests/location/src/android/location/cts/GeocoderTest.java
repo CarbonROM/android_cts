@@ -116,6 +116,7 @@ public class GeocoderTest extends AndroidTestCase {
         }
     }
 
+    @AppModeFull(reason = "b/238831704 - Test cases don't apply for Instant apps")
     public void testGetFromLocationName() throws IOException, InterruptedException {
         Geocoder geocoder = new Geocoder(getContext(), Locale.US);
 
