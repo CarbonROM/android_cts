@@ -299,7 +299,6 @@ public class MediaRecorderStressTest extends ActivityInstrumentationTestCase2<Me
         int width;
         int height;
         SurfaceHolder mSurfaceHolder;
-        mSurfaceHolder = MediaFrameworkTest.getSurfaceView().getHolder();
         File stressOutFile = new File(WorkDir.getTopDir(), MEDIA_STRESS_OUTPUT);
         Writer output = new BufferedWriter(new FileWriter(stressOutFile, true));
         output.write("Camera and video recorder preview switching\n");
@@ -324,6 +323,7 @@ public class MediaRecorderStressTest extends ActivityInstrumentationTestCase2<Me
             if (mCamera == null) {
                 break;
             }
+            mSurfaceHolder = MediaFrameworkTest.getSurfaceView().getHolder();
             // Try to get camera smallest supported resolution.
             // If we fail for any reason, set the video size to default value.
             List<Camera.Size> previewSizes = mCamera.getParameters().getSupportedPreviewSizes();
@@ -403,7 +403,6 @@ public class MediaRecorderStressTest extends ActivityInstrumentationTestCase2<Me
 
         String filename;
         SurfaceHolder mSurfaceHolder;
-        mSurfaceHolder = MediaFrameworkTest.getSurfaceView().getHolder();
         File stressOutFile = new File(WorkDir.getTopDir(), MEDIA_STRESS_OUTPUT);
         Writer output = new BufferedWriter(
                 new FileWriter(stressOutFile, true));
@@ -431,6 +430,7 @@ public class MediaRecorderStressTest extends ActivityInstrumentationTestCase2<Me
             Log.v(TAG, "bitRate : " + mBitRate);
             Log.v(TAG, "recordDuration : " + mRecordDuration);
 
+            mSurfaceHolder = MediaFrameworkTest.getSurfaceView().getHolder();
             mRecorder.setOnErrorListener(mRecorderErrorCallback);
             mRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
             mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
