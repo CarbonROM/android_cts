@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Geocoder;
+import android.platform.test.annotations.AppModeFull;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -72,6 +73,7 @@ public class GeocoderTest {
         }
     }
 
+    @AppModeFull(reason = "b/238831704 - Test cases don't apply for Instant apps")
     @Test
     public void testGetFromLocation() throws IOException, InterruptedException {
         Geocoder geocoder = new Geocoder(mContext);
