@@ -22,6 +22,7 @@ import static org.junit.Assume.assumeNotNull;
 
 import android.car.VehicleAreaType;
 import android.car.VehicleAreaWheel;
+import android.car.VehicleAreaWindow;
 import android.car.VehiclePropertyIds;
 import android.car.VehiclePropertyType;
 import android.car.hardware.CarPropertyConfig;
@@ -47,6 +48,12 @@ public class VehiclePropertyVerifier<T> {
     private static final ImmutableSet<Integer> WHEEL_AREA_IDS = ImmutableSet.of(
             VehicleAreaWheel.WHEEL_LEFT_FRONT, VehicleAreaWheel.WHEEL_LEFT_REAR,
             VehicleAreaWheel.WHEEL_RIGHT_FRONT, VehicleAreaWheel.WHEEL_RIGHT_REAR);
+    private static final ImmutableSet<Integer> WINDOW_AREA_IDS = ImmutableSet.of(
+            VehicleAreaWindow.WINDOW_FRONT_WINDSHIELD, VehicleAreaWindow.WINDOW_REAR_WINDSHIELD,
+            VehicleAreaWindow.WINDOW_ROW_1_LEFT, VehicleAreaWindow.WINDOW_ROW_1_RIGHT,
+            VehicleAreaWindow.WINDOW_ROW_2_LEFT, VehicleAreaWindow.WINDOW_ROW_2_RIGHT,
+            VehicleAreaWindow.WINDOW_ROW_3_LEFT, VehicleAreaWindow.WINDOW_ROW_3_RIGHT,
+            VehicleAreaWindow.WINDOW_ROOF_TOP_1, VehicleAreaWindow.WINDOW_ROOF_TOP_2);
 
     private final int mPropertyId;
     private final String mPropertyName;
@@ -375,6 +382,12 @@ public class VehiclePropertyVerifier<T> {
                 assertWithMessage(mPropertyName + "'s area ID: " + areaId
                         + " must be a valid VehicleAreaWheel area ID").that(
                         WHEEL_AREA_IDS.contains(areaId)).isTrue();
+            }
+        } else if (mAreaType == VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW) {
+            for (int areaId : carPropertyConfig.getAreaIds()) {
+                assertWithMessage(mPropertyName
+                        + "'s area ID must be a valid VehicleAreaWindow area ID").that(areaId).isIn(
+                        WINDOW_AREA_IDS);
             }
         }
 
