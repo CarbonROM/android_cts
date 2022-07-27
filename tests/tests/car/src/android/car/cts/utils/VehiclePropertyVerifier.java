@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assume.assumeNotNull;
 
+import android.car.VehicleAreaMirror;
 import android.car.VehicleAreaType;
 import android.car.VehicleAreaWheel;
 import android.car.VehicleAreaWindow;
@@ -54,6 +55,9 @@ public class VehiclePropertyVerifier<T> {
             VehicleAreaWindow.WINDOW_ROW_2_LEFT, VehicleAreaWindow.WINDOW_ROW_2_RIGHT,
             VehicleAreaWindow.WINDOW_ROW_3_LEFT, VehicleAreaWindow.WINDOW_ROW_3_RIGHT,
             VehicleAreaWindow.WINDOW_ROOF_TOP_1, VehicleAreaWindow.WINDOW_ROOF_TOP_2);
+    private static final ImmutableSet<Integer> MIRROR_AREA_IDS = ImmutableSet.of(
+            VehicleAreaMirror.MIRROR_DRIVER_LEFT, VehicleAreaMirror.MIRROR_DRIVER_RIGHT,
+            VehicleAreaMirror.MIRROR_DRIVER_CENTER);
 
     private final int mPropertyId;
     private final String mPropertyName;
@@ -388,6 +392,12 @@ public class VehiclePropertyVerifier<T> {
                 assertWithMessage(mPropertyName
                         + "'s area ID must be a valid VehicleAreaWindow area ID").that(areaId).isIn(
                         WINDOW_AREA_IDS);
+            }
+        } else if (mAreaType == VehicleAreaType.VEHICLE_AREA_TYPE_MIRROR) {
+            for (int areaId : carPropertyConfig.getAreaIds()) {
+                assertWithMessage(mPropertyName
+                        + "'s area ID must be a valid VehicleAreaMirror area ID").that(areaId).isIn(
+                        MIRROR_AREA_IDS);
             }
         }
 
