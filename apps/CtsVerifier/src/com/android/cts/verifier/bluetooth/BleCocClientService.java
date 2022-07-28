@@ -483,6 +483,7 @@ public class BleCocClientService extends Service {
                     stopScan();
 
                     BluetoothDevice device = result.getDevice();
+                    mDevice = device;
                     if (DEBUG) {
                         Log.d(TAG, "onScanResult: Found ADV with CoC UUID on device="
                               + device);
@@ -493,12 +494,10 @@ public class BleCocClientService extends Service {
                                 notifyError("Failed to call create bond");
                             }
                         } else {
-                            mDevice = device;
                             mBluetoothGatt = connectGatt(result.getDevice(), BleCocClientService.this, false,
                                                          mSecure, mGattCallbacks);
                         }
                     } else {
-                        mDevice = device;
                         mBluetoothGatt = connectGatt(result.getDevice(), BleCocClientService.this, false, mSecure,
                                                      mGattCallbacks);
                     }
@@ -707,13 +706,18 @@ public class BleCocClientService extends Service {
                 switch (state) {
                     case BluetoothDevice.BOND_BONDED:
                         if (mBluetoothGatt == null) {
-                            if (DEBUG) {
-                                Log.d(TAG, "onReceive:BOND_BONDED: calling connectGatt. device="
+                            if(mDevice != null && mDevice.equals(device)) {
+                                if (DEBUG) {
+                                    Log.d(TAG, "onReceive:BOND_BONDED: calling connectGatt. device="
                                              + device + ", mSecure=" + mSecure);
-                            }
-                            mDevice = device;
-                            mBluetoothGatt = connectGatt(device, BleCocClientService.this, false, mSecure,
+                                }
+                                mBluetoothGatt = connectGatt(device, BleCocClientService.this, false, mSecure,
                                                          mGattCallbacks);
+                            } else {
+                                if (DEBUG) {
+                                    Log.d(TAG, "Another device bonded, device= " + device);
+                                }
+                            }
                         }
                         break;
                     case BluetoothDevice.BOND_NONE:
