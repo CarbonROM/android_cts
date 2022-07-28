@@ -386,7 +386,7 @@ public class WifiNetworkSpecifierTest extends WifiJUnit4TestBase {
                         mNetworkCallback);
                 // Wait for the request to reach the wifi stack before kick-starting the UI
                 // interactions.
-                Thread.sleep(100);
+                Thread.sleep(1_000);
                 // Start the UI interactions.
                 uiThread.run();
                 // now wait for callback
