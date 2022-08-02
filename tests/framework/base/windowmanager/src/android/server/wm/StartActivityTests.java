@@ -21,6 +21,7 @@ import static android.app.WindowConfiguration.ACTIVITY_TYPE_DREAM;
 import static android.app.WindowConfiguration.ACTIVITY_TYPE_HOME;
 import static android.app.WindowConfiguration.ACTIVITY_TYPE_RECENTS;
 import static android.app.WindowConfiguration.ACTIVITY_TYPE_STANDARD;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_DOCUMENT;
 import static android.server.wm.WindowManagerState.STATE_INITIALIZING;
 import static android.server.wm.WindowManagerState.STATE_STOPPED;
@@ -205,12 +206,23 @@ public class StartActivityTests extends ActivityManagerTestBase {
      */
     @Test
     public void testStartActivityByNavigateUpToFromDiffUid() {
-        final Intent intent1 = new Intent(mContext, Activities.RegularActivity.class);
+        final Intent rootIntent = new Intent(mContext, Activities.RegularActivity.class);
         final String regularActivityName = Activities.RegularActivity.class.getName();
         final TestActivitySession<Activities.RegularActivity> activitySession1 =
                 createManagedTestActivitySession();
-        activitySession1.launchTestActivityOnDisplaySync(regularActivityName, intent1,
+        activitySession1.launchTestActivityOnDisplaySync(regularActivityName, rootIntent,
                 DEFAULT_DISPLAY);
+
+        final Intent navIntent = new Intent(mContext, Activities.RegularActivity.class);
+        verifyNavigateUpTo(activitySession1, navIntent);
+
+        navIntent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
+        verifyNavigateUpTo(activitySession1, navIntent);
+        assertFalse("#onNewIntent cannot be called",
+                activitySession1.getActivity().mIsOnNewIntentCalled);
+    }
+
+    private void verifyNavigateUpTo(TestActivitySession rootActivitySession, Intent navIntent) {
         final TestActivitySession<Activities.SingleTopActivity> activitySession2 =
                 createManagedTestActivitySession();
         activitySession2.launchTestActivityOnDisplaySync(Activities.SingleTopActivity.class,
@@ -228,14 +240,14 @@ public class StartActivityTests extends ActivityManagerTestBase {
                         });
 
         final Bundle data = new Bundle();
-        data.putParcelable(EXTRA_INTENT, intent1);
+        data.putParcelable(EXTRA_INTENT, navIntent);
         activitySession3.sendCommand(COMMAND_NAVIGATE_UP_TO, data);
 
-        waitAndAssertTopResumedActivity(intent1.getComponent(), DEFAULT_DISPLAY,
-                "navigateUpTo should return to the first activity");
+        waitAndAssertTopResumedActivity(rootActivitySession.getActivity().getComponentName(),
+                DEFAULT_DISPLAY, "navigateUpTo should return to the first activity");
         // Make sure the resumed first activity is the original instance.
         assertFalse("The target of navigateUpTo should not be destroyed",
-                activitySession1.getActivity().isDestroyed());
+                rootActivitySession.getActivity().isDestroyed());
 
         // The activities above the first one should be destroyed.
         mWmState.waitAndAssertActivityRemoved(
