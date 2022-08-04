@@ -74,6 +74,7 @@ import com.android.compatibility.common.util.MediaUtils;
 import static android.media.MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface;
 import static android.media.MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible;
 import static android.media.MediaCodecInfo.CodecCapabilities.COLOR_FormatYUVP010;
+import static android.media.MediaCodecInfo.CodecCapabilities.FEATURE_HdrEditing;
 import static android.media.MediaCodecInfo.CodecProfileLevel.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -600,6 +601,7 @@ abstract class CodecTestBase {
             ApiLevelUtil.isFirstApiAfter(Build.VERSION_CODES.S_V2);
     public static final boolean VNDK_IS_AT_LEAST_T =
             SystemProperties.getInt("ro.vndk.version", 0) > Build.VERSION_CODES.S_V2;
+    public static final boolean IS_HDR_EDITING_SUPPORTED = isHDREditingSupported();
     private static final String LOG_TAG = CodecTestBase.class.getSimpleName();
     enum SupportClass {
         CODEC_ALL, // All codecs must support
@@ -843,6 +845,22 @@ abstract class CodecTestBase {
         boolean isSupported = codecCapabilities.isFeatureSupported(feature);
         codec.release();
         return isSupported;
+    }
+
+    static boolean isHDREditingSupported() {
+        MediaCodecList mcl = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
+        for (MediaCodecInfo codecInfo : mcl.getCodecInfos()) {
+            if (!codecInfo.isEncoder()) {
+                continue;
+            }
+            for (String mediaType : codecInfo.getSupportedTypes()) {
+                CodecCapabilities caps = codecInfo.getCapabilitiesForType(mediaType);
+                if (caps != null && caps.isFeatureSupported(FEATURE_HdrEditing)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     static boolean doesAnyFormatHaveHDRProfile(String mime, ArrayList<MediaFormat> formats) {
