@@ -5252,6 +5252,7 @@
                        android:value="android.hardware.type.television:android.software.leanback:android.hardware.type.watch:android.hardware.type.automotive" />
             <meta-data android:name="display_mode"
                        android:value="multi_display_mode" />
+            <meta-data android:name="CddTest" android:value="3.8.8/C-1-2"/>
         </activity>
 
         <activity android:name=".tv.MockTvInputSetupActivity"
