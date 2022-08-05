@@ -2320,6 +2320,10 @@
                 android:configChanges="keyboardHidden|orientation|screenSize" >
             <meta-data android:name="display_mode"
                        android:value="multi_display_mode" />
+            <meta-data android:name="CddTest" android:value="7.4.4/C-3-1,C-3-2" />
+            <meta-data android:name="ApiTest"
+                       android:value="android.nfc.cardemulation.NfcFCardEmulation#getInstance|
+                                      android.nfc.cardemulation.NfcFCardEmulation#enableService" />
         </activity>
 
         <activity android:name=".nfc.hcef.HceFReaderActivity"
@@ -2327,6 +2331,10 @@
                 android:configChanges="keyboardHidden|orientation|screenSize" >
             <meta-data android:name="display_mode"
                        android:value="multi_display_mode" />
+            <meta-data android:name="CddTest" android:value="7.4.4/C-3-1,C-3-2" />
+            <meta-data android:name="ApiTest"
+                       android:value="android.nfc.tech.NfcF#get|
+                                      android.nfc.tech.NfcF#transceive" />
         </activity>
 
         <activity android:name=".nfc.offhost.UiccTransactionEvent1EmulatorActivity"
