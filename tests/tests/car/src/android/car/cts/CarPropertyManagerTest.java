@@ -2040,6 +2040,56 @@ public class CarPropertyManagerTest extends CarApiTestBase {
         });
     }
 
+    @Test
+    @ApiTest(apis = {"android.car.hardware.property.CarPropertyManager#getCarPropertyConfig",
+            "android.car.hardware.property.CarPropertyManager#getProperty",
+            "android.car.hardware.property.CarPropertyManager#setProperty",
+            "android.car.hardware.property.CarPropertyManager#registerCallback",
+            "android.car.hardware.property.CarPropertyManager#unregisterCallback"})
+    public void testHvacDualOnIfSupported() {
+        adoptSystemLevelPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE, () -> {
+            VehiclePropertyVerifier.newBuilder(VehiclePropertyIds.HVAC_DUAL_ON,
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
+                    VehicleAreaType.VEHICLE_AREA_TYPE_SEAT,
+                    CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE,
+                    Boolean.class).setPossiblyDependentOnHvacPowerOn().setAreaIdsVerifier(
+                    areaIds -> {
+                        CarPropertyConfig<?> hvacTempSetCarPropertyConfig =
+                                mCarPropertyManager.getCarPropertyConfig(
+                                        VehiclePropertyIds.HVAC_TEMPERATURE_SET);
+                        if (hvacTempSetCarPropertyConfig == null) {
+                            return;
+                        }
+                        ImmutableSet<Integer> hvacTempSetAreaIds = ImmutableSet.copyOf(
+                                Arrays.stream(
+                                        hvacTempSetCarPropertyConfig.getAreaIds()).boxed().collect(
+                                        Collectors.toList()));
+                        ImmutableSet.Builder<Integer> allPossibleHvacDualOnAreaIdsBuilder =
+                                ImmutableSet.builder();
+                        for (int i = 2; i <= hvacTempSetAreaIds.size(); i++) {
+                            allPossibleHvacDualOnAreaIdsBuilder.addAll(Sets.combinations(
+                                    hvacTempSetAreaIds, i).stream().map(areaIdCombo -> {
+                                Integer possibleHvacDualOnAreaId = 0;
+                                for (Integer areaId : areaIdCombo) {
+                                    possibleHvacDualOnAreaId |= areaId;
+                                }
+                                return possibleHvacDualOnAreaId;
+                            }).collect(Collectors.toList()));
+                        }
+                        ImmutableSet<Integer> allPossibleHvacDualOnAreaIds =
+                                allPossibleHvacDualOnAreaIdsBuilder.build();
+                        for (int areaId : areaIds) {
+                            assertWithMessage("HVAC_DUAL_ON area ID: " + areaId
+                                    + " must be a combination of HVAC_TEMPERATURE_SET area IDs: "
+                                    + Arrays.toString(
+                                    hvacTempSetCarPropertyConfig.getAreaIds())).that(areaId).isIn(
+                                    allPossibleHvacDualOnAreaIds);
+
+                        }
+                    }).build().verify(mCarPropertyManager);
+        });
+    }
+
     @SuppressWarnings("unchecked")
     @Test
     public void testGetProperty() {
