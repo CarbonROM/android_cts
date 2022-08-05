@@ -2088,6 +2088,7 @@
             <meta-data android:name="test_required_features" android:value="android.hardware.nfc" />
             <meta-data android:name="display_mode"
                        android:value="multi_display_mode" />
+            <meta-data android:name="NonApiTest" android:value="Helper class. List test activities" />
         </activity>
 
         <activity android:name="com.android.cts.verifier.nfc.hce.HceReaderTestActivity"
@@ -2095,6 +2096,7 @@
                 android:configChanges="keyboardHidden|orientation|screenSize">
             <meta-data android:name="display_mode"
                        android:value="multi_display_mode" />
+            <meta-data android:name="NonApiTest" android:value="Helper class. List test activities" />
         </activity>
 
         <activity android:name="com.android.cts.verifier.nfc.hce.HceEmulatorTestActivity"
@@ -2102,6 +2104,7 @@
                 android:configChanges="keyboardHidden|orientation|screenSize">
             <meta-data android:name="display_mode"
                        android:value="multi_display_mode" />
+            <meta-data android:name="NonApiTest" android:value="Helper class. List test activities" />
         </activity>
 
         <activity android:name="com.android.cts.verifier.nfc.hcef.HceFReaderTestActivity"
@@ -2109,6 +2112,7 @@
                 android:configChanges="keyboardHidden|orientation|screenSize">
             <meta-data android:name="display_mode"
                        android:value="multi_display_mode" />
+            <meta-data android:name="NonApiTest" android:value="Helper class. List test activities" />
         </activity>
 
         <activity android:name="com.android.cts.verifier.nfc.hcef.HceFEmulatorTestActivity"
@@ -2116,6 +2120,7 @@
                 android:configChanges="keyboardHidden|orientation|screenSize">
             <meta-data android:name="display_mode"
                        android:value="multi_display_mode" />
+            <meta-data android:name="NonApiTest" android:value="Helper class. List test activities" />
         </activity>
 
         <activity android:name="com.android.cts.verifier.nfc.offhost.OffhostUiccReaderTestActivity"
@@ -2123,6 +2128,7 @@
                 android:configChanges="keyboardHidden|orientation|screenSize">
             <meta-data android:name="display_mode"
                        android:value="multi_display_mode" />
+            <meta-data android:name="NonApiTest" android:value="Helper class. List test activities" />
         </activity>
 
         <activity android:name="com.android.cts.verifier.nfc.offhost.OffhostUiccEmulatorTestActivity"
@@ -2130,6 +2136,7 @@
                 android:configChanges="keyboardHidden|orientation|screenSize">
             <meta-data android:name="display_mode"
                        android:value="multi_display_mode" />
+            <meta-data android:name="NonApiTest" android:value="Helper class. List test activities" />
         </activity>
 
         <activity android:name=".nfc.TagVerifierActivity"
