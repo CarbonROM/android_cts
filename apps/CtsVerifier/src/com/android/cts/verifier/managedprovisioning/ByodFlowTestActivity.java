@@ -116,7 +116,7 @@ public class ByodFlowTestActivity extends DialogTestListActivity {
     private TestListItem mDisableLocationModeThroughMainSwitchTest;
     private TestListItem mDisableLocationModeThroughWorkSwitchTest;
     private TestListItem mPrimaryLocationWhenWorkDisabledTest;
-    private DialogTestListItem mSelectWorkChallenge;
+    //private DialogTestListItem mSelectWorkChallenge;
     private DialogTestListItem mConfirmWorkCredentials;
     private DialogTestListItem mPatternWorkChallenge;
     private DialogTestListItem mParentProfilePassword;
@@ -472,12 +472,13 @@ public class ByodFlowTestActivity extends DialogTestListActivity {
                 R.string.profile_owner_permission_lockdown_test_info,
                 permissionCheckIntent);
 
+        /* Disable due to b/241498104
         mSelectWorkChallenge = new DialogTestListItem(this,
                 R.string.provisioning_byod_select_work_challenge,
                 "BYOD_SelectWorkChallenge",
                 R.string.provisioning_byod_select_work_challenge_description,
                 new Intent(ByodHelperActivity.ACTION_TEST_SELECT_WORK_CHALLENGE));
-
+        */
         mRecentsTest = TestListItem.newTest(this,
                 R.string.provisioning_byod_recents,
                 RecentsRedactionActivity.class.getName(),
@@ -560,7 +561,7 @@ public class ByodFlowTestActivity extends DialogTestListActivity {
         adapter.add(mVpnTest);
         adapter.add(mAlwaysOnVpnSettingsTest);
         adapter.add(mTurnOffWorkFeaturesTest);
-        adapter.add(mSelectWorkChallenge);
+        //adapter.add(mSelectWorkChallenge);
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
             adapter.add(mConfirmWorkCredentials);
             adapter.add(mPatternWorkChallenge);
