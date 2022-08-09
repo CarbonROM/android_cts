@@ -21,6 +21,9 @@ import android.app.UiModeManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.IBinder;
+import android.telecom.PhoneAccount;
+import android.telecom.PhoneAccountHandle;
+import android.telecom.TelecomManager;
 import android.util.Log;
 
 /**
@@ -96,6 +99,22 @@ public class CtsCarModeInCallServiceControl extends Service {
         @Override
         public boolean checkBindStatus(boolean bind) {
             return CtsCarModeInCallService.checkBindStatus(bind);
+        }
+
+        @Override
+        public void registerPhoneAccount(PhoneAccount phoneAccount) {
+            TelecomManager telecomManager = getSystemService(TelecomManager.class);
+            if (telecomManager != null) {
+                telecomManager.registerPhoneAccount(phoneAccount);
+            }
+        }
+
+        @Override
+        public void unregisterPhoneAccount(PhoneAccountHandle phoneAccountHandle) {
+            TelecomManager telecomManager = getSystemService(TelecomManager.class);
+            if (telecomManager != null) {
+                telecomManager.unregisterPhoneAccount(phoneAccountHandle);
+            }
         }
     };
 
