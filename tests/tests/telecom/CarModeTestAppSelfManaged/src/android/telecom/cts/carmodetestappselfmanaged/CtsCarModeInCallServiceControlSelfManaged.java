@@ -14,19 +14,9 @@
  * limitations under the License.
  */
 
-package android.telecom.cts.carmodetestapp;
+package android.telecom.cts.carmodetestappselfmanaged;
 
-interface ICtsCarModeInCallServiceControl {
-    boolean isBound();
-    boolean isUnbound();
-    void reset();
-    int getCallCount();
-    void enableCarMode(int priority);
-    void disableCarMode();
-    void disconnectCalls();
-    boolean requestAutomotiveProjection();
-    void releaseAutomotiveProjection();
-    boolean checkBindStatus(boolean bind);
-    void registerPhoneAccount(in PhoneAccount phoneAccount);
-    void unregisterPhoneAccount(in PhoneAccountHandle phoneAccountHandle);
+import android.telecom.cts.carmodetestapp.CtsCarModeInCallServiceControl;
+
+public class CtsCarModeInCallServiceControlSelfManaged extends CtsCarModeInCallServiceControl {
 }
