@@ -2396,6 +2396,8 @@
                 android:configChanges="keyboardHidden|orientation|screenSize" >
             <meta-data android:name="display_mode"
                        android:value="multi_display_mode" />
+            <meta-data android:name="ApiTest"
+                       android:value="android.nfc.NfcAdapter#ACTION_TRANSACTION_DETECTED" />
         </activity>
 
         <activity android:name=".nfc.offhost.UiccTransactionEvent2EmulatorActivity"
@@ -2403,6 +2405,8 @@
                 android:configChanges="keyboardHidden|orientation|screenSize" >
             <meta-data android:name="display_mode"
                        android:value="multi_display_mode" />
+            <meta-data android:name="ApiTest"
+                       android:value="android.nfc.NfcAdapter#ACTION_TRANSACTION_DETECTED" />
         </activity>
 
         <activity android:name=".nfc.offhost.UiccTransactionEvent3EmulatorActivity"
@@ -2410,6 +2414,8 @@
                 android:configChanges="keyboardHidden|orientation|screenSize" >
             <meta-data android:name="display_mode"
                        android:value="multi_display_mode" />
+            <meta-data android:name="ApiTest"
+                       android:value="android.nfc.NfcAdapter#ACTION_TRANSACTION_DETECTED" />
         </activity>
 
         <activity android:name=".nfc.offhost.SimpleOffhostReaderActivity"
@@ -2417,6 +2423,8 @@
                 android:configChanges="keyboardHidden|orientation|screenSize" >
             <meta-data android:name="display_mode"
                        android:value="multi_display_mode" />
+            <meta-data android:name="ApiTest"
+                       android:value="android.nfc.NfcAdapter#ACTION_TRANSACTION_DETECTED" />
         </activity>
 
         <!-- services used for testing NFC host-based card emulation -->
