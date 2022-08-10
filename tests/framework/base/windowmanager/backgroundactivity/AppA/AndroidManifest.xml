@@ -37,6 +37,9 @@
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name=".VirtualDisplayReceiver"
+            android:exported="true"/>
         <activity
             android:name=".ForegroundActivity"
             android:taskAffinity=".am_cts_bg_task_a"
