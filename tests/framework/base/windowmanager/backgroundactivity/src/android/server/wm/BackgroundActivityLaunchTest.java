@@ -26,6 +26,7 @@ import static android.server.wm.backgroundactivity.appa.Components.APP_A_SECOND_
 import static android.server.wm.backgroundactivity.appa.Components.APP_A_SEND_PENDING_INTENT_RECEIVER;
 import static android.server.wm.backgroundactivity.appa.Components.APP_A_SIMPLE_ADMIN_RECEIVER;
 import static android.server.wm.backgroundactivity.appa.Components.APP_A_START_ACTIVITY_RECEIVER;
+import static android.server.wm.backgroundactivity.appa.Components.APP_A_VIRTUAL_DISPLAY_RECEIVER;
 import static android.server.wm.backgroundactivity.appa.Components.ForegroundActivity.ACTION_FINISH_ACTIVITY;
 import static android.server.wm.backgroundactivity.appa.Components.ForegroundActivity.ACTION_LAUNCH_BACKGROUND_ACTIVITIES;
 import static android.server.wm.backgroundactivity.appa.Components.ForegroundActivity.LAUNCH_BACKGROUND_ACTIVITY_EXTRA;
@@ -38,6 +39,7 @@ import static android.server.wm.backgroundactivity.appa.Components.SendPendingIn
 import static android.server.wm.backgroundactivity.appa.Components.StartBackgroundActivityReceiver.START_ACTIVITY_DELAY_MS_EXTRA;
 import static android.server.wm.backgroundactivity.appb.Components.APP_B_FOREGROUND_ACTIVITY;
 import static android.server.wm.backgroundactivity.common.CommonComponents.EVENT_NOTIFIER_EXTRA;
+import static android.view.WindowManager.LayoutParams.TYPE_PRIVATE_PRESENTATION;
 
 import static com.android.compatibility.common.util.SystemUtil.runShellCommand;
 import static com.android.compatibility.common.util.SystemUtil.runWithShellPermissionIdentity;
@@ -57,6 +59,7 @@ import android.platform.test.annotations.Presubmit;
 import android.platform.test.annotations.SystemUserOnly;
 import android.server.wm.backgroundactivity.common.CommonComponents.Event;
 import android.server.wm.backgroundactivity.common.EventReceiver;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.test.filters.FlakyTest;
@@ -131,6 +134,22 @@ public class BackgroundActivityLaunchTest extends ActivityManagerTestBase {
 
     @Test
     public void testBackgroundActivityBlocked() throws Exception {
+        // Start AppA background activity and blocked
+        Intent intent = new Intent();
+        intent.setComponent(APP_A_START_ACTIVITY_RECEIVER);
+        mContext.sendBroadcast(intent);
+        boolean result = waitForActivityFocused(APP_A_BACKGROUND_ACTIVITY);
+        assertFalse("Should not able to launch background activity", result);
+        assertTaskStack(null, APP_A_BACKGROUND_ACTIVITY);
+    }
+
+    @Test
+    public void testBackgroundActivityBlocked_VirtualDisplay() throws Exception {
+        mContext.sendBroadcast(new Intent().setComponent(APP_A_VIRTUAL_DISPLAY_RECEIVER));
+        assertTrue(mWmState.waitFor((wmState) ->
+                wmState.getWindowByPackageName(APP_A_PACKAGE_NAME, TYPE_PRIVATE_PRESENTATION)
+                        != null, "Private presentation was never created"));
+
         // Start AppA background activity and blocked
         Intent intent = new Intent();
         intent.setComponent(APP_A_START_ACTIVITY_RECEIVER);
