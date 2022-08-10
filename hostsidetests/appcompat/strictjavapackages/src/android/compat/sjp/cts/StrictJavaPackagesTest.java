@@ -231,7 +231,8 @@ public class StrictJavaPackagesTest extends BaseHostJUnit4Test {
                     "Landroid/app/sdksandbox/ISdkSandboxManager;",
                     "Landroid/app/sdksandbox/ISdkSandboxLifecycleCallback;",
                     "Landroid/app/sdksandbox/ISendDataCallback;",
-                    "Landroid/app/sdksandbox/ISharedPreferencesSyncCallback;"
+                    "Landroid/app/sdksandbox/ISharedPreferencesSyncCallback;",
+                    "Landroid/app/sdksandbox/ISdkToServiceCallback;"
             );
 
     private static final String FEATURE_WEARABLE = "android.hardware.type.watch";
