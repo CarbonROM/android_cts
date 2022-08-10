@@ -30,6 +30,7 @@ import static android.server.wm.backgroundactivity.appa.Components.APP_A_SECOND_
 import static android.server.wm.backgroundactivity.appa.Components.APP_A_SEND_PENDING_INTENT_RECEIVER;
 import static android.server.wm.backgroundactivity.appa.Components.APP_A_SIMPLE_ADMIN_RECEIVER;
 import static android.server.wm.backgroundactivity.appa.Components.APP_A_START_ACTIVITY_RECEIVER;
+import static android.server.wm.backgroundactivity.appa.Components.APP_A_VIRTUAL_DISPLAY_RECEIVER;
 import static android.server.wm.backgroundactivity.appa.Components.ForegroundActivity.ACTION_LAUNCH_BACKGROUND_ACTIVITIES;
 import static android.server.wm.backgroundactivity.appa.Components.ForegroundActivity.LAUNCH_BACKGROUND_ACTIVITY_EXTRA;
 import static android.server.wm.backgroundactivity.appa.Components.ForegroundActivity.LAUNCH_INTENTS_EXTRA;
@@ -40,6 +41,7 @@ import static android.server.wm.backgroundactivity.appa.Components.ForegroundAct
 import static android.server.wm.backgroundactivity.appa.Components.SendPendingIntentReceiver.IS_BROADCAST_EXTRA;
 import static android.server.wm.backgroundactivity.appa.Components.StartBackgroundActivityReceiver.START_ACTIVITY_DELAY_MS_EXTRA;
 import static android.server.wm.backgroundactivity.appb.Components.APP_B_FOREGROUND_ACTIVITY;
+import static android.view.WindowManager.LayoutParams.TYPE_PRIVATE_PRESENTATION;
 
 import static com.android.compatibility.common.util.SystemUtil.runShellCommand;
 import static com.android.compatibility.common.util.SystemUtil.runWithShellPermissionIdentity;
@@ -146,6 +148,32 @@ public class BackgroundActivityLaunchTest extends ActivityManagerTestBase {
         //         assertThat(task.getActivities().size()).isGreaterThan(0);
         //     }
         // }
+    }
+
+    @Test
+    public void testBackgroundActivityBlocked_VirtualDisplay() throws Exception {
+        mContext.sendBroadcast(new Intent().setComponent(APP_A_VIRTUAL_DISPLAY_RECEIVER));
+        boolean foundPresentation = false;
+        long retryIntervalMs = 1000L;
+        int maxTries = 5;
+        for (int i = 0; i < maxTries; i++) {
+            mAmWmState.getWmState().computeState();
+            if (mAmWmState.getWmState().getWindowByPackageName(APP_A_PACKAGE_NAME,
+                    TYPE_PRIVATE_PRESENTATION) != null) {
+                foundPresentation = true;
+                break;
+            }
+            SystemClock.sleep(retryIntervalMs);
+        }
+        assertTrue("Private presentation was never created", foundPresentation);
+
+        // Start AppA background activity and blocked
+        Intent intent = new Intent();
+        intent.setComponent(APP_A_START_ACTIVITY_RECEIVER);
+        mContext.sendBroadcast(intent);
+        boolean result = waitForActivityFocused(APP_A_BACKGROUND_ACTIVITY);
+        assertFalse("Should not able to launch background activity", result);
+        assertTaskStack(null, APP_A_BACKGROUND_ACTIVITY);
     }
 
     @Test
