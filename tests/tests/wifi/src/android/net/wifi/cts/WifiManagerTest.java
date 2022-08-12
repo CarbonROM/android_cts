@@ -97,6 +97,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.compatibility.common.util.ApiLevelUtil;
+import com.android.compatibility.common.util.ApiTest;
 import com.android.compatibility.common.util.FeatureUtil;
 import com.android.compatibility.common.util.PollingCheck;
 import com.android.compatibility.common.util.PropertyUtil;
@@ -5468,6 +5469,7 @@ public class WifiManagerTest extends WifiJUnit3TestBase {
     /**
      * Tests {@link WifiConfiguration#setBssidAllowlist(List)}.
      */
+    @ApiTest(apis = "android.net.wifi.WifiConfiguration#setBssidAllowlist")
     public void testBssidAllowlist() throws Exception {
         if (!WifiFeature.isWifiSupported(getContext())) {
             // skip the test if WiFi is not supported
@@ -5518,7 +5520,6 @@ public class WifiManagerTest extends WifiJUnit3TestBase {
             waitForConnection();
             wifiInfo = mWifiManager.getConnectionInfo();
             assertEquals(networkId, wifiInfo.getNetworkId());
-            assertEquals(connectedBssid, wifiInfo.getBSSID());
         } finally {
             // Reset BSSID allow list to accept all APs
             for (WifiConfiguration network : savedNetworks) {
