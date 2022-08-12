@@ -16,17 +16,18 @@
 
 package android.security.cts;
 
+import static org.junit.Assert.assertFalse;
+
 import android.platform.test.annotations.AsbSecurityTest;
+import com.android.sts.common.tradefed.testtype.NonRootSecurityTestCase;
 import com.android.tradefed.device.ITestDevice;
 import com.android.tradefed.testtype.DeviceJUnit4ClassRunner;
 import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.junit.Assert.assertFalse;
 
 @RunWith(DeviceJUnit4ClassRunner.class)
-public class CVE_2021_0304 extends SecurityTestCase {
+public class CVE_2021_0304 extends NonRootSecurityTestCase {
     /**
      * b/162738636
      * Vulnerability Behaviour: RuntimeException in android.security.cts.cve_2021_0304
