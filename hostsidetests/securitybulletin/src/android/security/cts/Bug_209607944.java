@@ -20,15 +20,14 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNoException;
 
 import android.platform.test.annotations.AsbSecurityTest;
-
+import com.android.sts.common.tradefed.testtype.NonRootSecurityTestCase;
 import com.android.tradefed.targetprep.TargetSetupError;
 import com.android.tradefed.testtype.DeviceJUnit4ClassRunner;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(DeviceJUnit4ClassRunner.class)
-public class Bug_209607944 extends SecurityTestCase {
+public class Bug_209607944 extends NonRootSecurityTestCase {
     private static final String TEST_PKG = "android.security.cts.BUG_209607944";
     private static final String TEST_APP = "BUG-209607944.apk";
     private static final String TARGET_PERMISSION = "android.permission.CALL_PHONE";
