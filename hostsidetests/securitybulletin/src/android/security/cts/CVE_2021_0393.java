@@ -16,17 +16,17 @@
 
 package android.security.cts;
 
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assume.*;
+
 import android.platform.test.annotations.AsbSecurityTest;
+import com.android.sts.common.tradefed.testtype.NonRootSecurityTestCase;
+import com.android.tradefed.testtype.DeviceJUnit4ClassRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import com.android.tradefed.testtype.DeviceJUnit4ClassRunner;
-import com.android.tradefed.device.ITestDevice;
-
-import static org.junit.Assume.*;
-import static org.hamcrest.CoreMatchers.*;
 
 @RunWith(DeviceJUnit4ClassRunner.class)
-public class CVE_2021_0393 extends SecurityTestCase {
+public class CVE_2021_0393 extends NonRootSecurityTestCase {
 
     /**
      * b/168041375
