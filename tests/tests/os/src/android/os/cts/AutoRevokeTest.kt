@@ -471,13 +471,14 @@ class AutoRevokeTest {
             val ui = instrumentation.uiAutomation.rootInActiveWindow
             val node = ui.lowestCommonAncestor(
                     { node -> node.textAsString == "Remove permissions if app isn’t used" },
-                    { node -> node.className == Switch::class.java.name })
+                    { node -> node.isCheckable == true })
+
             if (node == null) {
                 ui.depthFirstSearch { it.isScrollable }?.performAction(ACTION_SCROLL_FORWARD)
             }
             return@eventually node.assertNotNull {
                 "No auto-revoke whitelist toggle found in\n${uiDump(ui)}"
-            }.depthFirstSearch { node -> node.className == Switch::class.java.name }!!
+            }.depthFirstSearch { node -> node.isCheckable == true }!!
         }
     }
 
