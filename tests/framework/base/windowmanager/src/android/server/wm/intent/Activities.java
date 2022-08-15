@@ -17,6 +17,7 @@
 package android.server.wm.intent;
 
 import android.app.Activity;
+import android.content.Intent;
 
 /**
  * A collection of activities with various launch modes used in the intent tests.
@@ -31,6 +32,13 @@ public class Activities {
     }
 
     public static class RegularActivity extends Activity {
+        public boolean mIsOnNewIntentCalled = false;
+
+        @Override
+        protected void onNewIntent(Intent intent) {
+            super.onNewIntent(intent);
+            mIsOnNewIntentCalled = true;
+        }
     }
 
     public static class SingleTopActivity extends Activity {
