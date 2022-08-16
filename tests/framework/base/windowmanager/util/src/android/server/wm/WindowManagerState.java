@@ -955,6 +955,15 @@ public class WindowManagerState {
                 .collect(Collectors.toList());
     }
 
+    public boolean allActivitiesResumed() {
+        for (Task rootTask : mRootTasks) {
+            final Activity nonResumedActivity =
+                    rootTask.getActivity((a) -> !a.state.equals(STATE_RESUMED));
+            if (nonResumedActivity != null) return false;
+        }
+        return true;
+    }
+
     public boolean hasNotificationShade() {
         computeState();
         return !getMatchingWindowType(TYPE_NOTIFICATION_SHADE).isEmpty();
