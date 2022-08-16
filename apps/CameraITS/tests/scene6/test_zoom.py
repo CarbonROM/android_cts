@@ -228,12 +228,13 @@ class ZoomTest(its_base_test.ItsBaseTest):
       z_list = np.append(z_list, z_max)
 
       # set TOLs based on camera and test rig params
+      test_tols = {}
       if camera_properties_utils.logical_multi_camera(props):
         test_tols, size = get_test_tols_and_cap_size(
             cam, props, self.chart_distance, debug)
       else:
-        fl = props['android.lens.info.availableFocalLengths'][0]
-        test_tols = {fl: RADIUS_RTOL}
+        for fl in props['android.lens.info.availableFocalLengths']:
+          test_tols[fl] = RADIUS_RTOL
         yuv_size = capture_request_utils.get_largest_yuv_format(props)
         size = [yuv_size['width'], yuv_size['height']]
       logging.debug('capture size: %s', str(size))
