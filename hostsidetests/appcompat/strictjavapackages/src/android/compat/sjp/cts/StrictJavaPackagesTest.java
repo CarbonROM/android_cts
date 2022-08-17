@@ -223,8 +223,14 @@ public class StrictJavaPackagesTest extends BaseHostJUnit4Test {
                     "Landroid/os/BlockUntrustedTouchesMode;",
                     "Landroid/os/IInputConstants;",
                     "Landroid/os/InputEventInjectionResult;",
-                    "Landroid/os/InputEventInjectionSync;"
-
+                    "Landroid/os/InputEventInjectionSync;",
+                    // TODO(b/242741880): Remove duplication between sdksandbox-service and
+                    // sdk-sandbox-framework
+                    "Landroid/app/sdksandbox/IRequestSurfacePackageCallback;",
+                    "Landroid/app/sdksandbox/ISdkSandboxManager;",
+                    "Landroid/app/sdksandbox/ISendDataCallback;",
+                    "Landroid/app/sdksandbox/ILoadSdkCallback;",
+                    "Landroid/app/sdksandbox/ISdkSandboxLifecycleCallback;"
             );
 
     private static final String FEATURE_WEARABLE = "android.hardware.type.watch";
@@ -718,6 +724,9 @@ public class StrictJavaPackagesTest extends BaseHostJUnit4Test {
     private static final ImmutableSet<String> ADSERVICES_SANDBOX_APK_IN_APEX_BURNDOWN_LIST =
             ImmutableSet.of(
                 // /apex/com.android.adservices/javalib/service-sdksandbox.jar
+                "Lcom/android/sdksandbox/IDataReceivedCallback;",
+                "Lcom/android/sdksandbox/ILoadSdkInSandboxCallback;",
+                "Lcom/android/sdksandbox/IRequestSurfacePackageFromSdkCallback;",
                 "Lcom/android/sdksandbox/ISdkSandboxManagerToSdkSandboxCallback;",
                 "Lcom/android/sdksandbox/ISdkSandboxService;",
                 "Lcom/android/sdksandbox/ISdkSandboxToSdkSandboxManagerCallback;"
