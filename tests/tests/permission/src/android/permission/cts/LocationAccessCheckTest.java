@@ -20,7 +20,6 @@ import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.app.AppOpsManager.OPSTR_FINE_LOCATION;
 import static android.app.AppOpsManager.OP_FLAGS_ALL_TRUSTED;
-import static android.app.Notification.EXTRA_TITLE;
 import static android.content.Context.BIND_AUTO_CREATE;
 import static android.content.Context.BIND_NOT_FOREGROUND;
 import static android.content.Intent.FLAG_RECEIVER_FOREGROUND;
@@ -78,6 +77,7 @@ import androidx.annotation.Nullable;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
 
+import com.android.compatibility.common.util.DeviceConfigStateChangerRule;
 import com.android.compatibility.common.util.DeviceConfigStateHelper;
 import com.android.compatibility.common.util.ProtoUtils;
 import com.android.compatibility.common.util.mainline.MainlineModule;
@@ -91,6 +91,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -117,10 +118,15 @@ public class LocationAccessCheckTest {
     private static final String ACTION_SET_UP_LOCATION_ACCESS_CHECK =
             "com.android.permissioncontroller.action.SET_UP_LOCATION_ACCESS_CHECK";
     private static final int LOCATION_ACCESS_CHECK_JOB_ID = 0;
+    private static final int LOCATION_ACCESS_CHECK_NOTIFICATION_ID = 0;
 
     /** Whether to show location access check notifications. */
     private static final String PROPERTY_LOCATION_ACCESS_CHECK_ENABLED =
             "location_access_check_enabled";
+    private static final String PROPERTY_LOCATION_ACCESS_CHECK_DELAY_MILLIS =
+            "location_access_check_delay_millis";
+    private static final String PROPERTY_LOCATION_ACCESS_PERIODIC_INTERVAL_MILLIS =
+            "location_access_check_periodic_interval_millis";
 
     private static final long UNEXPECTED_TIMEOUT_MILLIS = 10000;
     private static final long EXPECTED_TIMEOUT_MILLIS = 15000;
@@ -141,6 +147,21 @@ public class LocationAccessCheckTest {
             "com.android.permissioncontroller.permission.service"
                     + ".LocationAccessCheck$SetupPeriodicBackgroundLocationAccessCheck";
 
+    // Override general notification interval
+    @Rule
+    public DeviceConfigStateChangerRule sPrivacyDeviceConfigBgCheckIntervalMillis =
+            new DeviceConfigStateChangerRule(sContext,
+                    DeviceConfig.NAMESPACE_PRIVACY,
+                    PROPERTY_LOCATION_ACCESS_PERIODIC_INTERVAL_MILLIS,
+                    "100");
+
+    // Override general delay interval
+    @Rule
+    public DeviceConfigStateChangerRule sPrivacyDeviceConfigBgCheckDelayMillis =
+            new DeviceConfigStateChangerRule(sContext,
+                    DeviceConfig.NAMESPACE_PRIVACY,
+                    PROPERTY_LOCATION_ACCESS_CHECK_DELAY_MILLIS,
+                    "50");
 
     /**
      * The result of {@link #assumeCanGetFineLocation()}, so we don't have to run it over and over
@@ -367,8 +388,7 @@ public class LocationAccessCheckTest {
             return null;
         }
 
-        if (notification.getNotification().extras.getString(EXTRA_TITLE, "")
-                .contains(TEST_APP_LABEL)) {
+        if (notification.getId() == LOCATION_ACCESS_CHECK_NOTIFICATION_ID) {
             if (cancelNotification) {
                 notificationService.cancelNotification(notification.getKey());
 
