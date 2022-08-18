@@ -44,6 +44,7 @@ import static android.content.pm.PackageManager.FEATURE_PICTURE_IN_PICTURE;
 import static android.content.pm.PackageManager.FEATURE_SCREEN_LANDSCAPE;
 import static android.content.pm.PackageManager.FEATURE_SCREEN_PORTRAIT;
 import static android.content.pm.PackageManager.FEATURE_SECURE_LOCK_SCREEN;
+import static android.content.pm.PackageManager.FEATURE_TELEVISION;
 import static android.content.pm.PackageManager.FEATURE_VR_MODE_HIGH_PERFORMANCE;
 import static android.content.pm.PackageManager.FEATURE_WATCH;
 import static android.content.pm.PackageManager.MATCH_DEFAULT_ONLY;
@@ -1089,13 +1090,13 @@ public abstract class ActivityManagerTestBase {
         return hasDeviceFeature(FEATURE_AUTOMOTIVE);
     }
 
+    protected boolean isLeanBack() {
+        return hasDeviceFeature(FEATURE_TELEVISION);
+    }
+
     protected boolean isTablet() {
         // Larger than approx 7" tablets
         return mContext.getResources().getConfiguration().smallestScreenWidthDp >= 600;
-    }
-
-    protected boolean isOperatorTierDevice() {
-        return hasDeviceFeature("com.google.android.tv.operator_tier");
     }
 
     protected void waitAndAssertActivityState(ComponentName activityName,
