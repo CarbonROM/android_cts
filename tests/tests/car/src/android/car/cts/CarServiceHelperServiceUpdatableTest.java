@@ -16,6 +16,8 @@
 
 package android.car.cts;
 
+import static com.android.compatibility.common.util.SystemUtil.eventually;
+
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -81,17 +83,17 @@ public final class CarServiceHelperServiceUpdatableTest extends CarApiTestBase {
         try {
             executeShellCommand("cmd car_service emulate-driving-state drive");
 
-            assertWithMessage("CarServiceHelperService dump")
+            eventually(()-> assertWithMessage("CarServiceHelperService dump")
                     .that(executeShellCommand(
                             "dumpsys system_server_dumper --name CarServiceHelper"))
-                    .contains("Safe to run device policy operations: false");
+                    .contains("Safe to run device policy operations: false"));
         } finally {
             executeShellCommand("cmd car_service emulate-driving-state park");
         }
 
-        assertWithMessage("CarServiceHelperService dump")
+        eventually(()-> assertWithMessage("CarServiceHelperService dump")
                 .that(executeShellCommand("dumpsys system_server_dumper --name CarServiceHelper"))
-                .contains("Safe to run device policy operations: true");
+                .contains("Safe to run device policy operations: true"));
 
         // Test dumpServiceStacks
         assertWithMessage("CarServiceHelperService dump")
