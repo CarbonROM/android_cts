@@ -83,9 +83,15 @@ public class DreamCoordinator {
         SystemUtil.runWithShellPermissionIdentity(mDreamManager::stopDream);
     }
 
-    public  ComponentName setActiveDream(ComponentName dream) {
+    public ComponentName setActiveDream(ComponentName dream) {
         SystemUtil.runWithShellPermissionIdentity(() -> mDreamManager.setActiveDream(dream));
         return getDreamActivityName(dream);
+    }
+
+    public ComponentName setSystemDream(ComponentName dream) {
+        SystemUtil.runWithShellPermissionIdentity(() ->
+                mDreamManager.setSystemDreamComponent(dream));
+        return dream == null ? null : getDreamActivityName(dream);
     }
 
     public void setDreamOverlay(ComponentName overlay) {
