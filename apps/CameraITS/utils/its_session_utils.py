@@ -672,7 +672,7 @@ class ItsSession(object):
     ncap = 1
     capture_results_returned = False
     yuv_bufs = {}
-    while not capture_results_returned:
+    while (nbufs < ncap) or (not capture_results_returned):
       json_obj, buf = self.__read_response_from_socket()
       if json_obj['tag'] in ItsSession.IMAGE_FORMAT_LIST_1 and buf is not None:
         fmt = json_obj['tag'][:-5]
