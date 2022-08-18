@@ -56,14 +56,14 @@ public class AtraceHostTest extends DeviceTestCase implements IBuildReceiver {
         //          <idle>-0    0 [001] d...  1.23: sched_switch
         private static final Pattern sLineWithTgid = Pattern.compile(
                 "^\\s*(.+)-(\\d+)\\s+\\(\\s*(\\d+|-+)\\)\\s\\[(\\d+)\\]"
-                + "\\s+[dX.][N.][Hhs.][0-9a-f.]"
+                + "\\s+[dX.][N.][Hhs.][0-9a-f.]{1,2}"
                 + "\\s+(\\d+\\.\\d+):\\s+(\\S+):\\s(.*)");
 
         // Matches the default trace record in 3.2 and later (includes irq-info):
         //          <idle>-0     [001] d...  1.23: sched_switch
         private static final Pattern sLineWithIrqInfo = Pattern.compile(
                 "^\\s*(.+)-(\\d+)\\s+\\[(\\d+)\\]"
-                + "\\s+[dX.][N.][Hhs.][0-9a-f.]"
+                + "\\s+[dX.][N.][Hhs.][0-9a-f.]{1,2}"
                 + "\\s+(\\d+\\.\\d+):\\s+(\\S+):\\s(.*)$");
 
         // Matches the default trace record pre-3.2:
