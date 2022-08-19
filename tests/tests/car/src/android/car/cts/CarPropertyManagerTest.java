@@ -126,6 +126,9 @@ public class CarPropertyManagerTest extends CarApiTestBase {
             /*VehicleHvacFanDirection.DEFROST=*/0x4);
     private static final ImmutableSet<Integer> ALL_POSSIBLE_HVAC_FAN_DIRECTIONS =
             generateAllPossibleHvacFanDirections();
+    private static final ImmutableSet<Integer> VEHICLE_SEAT_OCCUPANCY_STATES = ImmutableSet.of(
+            /*VehicleSeatOccupancyState.UNKNOWN=*/0, /*VehicleSeatOccupancyState.VACANT=*/1,
+            /*VehicleSeatOccupancyState.OCCUPIED=*/2);
 
     /** contains property Ids for the properties required by CDD */
     private final ArraySet<Integer> mPropertyIds = new ArraySet<>();
@@ -1918,6 +1921,23 @@ public class CarPropertyManagerTest extends CarApiTestBase {
                             CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE,
                             Integer.class).requireMinMaxValues()
                     .requireZeroToBeContainedInMinMaxRanges().build().verify(mCarPropertyManager);
+        });
+    }
+
+    @Test
+    @ApiTest(apis = {"android.car.hardware.property.CarPropertyManager#getCarPropertyConfig",
+            "android.car.hardware.property.CarPropertyManager#getProperty",
+            "android.car.hardware.property.CarPropertyManager#registerCallback",
+            "android.car.hardware.property.CarPropertyManager#unregisterCallback"})
+    public void testSeatOccupancyIfSupported() {
+        adoptSystemLevelPermission(Car.PERMISSION_CONTROL_CAR_SEATS, () -> {
+            VehiclePropertyVerifier.newBuilder(VehiclePropertyIds.SEAT_OCCUPANCY,
+                            CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ,
+                            VehicleAreaType.VEHICLE_AREA_TYPE_SEAT,
+                            CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE,
+                            Integer.class)
+                    .setPossibleCarPropertyValues(VEHICLE_SEAT_OCCUPANCY_STATES).build()
+                    .verify(mCarPropertyManager);
         });
     }
 
