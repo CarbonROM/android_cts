@@ -16,6 +16,7 @@
 
 package android.content.pm.cts;
 
+import static android.Manifest.permission.GET_INTENT_SENDER_INTENT;
 import static android.Manifest.permission.INSTALL_TEST_ONLY_PACKAGE;
 import static android.content.pm.ApplicationInfo.FLAG_HAS_CODE;
 import static android.content.pm.ApplicationInfo.FLAG_INSTALLED;
@@ -41,8 +42,6 @@ import static android.content.pm.PackageManager.MATCH_UNINSTALLED_PACKAGES;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import com.google.common.truth.Expect;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -56,6 +55,7 @@ import static org.testng.Assert.assertThrows;
 import android.annotation.NonNull;
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -99,13 +99,15 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.core.content.FileProvider;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ServiceTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.android.compatibility.common.util.PollingCheck;
 import com.android.compatibility.common.util.SystemUtil;
 import com.android.compatibility.common.util.TestUtils;
+
+import com.google.common.truth.Expect;
 
 import junit.framework.AssertionFailedError;
 
@@ -240,9 +242,9 @@ public class PackageManagerTest {
 
     @Before
     public void setup() throws Exception {
-        mContext = InstrumentationRegistry.getContext();
-        mPackageManager = mContext.getPackageManager();
         mInstrumentation = InstrumentationRegistry.getInstrumentation();
+        mContext = mInstrumentation.getContext();
+        mPackageManager = mContext.getPackageManager();
     }
 
     @After
@@ -505,6 +507,24 @@ public class PackageManagerTest {
         results = mPackageManager.queryBroadcastReceivers(intent,
                 PackageManager.ResolveInfoFlags.of(0));
         assertEquals(0, results.size());
+
+        /* Pending Intent tests */
+
+        mInstrumentation.getUiAutomation().adoptShellPermissionIdentity(GET_INTENT_SENDER_INTENT);
+        var authority = INTENT_RESOLUTION_TEST_PKG_NAME + ".provider";
+        Bundle b = mContext.getContentResolver().call(authority, "", null, null);
+        assertNotNull(b);
+        PendingIntent pi = b.getParcelable("pendingIntent", PendingIntent.class);
+        assertNotNull(pi);
+        intent = pi.getIntent();
+        // It should be a non-matching intent, which cannot be resolved in our package
+        results = mPackageManager.queryIntentActivities(intent,
+            PackageManager.ResolveInfoFlags.of(0));
+        assertEquals(0, results.size());
+        // However, querying on behalf of the pending intent creator should work properly
+        results = pi.queryIntentComponents(0);
+        assertEquals(1, results.size());
+        mInstrumentation.getUiAutomation().dropShellPermissionIdentity();
     }
 
     private void checkActivityInfoName(String expectedName, List<ResolveInfo> resolves) {
