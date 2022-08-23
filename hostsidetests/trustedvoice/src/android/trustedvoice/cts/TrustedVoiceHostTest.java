@@ -103,7 +103,7 @@ public class TrustedVoiceHostTest extends DeviceTestCase {
             getDevice().executeShellCommand(START_COMMAND);
             // Adding delay for OEM specific features which could delay the time of printing the
             // test log. Please refer to b/62075150 for additional details.
-            Thread.sleep(1000);
+            Thread.sleep(4000);
             // Dump logcat.
             String logs = getDevice().executeAdbCommand(
                     "logcat", "-v", "brief", "-d", CLASS + ":I", "*:S");
