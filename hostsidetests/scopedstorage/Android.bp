@@ -303,6 +303,7 @@ java_test_host {
         "general-tests",
         "mts-mediaprovider",
         "cts",
+        "gts"
     ],
     test_config: "AndroidTest.xml",
     per_testcase_directory: true,
