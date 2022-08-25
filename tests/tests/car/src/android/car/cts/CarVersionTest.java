@@ -21,14 +21,16 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.car.CarVersion;
 import android.car.annotation.ApiRequirements;
-import android.car.test.AbstractExpectableTestCase;
 import android.os.Parcel;
+
+import com.android.compatibility.common.util.ApiTest;
 
 import org.junit.Test;
 
-public final class CarVersionTest extends AbstractExpectableTestCase {
+public final class CarVersionTest extends AbstractCarLessTestCase {
 
     @Test
+    @ApiTest(apis = {"android.car.CarVersion.VERSION_CODES#TIRAMISU_0"})
     public void testTiramisu_0() {
         CarVersion version = CarVersion.VERSION_CODES.TIRAMISU_0;
 
@@ -60,6 +62,7 @@ public final class CarVersionTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    @ApiTest(apis = {"android.car.CarVersion.VERSION_CODES#TIRAMISU_1"})
     public void testTiramisu_1() {
         CarVersion version = CarVersion.VERSION_CODES.TIRAMISU_1;
 
@@ -91,6 +94,7 @@ public final class CarVersionTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    @ApiTest(apis = {"android.car.CarVersion#CREATOR"})
     public void testMarshalling() {
         CarVersion original = CarVersion.forMajorAndMinorVersions(66, 6);
         expectWithMessage("original.describeContents()").that(original.describeContents())
@@ -106,6 +110,7 @@ public final class CarVersionTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    @ApiTest(apis = {"android.car.CarVersion#CREATOR"})
     public void testNewArray() {
         CarVersion[] array = CarVersion.CREATOR.newArray(42);
 
