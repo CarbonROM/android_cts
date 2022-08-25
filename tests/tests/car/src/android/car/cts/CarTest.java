@@ -17,8 +17,11 @@
 package android.car.cts;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.car.Car;
+import android.car.CarVersion;
+import android.car.PlatformVersion;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
@@ -145,6 +148,26 @@ public class CarTest {
                 Car.API_VERSION_MINOR_INT, Build.VERSION.SDK_INT)).isTrue();
         assertThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
                 Car.API_VERSION_MINOR_INT, Build.VERSION.SDK_INT + 1)).isFalse();
+    }
+
+    @ApiTest(apis = {"android.car.Car#getCarVersion"})
+    @Test
+    public void testGetCarVersion() {
+        CarVersion version = Car.getCarVersion();
+
+        assertWithMessage("Car.getCarVersion()").that(version).isNotNull();
+        assertWithMessage("Car.getCarVersion().toString()").that(version.toString())
+            .contains("name=Car.CAR_VERSION");
+    }
+
+    @ApiTest(apis = {"android.car.Car#getPlatformVersion"})
+    @Test
+    public void testGetPlatformVersion() {
+        PlatformVersion version = Car.getPlatformVersion();
+
+        assertWithMessage("Car.getPlatformVersion()").that(version).isNotNull();
+        assertWithMessage("Car.getPlatformVersion().toString()").that(version.toString())
+            .contains("name=Car.PLATFORM_VERSION");
     }
 
     @ApiTest(apis = {"android.car.Car#getPlatformVersion"})
