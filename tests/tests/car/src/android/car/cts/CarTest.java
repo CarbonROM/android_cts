@@ -61,10 +61,7 @@ public class CarTest {
             PackageManager.FEATURE_AUTOMOTIVE);
 
     @Rule
-    public final ApiCheckerRule mApiCheckerRule = new ApiCheckerRule.Builder()
-            // TODO(b/242315785): remove disable... when rule supports @AddedInOrBefore
-            .disableAnnotationsCheck()
-            .build();
+    public final ApiCheckerRule mApiCheckerRule = new ApiCheckerRule.Builder().build();
 
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 2000;
 
