@@ -161,8 +161,8 @@ public class CodecInfoTest {
 
         // COLOR_FormatSurface support is an existing requirement, but we did not
         // test for it before T.  We can not retroactively apply the higher standard to
-        // devices that are already certified, so only test on VNDK T or later devices.
-        if (VNDK_IS_AT_LEAST_T) {
+        // devices that are already certified, so only test on devices luanching with T or later.
+        if (FIRST_SDK_IS_AT_LEAST_T && VNDK_IS_AT_LEAST_T) {
             assertFalse(mCodecInfo.getName() + " does not support COLOR_FormatSurface",
                     IntStream.of(caps.colorFormats)
                             .noneMatch(x -> x == COLOR_FormatSurface));
