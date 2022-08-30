@@ -808,6 +808,58 @@ public class CarPropertyManagerTest extends CarApiTestBase {
     }
 
     @Test
+    @ApiTest(apis = {"android.car.hardware.property.CarPropertyManager#getCarPropertyConfig",
+            "android.car.hardware.property.CarPropertyManager#getProperty",
+            "android.car.hardware.property.CarPropertyManager#setProperty",
+            "android.car.hardware.property.CarPropertyManager#registerCallback",
+            "android.car.hardware.property.CarPropertyManager#unregisterCallback"})
+    public void testWindowPosIfSupported() {
+        adoptSystemLevelPermission(Car.PERMISSION_CONTROL_CAR_WINDOWS, () -> {
+            VehiclePropertyVerifier.newBuilder(VehiclePropertyIds.WINDOW_POS,
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
+                    VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW,
+                    CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE,
+                    Integer.class).requireMinMaxValues()
+                    .requireZeroToBeContainedInMinMaxRanges().build()
+                    .verify(mCarPropertyManager);
+        });
+    }
+
+    @Test
+    @ApiTest(apis = {"android.car.hardware.property.CarPropertyManager#getCarPropertyConfig",
+            "android.car.hardware.property.CarPropertyManager#getProperty",
+            "android.car.hardware.property.CarPropertyManager#setProperty",
+            "android.car.hardware.property.CarPropertyManager#registerCallback",
+            "android.car.hardware.property.CarPropertyManager#unregisterCallback"})
+    public void testWindowMoveIfSupported() {
+        adoptSystemLevelPermission(Car.PERMISSION_CONTROL_CAR_WINDOWS, () -> {
+            VehiclePropertyVerifier.newBuilder(VehiclePropertyIds.WINDOW_MOVE,
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
+                    VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW,
+                    CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE,
+                    Integer.class).requireMinMaxValues()
+                    .requireZeroToBeContainedInMinMaxRanges().build()
+                    .verify(mCarPropertyManager);
+        });
+    }
+
+    @Test
+    @ApiTest(apis = {"android.car.hardware.property.CarPropertyManager#getCarPropertyConfig",
+            "android.car.hardware.property.CarPropertyManager#getProperty",
+            "android.car.hardware.property.CarPropertyManager#setProperty",
+            "android.car.hardware.property.CarPropertyManager#registerCallback",
+            "android.car.hardware.property.CarPropertyManager#unregisterCallback"})
+    public void testWindowLockIfSupported() {
+        adoptSystemLevelPermission(Car.PERMISSION_CONTROL_CAR_WINDOWS, () -> {
+            VehiclePropertyVerifier.newBuilder(VehiclePropertyIds.WINDOW_LOCK,
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
+                    VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW,
+                    CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE,
+                    Boolean.class).build().verify(mCarPropertyManager);
+        });
+    }
+
+    @Test
     public void testDistanceDisplayUnitsIfSupported() {
         adoptSystemLevelPermission(/*Car.PERMISSION_VENDOR_EXTENSION=*/
                 "android.car.permission.CAR_VENDOR_EXTENSION", () -> {
@@ -819,7 +871,7 @@ public class CarPropertyManagerTest extends CarApiTestBase {
                             DISTANCE_DISPLAY_UNITS).requirePropertyValueTobeInConfigArray()
                             .verifySetterWithConfigArrayValues().build().verify(
                             mCarPropertyManager);
-                });
+            });
     }
 
     @Test
