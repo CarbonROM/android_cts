@@ -15,6 +15,8 @@
  */
 package android.view.cts.surfacevalidator;
 
+import static android.view.WindowInsets.Type.statusBars;
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -25,6 +27,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Insets;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.display.DisplayManager;
@@ -238,6 +241,10 @@ public class CapturedActivity extends Activity {
             count++;
         } while (!mCountDownLatch.await(timeOutMs, TimeUnit.MILLISECONDS));
 
+        FrameLayout marginedLayout = new FrameLayout(this);
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT);
         mHandler.post(() -> {
             Log.d(TAG, "Setting up test case");
 
@@ -246,8 +253,18 @@ public class CapturedActivity extends Activity {
             getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
 
+            // If Visibility for the system bar is true,
+            // set the status bar size margin because
+            // contentsArea is including status bar area.
+            Insets statusBarInsets = getWindow()
+                    .getDecorView()
+                    .getRootWindowInsets()
+                    .getInsets(statusBars());
+            layoutParams.setMargins(statusBarInsets.left, statusBarInsets.top,
+                    statusBarInsets.right, statusBarInsets.bottom);
+            setContentView(marginedLayout, layoutParams);
             animationTestCase.start(getApplicationContext(),
-                    (FrameLayout) findViewById(android.R.id.content));
+                    marginedLayout);
         });
 
         mHandler.postDelayed(() -> {
@@ -264,10 +281,18 @@ public class CapturedActivity extends Activity {
             final int rotation = defaultDisplay.getRotation();
             Display.Mode mode = defaultDisplay.getMode();
 
-            View testAreaView = findViewById(android.R.id.content);
-            Rect boundsToCheck = new Rect(0, 0, testAreaView.getWidth(), testAreaView.getHeight());
+            int testAreaWidth = marginedLayout.getWidth();
+            int testAreaHeight = marginedLayout.getHeight();
+
             int[] topLeft = new int[2];
-            testAreaView.getLocationOnScreen(topLeft);
+            marginedLayout.getLocationOnScreen(topLeft);
+
+            Log.d(TAG, "testAreaWidth: " + testAreaWidth
+                    + ", testAreaHeight: " + testAreaHeight
+                    + ", displayWidth: " + mode.getPhysicalWidth()
+                    + ", displayHeight: " + mode.getPhysicalHeight());
+
+            Rect boundsToCheck = new Rect(0, 0, testAreaWidth, testAreaHeight);
             boundsToCheck.offset(topLeft[0], topLeft[1]);
 
             if (boundsToCheck.width() < 90 || boundsToCheck.height() < 90) {
@@ -299,6 +324,8 @@ public class CapturedActivity extends Activity {
         mHandler.postDelayed(() -> {
             Log.d(TAG, "Ending test case");
             animationTestCase.end();
+            FrameLayout contentLayout = (FrameLayout) findViewById(android.R.id.content);
+            contentLayout.removeAllViews();
             mSurfacePixelValidator.finish(testResult);
             latch.countDown();
             mSurfacePixelValidator = null;
