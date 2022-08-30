@@ -4257,6 +4257,8 @@
                        android:value="android.software.leanback" />
             <meta-data android:name="test_required_configs"
                        android:value="config_hdmi_source" />
+            <meta-data android:name="display_mode"
+                       android:value="single_display_mode" />
         </activity>
         <activity android:name=".tv.display.DisplayHdrCapabilitiesTestActivity"
                   android:label="@string/tv_hdr_capabilities_test"
