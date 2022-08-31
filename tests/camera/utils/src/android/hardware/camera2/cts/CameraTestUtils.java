@@ -2911,7 +2911,7 @@ public class CameraTestUtils extends Assert {
      * <p>
      * Two images are strongly equal if and only if the data, formats, sizes,
      * and timestamps are same. For {@link ImageFormat#PRIVATE PRIVATE} format
-     * images, the image data is not not accessible thus the data comparison is
+     * images, the image data is not accessible thus the data comparison is
      * effectively skipped as the number of planes is zero.
      * </p>
      * <p>
@@ -3399,7 +3399,7 @@ public class CameraTestUtils extends Assert {
                     expectedIso *= 100;
                 }
                 collector.expectInRange("Exif TAG_ISO is incorrect", iso,
-                        expectedIso/100,((expectedIso+50)/100)+MAX_ISO_MISMATCH);
+                        expectedIso/100,((expectedIso + 50)/100) + MAX_ISO_MISMATCH);
             }
         } else {
             // External camera specific checks
