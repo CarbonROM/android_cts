@@ -37,6 +37,7 @@ android_test {
         "vts",
         "general-tests",
         "cts_instant",
+        "sts",
     ],
     sdk_version: "test_current",
 }
