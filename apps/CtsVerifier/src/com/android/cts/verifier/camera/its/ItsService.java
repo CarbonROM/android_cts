@@ -2128,6 +2128,8 @@ public class ItsService extends Service implements SensorEventListener {
 
         int cameraDeviceId = Integer.parseInt(cameraId);
         Size videoSize = Size.parseSize(videoSizeString);
+        int sensorOrientation = mCameraCharacteristics.get(
+                CameraCharacteristics.SENSOR_ORIENTATION);
 
         // Set up MediaRecorder to accept Images from ImageWriter
         int fileFormat = MediaRecorder.OutputFormat.DEFAULT;
@@ -2136,78 +2138,20 @@ public class ItsService extends Service implements SensorEventListener {
                 /* quality= */"preview", fileFormat, stabilize);
         assert outputFilePath != null;
 
-        mMediaRecorder = new MediaRecorder(this);
-        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
-
-        mMediaRecorder.setOutputFormat(fileFormat);
-        mMediaRecorder.setVideoSize(videoSize.getWidth(), videoSize.getHeight());
-        mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
-        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
-        mMediaRecorder.setOutputFile(outputFilePath);
-
-        try {
-            mMediaRecorder.prepare();
-            mRecordSurface = mMediaRecorder.getSurface();
-        } catch (IOException e) {
-            throw new ItsException("Error preparing MediaRecorder", e);
-        }
-
-        // Image writer to write to mMediaRecorder
-        ImageWriter imageWriter = ImageWriter.newInstance(mRecordSurface, /* maxImages= */ 5,
-                ImageFormat.YUV_420_888);
-
-        // ImageReader to read preview frames from camera HAL
-        // HardwareBuffer.USAGE_COMPOSER_OVERLAY should indicate to the HAL that this surface is
-        // meant for preview
-        ImageReader imageReader = ImageReader.newInstance(videoSize.getWidth(),
-                videoSize.getHeight(), ImageFormat.YUV_420_888, /* maxImages= */ 5, /* usage= */
-                HardwareBuffer.USAGE_COMPOSER_OVERLAY | HardwareBuffer.USAGE_CPU_READ_OFTEN);
-        imageReader.setOnImageAvailableListener(reader -> {
-            Image image = reader.acquireNextImage();
-            if (image != null) {
-                imageWriter.queueInputImage(image); // redirect the frame to mMediaRecorder
-            }
-            // no need to call `image.close()` as imageWriter does it for us.
-        }, mCameraHandler);
-        Surface imageReaderSurface = imageReader.getSurface();
-
-        try {
+        try (PreviewRecorder pr = new PreviewRecorder(cameraDeviceId, videoSize,
+                sensorOrientation, outputFilePath, mCameraHandler, this)) {
             int stabilizationMode = stabilize
                     ? CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
                     : CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_OFF;
-            configureAndCreateCaptureSession(CameraDevice.TEMPLATE_PREVIEW, imageReaderSurface,
-                    stabilizationMode);
+            configureAndCreateCaptureSession(CameraDevice.TEMPLATE_PREVIEW,
+                    pr.getCameraSurface(), stabilizationMode);
+            pr.recordPreview(recordingDuration * 1000L);
+            mSession.close();
         } catch (CameraAccessException e) {
             throw new ItsException("Error configuring and creating capture request", e);
         }
 
-        mMediaRecorder.start();
-        try {
-            Thread.sleep(recordingDuration * 1000L); // recordingDuration is in seconds
-        } catch (InterruptedException e) {
-            throw new ItsException("Unexpected InterruptException while recording", e);
-        }
-        mSession.close();
-
-        // close imageReader and imageWriter before stopping mMediaRecorder, otherwise they might
-        // attempt to access closed surfaces.
-        imageReader.close();
-        imageWriter.close();
-        mMediaRecorder.stop();
-
-        mMediaRecorder.reset();
-        mMediaRecorder.release();
-
-
-        mMediaRecorder = null;
-        if (mRecordSurface != null) {
-            mRecordSurface.release();
-            mRecordSurface = null;
-        }
-
         Log.i(TAG, "Preview recording complete: " + outputFilePath);
-
         // Send VideoRecordingObject for further processing.
         VideoRecordingObject obj = new VideoRecordingObject(outputFilePath, /* quality= */"preview",
                 videoSize, fileFormat);
