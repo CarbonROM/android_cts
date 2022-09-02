@@ -127,6 +127,19 @@ public class MmsPartTest {
 
     }
 
+    /**
+     *  Verifies uri path outside the directory of mms parts  is not allowed.
+     */
+    @Test
+    public void testMmsPartUpdate_invalidUri() {
+        ContentValues cv = new ContentValues();
+        Uri uri = Uri.parse("content://mms/resetFilePerm/..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F.."
+                + "%2F..%2F..%2F..%2F..%2Fdata%2Fuser_de%2F0%2Fcom.android.providers.telephony"
+                + "%2Fdatabases");
+        int cursorUpdate = mContentResolver.update(uri, cv, null, null);
+        assertThat(cursorUpdate).isEqualTo(0);
+    }
+
     @Test
     public void testMmsPartDelete_canDeleteById() {
         Uri mmsUri = insertIntoMmsTable(MMS_SUBJECT_ONE);
