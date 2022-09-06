@@ -214,7 +214,7 @@ public class TelephonyManagerTest {
     private static final String PLMN_A = "123456";
     private static final String PLMN_B = "78901";
     private static final List<String> FPLMN_TEST = Arrays.asList(PLMN_A, PLMN_B);
-    private static final int MAX_FPLMN_NUM = 100;
+    private static final int MAX_FPLMN_NUM = 1000;
     private static final int MIN_FPLMN_NUM = 3;
 
     private static final String THERMAL_MITIGATION_COMMAND_BASE = "cmd phone thermal-mitigation ";
