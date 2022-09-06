@@ -27,7 +27,9 @@ import static org.testng.Assert.fail;
 
 import android.app.UiAutomation;
 import android.car.Car;
+import android.car.annotation.ApiRequirements;
 import android.car.test.ApiCheckerRule;
+import android.car.test.ApiCheckerRule.IgnoreInvalidApi;
 import android.car.test.ApiCheckerRule.SupportedVersionTest;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest.Behavior;
@@ -78,11 +80,12 @@ public final class CarServiceHelperServiceUpdatableTest extends CarApiTestBase {
     }
 
     @Test
-    // TODO(b/244222267): Change into @ApiTest with @ApiCheckerRule.IgnoreInvalidApi.
-    // Note: Tie this test to the car api version codes so that we can know which version those
-    // tests are targeting for but the goal of the test is really for testing internal behavior of
-    // that car version.
-    @ApiTest(apis = {"android.car.Car#API_VERSION_MINOR_INT"})
+    @ApiTest(apis = {
+            "com.android.internal.car.CarServiceHelperServiceUpdatable.dump(PrintWriter,String[])"
+    })
+    @IgnoreInvalidApi(reason = "Class not in classpath as it's indirectly tested using dumpsys")
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testCarServiceHelperServiceDump() throws Exception {
         assumeThat("System_server_dumper not implemented.",
                 executeShellCommand("service check system_server_dumper"),
