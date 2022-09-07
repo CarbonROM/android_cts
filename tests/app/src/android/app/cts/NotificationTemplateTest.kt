@@ -21,7 +21,6 @@ import android.app.PendingIntent
 import android.app.Person
 import android.app.cts.CtsAppTestUtils.platformNull
 import android.content.Intent
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -338,6 +337,13 @@ class NotificationTemplateTest : NotificationTemplateTestBase() {
                         .bigPicture(picture)
                         .showBigPictureWhenCollapsed(true)
                 )
+
+        // At really high densities the size of rendered icon can dip below the
+        // tested size - we allow rendering of smaller icon with the same
+        // aspect ratio then.
+        val expectedIconWidth = minOf(rightIconSize(), 80)
+        val expectedIconHeight = minOf(rightIconSize() * 65 / 80, 65)
+
         checkIconView(builder.createContentView()) { iconView ->
             assertThat(iconView.visibility).isEqualTo(View.VISIBLE)
             assertThat(iconView.width.toFloat())
@@ -351,14 +357,15 @@ class NotificationTemplateTest : NotificationTemplateTestBase() {
             assertThat(iconView.width.toFloat())
                     .isWithin(1f)
                     .of((iconView.height * 80 / 65).toFloat())
-            assertThat(iconView.drawable.intrinsicWidth).isEqualTo(80)
-            assertThat(iconView.drawable.intrinsicHeight).isEqualTo(65)
+            assertThat(iconView.drawable.intrinsicWidth).isEqualTo(expectedIconWidth)
+            assertThat(iconView.drawable.intrinsicHeight).isEqualTo(expectedIconHeight)
         }
     }
 
+    @CddTest(requirement = "3.8.3.1/C-2-1")
     fun testPromoteBigPicture_withBigLargeIcon() {
         val picture = createBitmap(40, 30)
-        val bigIcon = createBitmap(80, 75)
+        val bigIcon = createBitmap(800, 600)
         val builder = Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_media_play)
                 .setContentTitle("Title")
@@ -379,9 +386,9 @@ class NotificationTemplateTest : NotificationTemplateTestBase() {
             assertThat(iconView.visibility).isEqualTo(View.VISIBLE)
             assertThat(iconView.width.toFloat())
                     .isWithin(1f)
-                    .of((iconView.height * 80 / 75).toFloat())
-            assertThat(iconView.drawable.intrinsicWidth).isEqualTo(80)
-            assertThat(iconView.drawable.intrinsicHeight).isEqualTo(75)
+                    .of((iconView.height * 4 / 3).toFloat())
+            assertThat(iconView.drawable.intrinsicWidth).isEqualTo(rightIconSize())
+            assertThat(iconView.drawable.intrinsicHeight).isEqualTo(rightIconSize() * 3 / 4)
         }
         assertThat(builder.build().extras.getParcelable<Bitmap>(Notification.EXTRA_PICTURE)
                 !!.sameAs(picture)).isTrue()
