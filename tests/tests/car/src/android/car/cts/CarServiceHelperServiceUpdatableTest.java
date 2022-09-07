@@ -16,20 +16,13 @@
 
 package android.car.cts;
 
-import static com.android.compatibility.common.util.SystemUtil.eventually;
-
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.hamcrest.CoreMatchers.containsStringIgnoringCase;
-import static org.junit.Assume.assumeThat;
 import static org.testng.Assert.fail;
 
 import android.app.UiAutomation;
 import android.car.Car;
-import android.car.annotation.ApiRequirements;
 import android.car.test.ApiCheckerRule;
-import android.car.test.ApiCheckerRule.IgnoreInvalidApi;
 import android.car.test.ApiCheckerRule.SupportedVersionTest;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest.Behavior;
@@ -77,49 +70,6 @@ public final class CarServiceHelperServiceUpdatableTest extends CarApiTestBase {
     public void setUp() throws Exception {
         super.setUp();
         SystemUtil.runShellCommand("logcat -b all -c");
-    }
-
-    @Test
-    @ApiTest(apis = {
-            "com.android.internal.car.CarServiceHelperServiceUpdatable.dump(PrintWriter,String[])"
-    })
-    @IgnoreInvalidApi(reason = "Class not in classpath as it's indirectly tested using dumpsys")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public void testCarServiceHelperServiceDump() throws Exception {
-        assumeThat("System_server_dumper not implemented.",
-                executeShellCommand("service check system_server_dumper"),
-                containsStringIgnoringCase("system_server_dumper: found"));
-
-        assertWithMessage("System server dumper")
-                .that(executeShellCommand("dumpsys system_server_dumper --list"))
-                .contains("CarServiceHelper");
-
-        assertWithMessage("CarServiceHelperService dump")
-                .that(executeShellCommand("dumpsys system_server_dumper --name CarServiceHelper"))
-                .contains("CarServiceProxy");
-
-        // Test setSafeMode
-        try {
-            executeShellCommand("cmd car_service emulate-driving-state drive");
-
-            eventually(()-> assertWithMessage("CarServiceHelperService dump")
-                    .that(executeShellCommand(
-                            "dumpsys system_server_dumper --name CarServiceHelper"))
-                    .contains("Safe to run device policy operations: false"));
-        } finally {
-            executeShellCommand("cmd car_service emulate-driving-state park");
-        }
-
-        eventually(()-> assertWithMessage("CarServiceHelperService dump")
-                .that(executeShellCommand("dumpsys system_server_dumper --name CarServiceHelper"))
-                .contains("Safe to run device policy operations: true"));
-
-        // Test dumpServiceStacks
-        assertWithMessage("CarServiceHelperService dump")
-                .that(executeShellCommand("dumpsys system_server_dumper --name CarServiceHelper"
-                        + " --dump-service-stacks"))
-                .contains("dumpServiceStacks ANR file path=/data/anr/anr_");
     }
 
     @Test
