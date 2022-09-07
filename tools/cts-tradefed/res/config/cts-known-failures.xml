@@ -282,26 +282,4 @@
     <!-- b/208909067 -->
     <option name="compatibility:exclude-filter" value="CtsDisplayTestCases android.display.cts.DisplayTest#testActivityContextGetMetrics" />
 
-    <!-- b/237035040 -->
-    <option name="compatibility:exclude-filter" value="CtsGraphicsTestCases android.graphics.cts.ImageDecoderTest#testDecode10BitHeifWithLowRam" />
-    <option name="compatibility:exclude-filter" value="CtsGraphicsTestCases[instant] android.graphics.cts.ImageDecoderTest#testDecode10BitHeifWithLowRam" />
-
-    <!-- b/223402586 -->
-    <option name="compatibility:exclude-filter" value="CtsAppCompatHostTestCases com.android.cts.appcompat.CompatChangesValidConfigTest#testOnlyAllowedlistedChangesAreOverridable" />
-
-    <!-- b/241204351 -->
-    <option name="compatibility:exclude-filter" value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.DeviceOwnerTest#testBluetoothRestriction" />
-    <option name="compatibility:exclude-filter" value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.ManagedProfileTest#testBluetoothSharingRestriction" />
-
-    <!-- b/233720451 -->
-    <option name="compatibility:exclude-filter" value="CtsJvmtiRunTest910HostTestCases android.jvmti.cts.JvmtiHostTest910#testJvmti" />
-    <option name="compatibility:exclude-filter" value="CtsJvmtiRunTest912HostTestCases android.jvmti.cts.JvmtiHostTest912#testJvmti" />
-    <option name="compatibility:exclude-filter" value="CtsJvmtiRunTest913HostTestCases android.jvmti.cts.JvmtiHostTest913#testJvmti" />
-    <option name="compatibility:exclude-filter" value="CtsJvmtiRunTest988HostTestCases android.jvmti.cts.JvmtiHostTest988#testJvmti" />
-
-    <!-- b/238849936 -->
-    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.PinnedStackTests#testPipFromTaskWithMultipleActivitiesAndFinishOriginalTask" />
-    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.SplitActivityLifecycleTest#testTranslucentAdjacentTaskFragment" />
-    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.TaskFragmentOrganizerPolicyTest#testStartAnotherAppActivityInTaskFragment" />
-
 </configuration>
