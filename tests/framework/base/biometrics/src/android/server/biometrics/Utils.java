@@ -42,6 +42,7 @@ import java.security.KeyStore;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.nio.charset.StandardCharsets;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -286,5 +287,11 @@ public class Utils {
         final int sensorConfigId = context.getResources().getSystem().getIdentifier(
                 "config_biometric_sensors", "array", "android");
         return context.getResources().getSystem().getStringArray(sensorConfigId);
+    }
+
+    public static boolean hasAidlProvider() {
+        final byte[] dump = executeShellCommand("dumpsys fingerprint");
+        String fingerprintDump = new String(dump, StandardCharsets.UTF_8);
+        return fingerprintDump.contains("provider: FingerprintProvider");
     }
 }
