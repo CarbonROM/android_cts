@@ -14,6 +14,7 @@
 
 
 import logging
+import os
 import time
 
 import its_session_utils
@@ -246,4 +247,13 @@ class ItsBaseTest(base_test.BaseTestClass):
         logging.debug('%s is not yet mandated.', self.current_test_info.name)
         asserts.fail('Not yet mandated test', extras='Not yet mandated test')
 
-
+  def teardown_class(self):
+    # edit root_output_path and summary_writer path
+    # to add test name to output directory
+    logging.debug('summary_writer._path: %s', self.summary_writer._path)
+    logging.debug('root_output_path: %s', self.root_output_path)
+    summary_head, summary_tail = os.path.split(self.summary_writer._path)
+    self.summary_writer._path = os.path.join(
+        f'{summary_head}_{self.__class__.__name__}', summary_tail)
+    os.rename(self.root_output_path,
+              f'{self.root_output_path}_{self.__class__.__name__}')
