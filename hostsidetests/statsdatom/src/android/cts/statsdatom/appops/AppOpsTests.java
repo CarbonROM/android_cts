@@ -38,8 +38,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class AppOpsTests extends DeviceTestCase implements IBuildReceiver {
-    private static final int NUM_APP_OPS = AtomsProto.AttributedAppOps.getDefaultInstance().getOp().
-            getDescriptorForType().getValues().size() - 1;
+    private static final int NUM_APP_OPS = 116;
 
     private static final int APP_OP_RECORD_AUDIO = 27;
     private static final int APP_OP_RECORD_AUDIO_HOTWORD = 102;
