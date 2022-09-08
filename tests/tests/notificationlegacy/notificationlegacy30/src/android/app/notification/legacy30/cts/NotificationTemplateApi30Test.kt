@@ -119,6 +119,13 @@ class NotificationTemplateApi30Test : NotificationTemplateTestBase() {
                         .bigPicture(picture)
                         .showBigPictureWhenCollapsed(true)
                 )
+
+        // At really high densities the size of rendered icon can dip below the
+        // tested size - we allow rendering of smaller icon with the same
+        // aspect ratio then.
+        val expectedIconWidth = minOf(rightIconSize(), 80)
+        val expectedIconHeight = minOf(rightIconSize() * 65 / 80, 65)
+
         // the promoted big picture is shown with enlarged aspect ratio
         checkIconView(builder.createContentView()) { iconView ->
             assertThat(iconView.visibility).isEqualTo(View.VISIBLE)
@@ -132,14 +139,14 @@ class NotificationTemplateApi30Test : NotificationTemplateTestBase() {
         checkIconView(builder.createBigContentView()) { iconView ->
             assertThat(iconView.visibility).isEqualTo(View.VISIBLE)
             assertThat(iconView.width).isEqualTo(iconView.height)
-            assertThat(iconView.drawable.intrinsicWidth).isEqualTo(80)
-            assertThat(iconView.drawable.intrinsicHeight).isEqualTo(65)
+            assertThat(iconView.drawable.intrinsicWidth).isEqualTo(expectedIconWidth)
+            assertThat(iconView.drawable.intrinsicHeight).isEqualTo(expectedIconHeight)
         }
     }
 
     fun testPromoteBigPicture_withBigLargeIcon() {
         val picture = createBitmap(40, 30)
-        val bigIcon = createBitmap(80, 75)
+        val bigIcon = createBitmap(800, 600)
         val builder = Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_media_play)
                 .setContentTitle("Title")
@@ -161,8 +168,8 @@ class NotificationTemplateApi30Test : NotificationTemplateTestBase() {
         checkIconView(builder.createBigContentView()) { iconView ->
             assertThat(iconView.visibility).isEqualTo(View.VISIBLE)
             assertThat(iconView.width).isEqualTo(iconView.height)
-            assertThat(iconView.drawable.intrinsicWidth).isEqualTo(80)
-            assertThat(iconView.drawable.intrinsicHeight).isEqualTo(75)
+            assertThat(iconView.drawable.intrinsicWidth).isEqualTo(rightIconSize())
+            assertThat(iconView.drawable.intrinsicHeight).isEqualTo(rightIconSize() * 3 / 4)
         }
     }
 
@@ -277,6 +284,11 @@ class NotificationTemplateApi30Test : NotificationTemplateTestBase() {
             val iconView = findViewByIdName<ImageView>("icon")
             assertThat(iconView).isNull()
         }
+    }
+
+    private fun rightIconSize(): Int {
+        return mContext.resources.getDimensionPixelSize(
+                getAndroidRDimen("notification_right_icon_size"))
     }
 
     companion object {
