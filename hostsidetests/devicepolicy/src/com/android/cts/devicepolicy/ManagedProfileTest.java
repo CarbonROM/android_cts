@@ -590,8 +590,8 @@ public class ManagedProfileTest extends BaseManagedProfileTest {
             throws Exception {
         try {
             assertActivityInForeground("android/com.android.internal.app.ChooserActivity", userId);
-        } catch (Exception e) {
-            CLog.v("ChooserActivity is not the default");
+        } catch (AssertionError e) {
+            CLog.v("ChooserActivity is not the default: " + e);
             assertActivityInForeground(resolveActivity("android.intent.action.CHOOSER"), userId);
         }
     }
@@ -600,8 +600,8 @@ public class ManagedProfileTest extends BaseManagedProfileTest {
             throws Exception {
         try {
             assertActivityInForeground("android/com.android.internal.app.ResolverActivity", userId);
-        } catch (Exception e) {
-            CLog.v("ResolverActivity is not the default");
+        } catch (AssertionError e) {
+            CLog.v("ResolverActivity is not the default: " + e);
             assertActivityInForeground(resolveActivity("android.intent.action.SEND"), userId);
         }
     }
