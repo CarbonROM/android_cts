@@ -21,6 +21,7 @@ import android.app.PendingIntent
 import android.app.Person
 import android.app.cts.CtsAppTestUtils.platformNull
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -31,10 +32,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.test.filters.SmallTest
-import com.android.compatibility.common.util.CddTest;
+import com.android.compatibility.common.util.CddTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assume
 import kotlin.test.assertFailsWith
+import org.junit.Assume
 
 class NotificationTemplateTest : NotificationTemplateTestBase() {
 
@@ -141,6 +142,8 @@ class NotificationTemplateTest : NotificationTemplateTestBase() {
     }
 
     fun testWideIcon_inBigPicture_cappedTo16By9() {
+        Assume.assumeFalse("BigPictureStyle is not supported in automotive",
+                isPlatformAutomotive())
         val picture = createBitmap(40, 30)
         val icon = createBitmap(200, 100)
         val views = Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID)
@@ -158,6 +161,8 @@ class NotificationTemplateTest : NotificationTemplateTestBase() {
     }
 
     fun testWideIcon_inBigPicture_canShowExact4By3() {
+        Assume.assumeFalse("BigPictureStyle is not supported in automotive",
+                isPlatformAutomotive())
         val picture = createBitmap(40, 30)
         val icon = createBitmap(400, 300)
         val views = Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID)
@@ -175,6 +180,8 @@ class NotificationTemplateTest : NotificationTemplateTestBase() {
     }
 
     fun testWideIcon_inBigPicture_neverNarrowerThanSquare() {
+        Assume.assumeFalse("BigPictureStyle is not supported in automotive",
+                isPlatformAutomotive())
         val picture = createBitmap(40, 30)
         val icon = createBitmap(200, 300)
         val views = Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID)
@@ -236,6 +243,8 @@ class NotificationTemplateTest : NotificationTemplateTestBase() {
     }
 
     fun testBigPictureStyle_populatesExtrasCompatibly() {
+        Assume.assumeFalse("BigPictureStyle is not supported in automotive",
+                isPlatformAutomotive())
         val bitmap = createBitmap(40, 30)
         val uri = Uri.parse("content://android.app.stubs.assets/picture_400_by_300.png")
         val iconWithUri = Icon.createWithContentUri(uri)
@@ -269,6 +278,8 @@ class NotificationTemplateTest : NotificationTemplateTestBase() {
     }
 
     fun testBigPictureStyle_bigPictureUriIcon() {
+        Assume.assumeFalse("BigPictureStyle is not supported in automotive",
+                isPlatformAutomotive())
         val pictureUri = Uri.parse("content://android.app.stubs.assets/picture_400_by_300.png")
         val pictureIcon = Icon.createWithContentUri(pictureUri)
         val builder = Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID)
@@ -285,6 +296,8 @@ class NotificationTemplateTest : NotificationTemplateTestBase() {
 
     @CddTest(requirement = "3.8.3.1/C-2-1")
     fun testPromoteBigPicture_withBigPictureUriIcon() {
+        Assume.assumeFalse("BigPictureStyle is not supported in automotive",
+                isPlatformAutomotive())
         val pictureUri = Uri.parse("content://android.app.stubs.assets/picture_800_by_600.png")
         val pictureIcon = Icon.createWithContentUri(pictureUri)
         val builder = Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID)
@@ -305,6 +318,8 @@ class NotificationTemplateTest : NotificationTemplateTestBase() {
     }
 
     fun testPromoteBigPicture_withoutLargeIcon() {
+        Assume.assumeFalse("BigPictureStyle is not supported in automotive",
+                isPlatformAutomotive())
         val picture = createBitmap(40, 30)
         val builder = Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_media_play)
@@ -327,6 +342,8 @@ class NotificationTemplateTest : NotificationTemplateTestBase() {
     }
 
     fun testPromoteBigPicture_withLargeIcon() {
+        Assume.assumeFalse("BigPictureStyle is not supported in automotive",
+                isPlatformAutomotive())
         val picture = createBitmap(40, 30)
         val icon = createBitmap(80, 65)
         val builder = Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID)
@@ -364,6 +381,8 @@ class NotificationTemplateTest : NotificationTemplateTestBase() {
 
     @CddTest(requirement = "3.8.3.1/C-2-1")
     fun testPromoteBigPicture_withBigLargeIcon() {
+        Assume.assumeFalse("BigPictureStyle is not supported in automotive",
+                isPlatformAutomotive())
         val picture = createBitmap(40, 30)
         val bigIcon = createBitmap(800, 600)
         val builder = Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID)
@@ -396,6 +415,8 @@ class NotificationTemplateTest : NotificationTemplateTestBase() {
 
     @CddTest(requirement = "3.8.3.1/C-2-1")
     fun testBigPicture_withBigLargeIcon_withContentUri() {
+        Assume.assumeFalse("BigPictureStyle is not supported in automotive",
+                isPlatformAutomotive())
         val iconUri = Uri.parse("content://android.app.stubs.assets/picture_800_by_600.png")
         val icon = Icon.createWithContentUri(iconUri)
         val builder = Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID)
@@ -794,6 +815,10 @@ class NotificationTemplateTest : NotificationTemplateTestBase() {
     private fun rightIconSize(): Int {
         return mContext.resources.getDimensionPixelSize(
             getAndroidRDimen("notification_right_icon_size"))
+    }
+
+    private fun isPlatformAutomotive(): Boolean {
+        return mContext.packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)
     }
 
     companion object {
