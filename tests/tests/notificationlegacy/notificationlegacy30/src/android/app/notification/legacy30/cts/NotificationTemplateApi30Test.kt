@@ -18,10 +18,12 @@ package android.app.notification.legacy30.cts
 import android.R
 import android.app.Notification
 import android.app.cts.NotificationTemplateTestBase
+import android.content.pm.PackageManager
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assume
 
 class NotificationTemplateApi30Test : NotificationTemplateTestBase() {
 
@@ -56,6 +58,8 @@ class NotificationTemplateApi30Test : NotificationTemplateTestBase() {
     }
 
     fun testWideIcon_inBigPicture_isSquareForLegacyApps() {
+        Assume.assumeFalse("BigPictureStyle is not supported in automotive",
+                isPlatformAutomotive())
         val picture = createBitmap(40, 30)
         val icon = createBitmap(200, 100)
         val views = Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID)
@@ -85,6 +89,8 @@ class NotificationTemplateApi30Test : NotificationTemplateTestBase() {
     }
 
     fun testPromoteBigPicture_withoutLargeIcon() {
+        Assume.assumeFalse("BigPictureStyle is not supported in automotive",
+                isPlatformAutomotive())
         val picture = createBitmap(40, 30)
         val builder = Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_media_play)
@@ -109,6 +115,8 @@ class NotificationTemplateApi30Test : NotificationTemplateTestBase() {
     }
 
     fun testPromoteBigPicture_withLargeIcon() {
+        Assume.assumeFalse("BigPictureStyle is not supported in automotive",
+                isPlatformAutomotive())
         val picture = createBitmap(40, 30)
         val icon = createBitmap(80, 65)
         val builder = Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID)
@@ -145,6 +153,8 @@ class NotificationTemplateApi30Test : NotificationTemplateTestBase() {
     }
 
     fun testPromoteBigPicture_withBigLargeIcon() {
+        Assume.assumeFalse("BigPictureStyle is not supported in automotive",
+                isPlatformAutomotive())
         val picture = createBitmap(40, 30)
         val bigIcon = createBitmap(800, 600)
         val builder = Notification.Builder(mContext, NOTIFICATION_CHANNEL_ID)
@@ -289,6 +299,10 @@ class NotificationTemplateApi30Test : NotificationTemplateTestBase() {
     private fun rightIconSize(): Int {
         return mContext.resources.getDimensionPixelSize(
                 getAndroidRDimen("notification_right_icon_size"))
+    }
+
+    private fun isPlatformAutomotive(): Boolean {
+        return mContext.packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)
     }
 
     companion object {
