@@ -106,6 +106,8 @@
     <option name="compatibility:exclude-filter" value="CtsViewTestCases android.view.cts.ASurfaceControlTest#testSurfaceTransaction_setDesiredPresentTime_30ms" />
     <option name="compatibility:exclude-filter" value="CtsViewTestCases android.view.cts.ASurfaceControlTest#testSurfaceTransaction_setDesiredPresentTime_100ms" />
 
+    <!-- b/192912975 Remove CtsMediaTestCases android.media.cts.DecodeAccuracyTest from cts-on-gsi -->
+    <option name="compatibility:exclude-filter" value="CtsMediaTestCases android.media.cts.DecodeAccuracyTest" />
 
     <!-- b/228390608 No Tv Input Service implementation on GSI -->
     <option name="compatibility:exclude-filter" value="CtsHdmiCecHostTestCases android.hdmicec.cts.tv.HdmiCecRemoteControlPassThroughTest" />
@@ -133,4 +135,5 @@
     <option name="compatibility:exclude-filter" value="CtsScopedStorageDeviceOnlyTest android.scopedstorage.cts.device.ScopedStorageDeviceTest#testOpenContentResolverDup[volume=volume_public]" />
     <option name="compatibility:exclude-filter" value="CtsScopedStorageDeviceOnlyTest android.scopedstorage.cts.device.ScopedStorageDeviceTest#testOpenContentResolverFirstWriteContentResolver[volume=volume_public]" />
     <option name="compatibility:exclude-filter" value="CtsScopedStorageDeviceOnlyTest android.scopedstorage.cts.device.ScopedStorageDeviceTest#testOpenContentResolverWriteOnly[volume=volume_public]" />
+
 </configuration>
