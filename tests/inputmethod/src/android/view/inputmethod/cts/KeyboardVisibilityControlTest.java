@@ -16,6 +16,7 @@
 
 package android.view.inputmethod.cts;
 
+import static android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN;
 import static android.inputmethodservice.InputMethodService.FINISH_INPUT_NO_FALLBACK_CONNECTION;
 import static android.view.Display.DEFAULT_DISPLAY;
 import static android.view.View.VISIBLE;
@@ -578,7 +579,10 @@ public class KeyboardVisibilityControlTest extends EndToEndImeTestBase {
             final ImeEventStream stream = imeSession.openEventStream();
 
             // Launch a simple test activity
-            final TestActivity testActivity = TestActivity.startSync(LinearLayout::new);
+            final TestActivity testActivity =
+                    new TestActivity.Starter()
+                            .withWindowingMode(WINDOWING_MODE_FULLSCREEN)
+                            .startSync(LinearLayout::new);
 
             // Launch a dialog
             final String marker = getTestMarker();
@@ -685,7 +689,9 @@ public class KeyboardVisibilityControlTest extends EndToEndImeTestBase {
             final ImeEventStream stream = imeSession.openEventStream();
             // Launch a simple test activity
             final TestActivity testActivity =
-                    TestActivity.startSync(activity -> new LinearLayout(activity));
+                    new TestActivity.Starter()
+                            .withWindowingMode(WINDOWING_MODE_FULLSCREEN)
+                            .startSync(LinearLayout::new);
 
             // Launch a dialog and show keyboard
             final String marker = getTestMarker();
@@ -892,7 +898,8 @@ public class KeyboardVisibilityControlTest extends EndToEndImeTestBase {
             final String markerForActivity1 = getTestMarker();
             final AtomicReference<EditText> editTextRef = new AtomicReference<>();
             // Launch a test activity with focusing editText to show keyboard
-            TestActivity.startSync(activity -> {
+            new TestActivity.Starter().withWindowingMode(
+                    WINDOWING_MODE_FULLSCREEN).startSync(activity -> {
                 final LinearLayout layout = new LinearLayout(activity);
                 final EditText editText = new EditText(activity);
                 editTextRef.set(editText);
@@ -914,7 +921,8 @@ public class KeyboardVisibilityControlTest extends EndToEndImeTestBase {
             expectImeVisible(TIMEOUT);
 
             // Launch another app task activity to hide keyboard
-            TestActivity.startNewTaskSync(activity -> {
+            new TestActivity.Starter().asNewTask().withWindowingMode(
+                    WINDOWING_MODE_FULLSCREEN).startSync(activity -> {
                 activity.getWindow().setSoftInputMode(SOFT_INPUT_STATE_ALWAYS_HIDDEN);
                 return new LinearLayout(activity);
             });
@@ -927,7 +935,8 @@ public class KeyboardVisibilityControlTest extends EndToEndImeTestBase {
             if (mode == TestSoftInputMode.HIDDEN_WITH_FORWARD_NAV) {
                 // Start new TestActivity on the same task with STATE_HIDDEN softInputMode.
                 final String markerForActivity2 = getTestMarker();
-                TestActivity.startSameTaskAndClearTopSync(activity -> {
+                new TestActivity.Starter().asSameTaskAndClearTop().withWindowingMode(
+                        WINDOWING_MODE_FULLSCREEN).startSync(activity -> {
                     final LinearLayout layout = new LinearLayout(activity);
                     final EditText editText = new EditText(activity);
                     editText.setHint("focused editText");
@@ -971,7 +980,8 @@ public class KeyboardVisibilityControlTest extends EndToEndImeTestBase {
             AtomicReference<EditText> editTextRef = new AtomicReference<>();
             // Launch test activity with focusing editor
             final TestActivity testActivity =
-                    TestActivity.startSync(activity -> {
+                    new TestActivity.Starter().withWindowingMode(
+                            WINDOWING_MODE_FULLSCREEN).startSync(activity -> {
                         final LinearLayout layout = new LinearLayout(activity);
                         layout.setOrientation(LinearLayout.VERTICAL);
                         layout.setGravity(Gravity.BOTTOM);
