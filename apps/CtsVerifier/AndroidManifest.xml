@@ -4655,6 +4655,7 @@
             <meta-data android:name="test_category" android:value="@string/test_category_car" />
             <meta-data android:name="test_required_features"
                 android:value="android.hardware.type.automotive"/>
+            <meta-data android:name="display_mode" android:value="single_display_mode" />
         </activity>
 
         <activity-alias android:name=".car.CarDockActivity2"
