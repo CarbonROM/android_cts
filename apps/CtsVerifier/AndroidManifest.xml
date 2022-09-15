@@ -5259,6 +5259,8 @@
                        android:value="config_hdmi_source" />
             <meta-data android:name="ApiTest"
                        android:value="android.media.AudioTrack#isDirectPlaybackSupported" />
+            <meta-data android:name="display_mode"
+                       android:value="single_display_mode" />
         </activity>
 
         <activity android:name=".tv.display.HotplugTestActivity"

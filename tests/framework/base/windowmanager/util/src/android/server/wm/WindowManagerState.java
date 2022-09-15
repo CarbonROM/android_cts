@@ -30,6 +30,7 @@ import static android.server.wm.TestTaskOrganizer.INVALID_TASK_ID;
 import static android.util.DisplayMetrics.DENSITY_DEFAULT;
 import static android.view.Display.DEFAULT_DISPLAY;
 import static android.window.DisplayAreaOrganizer.FEATURE_IME;
+import static android.window.DisplayAreaOrganizer.FEATURE_UNDEFINED;
 
 import static androidx.test.InstrumentationRegistry.getInstrumentation;
 
@@ -37,6 +38,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import android.app.ActivityTaskManager;
 import android.content.ComponentName;
@@ -49,6 +51,7 @@ import android.os.SystemClock;
 import android.util.SparseArray;
 import android.view.nano.DisplayInfoProto;
 import android.view.nano.ViewProtoEnums;
+import android.window.DisplayAreaOrganizer;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -505,6 +508,15 @@ public class WindowManagerState {
                 .that(result.size()).isAtMost(1);
 
         return result.stream().findFirst().orElse(null);
+    }
+
+    public int getTaskDisplayAreaFeatureId(ComponentName activityName) {
+        final DisplayArea taskDisplayArea = getTaskDisplayArea(activityName);
+        if (taskDisplayArea != null) {
+            return taskDisplayArea.getFeatureId();
+        }
+
+        return FEATURE_UNDEFINED;
     }
 
     @Nullable
@@ -1263,6 +1275,14 @@ public class WindowManagerState {
             return result.stream().findFirst().orElse(null);
         }
 
+        List<DisplayArea> getTaskDisplayAreas(ComponentName activityName) {
+            final List<DisplayArea> taskDisplayAreas = getAllTaskDisplayAreas();
+
+            return taskDisplayAreas.stream()
+                    .filter(tda -> tda.containsActivity(activityName))
+                    .collect(Collectors.toList());
+        }
+
         List<DisplayArea> getAllChildDisplayAreas() {
             final List<DisplayArea> displayAreas = new ArrayList<>();
             collectDescendantsOfType(DisplayArea.class,this, displayAreas);
@@ -1911,6 +1931,10 @@ public class WindowManagerState {
 
         public boolean isOrganized() {
             return mIsOrganized;
+        }
+
+        public Rect getAppBounds() {
+            return mFullConfiguration.windowConfiguration.getAppBounds();
         }
 
         @Override
