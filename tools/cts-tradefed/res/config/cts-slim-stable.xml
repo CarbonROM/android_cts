@@ -54,6 +54,10 @@
   <option name="compatibility:exclude-filter"
       value="CtsLocationFineTestCases android.location.cts.fine.ScanningSettingsTest#testBleScanningSettings" />
   <option name="compatibility:exclude-filter"
+      value="CtsOsTestCases android.os.cts.AppHibernationIntegrationTest#testAppInfo_RemovePermissionsAndFreeUpSpaceToggleExists" />
+  <option name="compatibility:exclude-filter"
+      value="CtsOsTestCases android.os.cts.AppHibernationIntegrationTest#testUnusedApp_getsForceStopped" />
+  <option name="compatibility:exclude-filter"
       value="CtsOsTestCases android.os.cts.AutoRevokeTest#testInstallGrants_notRevokedImmediately" />
   <option name="compatibility:exclude-filter"
       value="CtsOsTestCases android.os.cts.AutoRevokeTest#testAutoRevoke_userAllowlisting" />
@@ -72,27 +76,15 @@
   <option name="compatibility:exclude-filter"
       value="CtsOsTestCases android.os.cts.StrictModeTest#testContentUriWithoutPermission" />
   <option name="compatibility:exclude-filter"
-      value="CtsOsTestCases android.os.cts.AppHibernationIntegrationTest#testUnusedApp_getsForceStopped" />
-  <option name="compatibility:exclude-filter"
-      value="CtsOsTestCases android.os.cts.AppHibernationIntegrationTest#testAppInfo_RemovePermissionsAndFreeUpSpaceToggleExists" />
-  <option name="compatibility:exclude-filter"
-      value="CtsViewTestCases android.view.cts.TooltipTest#testTooltipInPopup" />
-  <option name="compatibility:exclude-filter"
       value="CtsViewTestCases android.view.cts.ViewTest#testGetWindowVisibleDisplayFrame" />
   <option name="compatibility:exclude-filter"
       value="CtsVoiceInteractionTestCases android.voiceinteraction.cts.DirectActionsTest#testCancelPerformedDirectAction" />
   <option name="compatibility:exclude-filter"
       value="CtsVoiceInteractionTestCases android.voiceinteraction.cts.HotwordDetectionServiceBasicTest#testHotwordDetectionService_onDetectFromExternalSource_success" />
   <option name="compatibility:exclude-filter"
-      value="CtsWidgetTestCases android.widget.cts.PopupMenuTest#testHoverSelectsMenuItem" />
-  <option name="compatibility:exclude-filter"
-      value="CtsWidgetTestCases android.widget.cts.SearchView_CursorTest#testSuggestionSelection" />
-  <option name="compatibility:exclude-filter"
       value="CtsWidgetTestCases android.widget.cts.ToastTest" />
   <option name="compatibility:exclude-filter"
       value="CtsWidgetTestCases android.widget.cts.ZoomControlsTest#testHasFocus" />
-  <option name="compatibility:exclude-filter"
-      value="CtsWindowManagerDeviceTestCases" />
 
   <!-- flaky tests -->
   <option name="compatibility:exclude-filter"
@@ -106,7 +98,6 @@
   <option name="compatibility:exclude-filter"
       value="CtsLocationFineTestCases android.location.cts.fine.LocationManagerFineTest#testRegisterGnssMeasurementsCallback" />
   <option name="compatibility:exclude-filter" value="CtsTransitionTestCases"/>
-
 
   <!-- documentsui dependent tests -->
   <option name="compatibility:exclude-filter"
