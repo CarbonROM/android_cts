@@ -47,6 +47,7 @@ def create_request_with_ev(ev):
   req = capture_request_utils.auto_capture_request()
   req['android.control.aeExposureCompensation'] = ev
   req['android.control.aeLock'] = True
+  req['android.control.awbLock'] = True
   return req
 
 
@@ -72,11 +73,13 @@ class EvCompensationBasicTest(its_base_test.ItsBaseTest):
       props = cam.override_with_hidden_physical_camera_props(props)
       log_path = self.log_path
       test_name_w_path = os.path.join(log_path, NAME)
+      debug_mode = self.debug_mode
 
       # check SKIP conditions
       camera_properties_utils.skip_unless(
           camera_properties_utils.ev_compensation(props) and
-          camera_properties_utils.ae_lock(props))
+          camera_properties_utils.ae_lock(props) and
+          camera_properties_utils.awb_lock(props))
 
       # Load chart for scene
       its_session_utils.load_scene(
@@ -97,19 +100,35 @@ class EvCompensationBasicTest(its_base_test.ItsBaseTest):
       # dark/bright scene could make AF convergence fail and this test
       # doesn't care the image sharpness.
       mono_camera = camera_properties_utils.mono_camera(props)
-      cam.do_3a(ev_comp=0, lock_ae=True, do_af=False, mono_camera=mono_camera)
+      cam.do_3a(ev_comp=0, lock_ae=True, lock_awb=True, do_af=False,
+                mono_camera=mono_camera)
 
       # Do captures and extract information
       largest_yuv = capture_request_utils.get_largest_yuv_format(props)
       match_ar = (largest_yuv['width'], largest_yuv['height'])
       fmt = capture_request_utils.get_smallest_yuv_format(
           props, match_ar=match_ar)
+      logging.debug('YUV size: %d x %d', fmt['width'], fmt['height'])
+      if debug_mode:
+        fmt = [{'format': 'raw'}, fmt]
       lumas = []
       for j, ev in enumerate(evs):
         luma_locked_rtol = luma_locked_rtols[j]
         # Capture a single shot with the same EV comp and locked AE.
         req = create_request_with_ev(ev)
-        caps = cam.do_capture([req]*THRESH_CONVERGE_FOR_EV, fmt)
+        if debug_mode:
+          caps_raw, caps = cam.do_capture([req]*THRESH_CONVERGE_FOR_EV, fmt)
+          for k in range(THRESH_CONVERGE_FOR_EV):
+            img_raw = image_processing_utils.convert_capture_to_rgb_image(
+                caps_raw[k], props=props)
+            image_processing_utils.write_image(
+                img_raw, f'{test_name_w_path}_RAW_EV_{ev}_{k}.png', True)
+            img = image_processing_utils.convert_capture_to_rgb_image(
+                caps[k], props=props)
+            image_processing_utils.write_image(
+                img, f'{test_name_w_path}_YUV_EV_{ev}_{k}.png', True)
+        else:
+          caps = cam.do_capture([req]*THRESH_CONVERGE_FOR_EV, fmt)
         luma_locked = []
         for i, cap in enumerate(caps):
           if cap['metadata']['android.control.aeState'] == LOCKED:
@@ -124,7 +143,7 @@ class EvCompensationBasicTest(its_base_test.ItsBaseTest):
               lumas.append(luma)
               if not math.isclose(min(luma_locked), max(luma_locked),
                                   rel_tol=luma_locked_rtol):
-                raise AssertionError(f'AE locked lumas: {luma_locked}, '
+                raise AssertionError(f'EV {ev} burst lumas: {luma_locked}, '
                                      f'RTOL: {luma_locked_rtol}')
         logging.debug('lumas per frame ev %d: %s', ev, str(luma_locked))
       logging.debug('mean lumas in AE locked captures: %s', str(lumas))
