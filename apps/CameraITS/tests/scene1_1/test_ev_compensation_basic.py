@@ -38,12 +38,14 @@ PATCH_W = 0.1
 PATCH_X = 0.5 - PATCH_W/2
 PATCH_Y = 0.5 - PATCH_H/2
 THRESH_CONVERGE_FOR_EV = 8  # AE must converge within this num
+VGA_W, VGA_H = 640, 480
 YUV_FULL_SCALE = 255.0
 YUV_SAT_MIN = 250.0
 YUV_SAT_TOL = 3.0
 
 
 def create_request_with_ev(ev):
+  """Create request with EV value."""
   req = capture_request_utils.auto_capture_request()
   req['android.control.aeExposureCompensation'] = ev
   req['android.control.aeLock'] = True
@@ -73,7 +75,6 @@ class EvCompensationBasicTest(its_base_test.ItsBaseTest):
       props = cam.override_with_hidden_physical_camera_props(props)
       log_path = self.log_path
       test_name_w_path = os.path.join(log_path, NAME)
-      debug_mode = self.debug_mode
 
       # check SKIP conditions
       camera_properties_utils.skip_unless(
@@ -108,32 +109,22 @@ class EvCompensationBasicTest(its_base_test.ItsBaseTest):
       match_ar = (largest_yuv['width'], largest_yuv['height'])
       fmt = capture_request_utils.get_smallest_yuv_format(
           props, match_ar=match_ar)
+      if fmt['width'] * fmt['height'] > VGA_W * VGA_H:
+        fmt = {'format': 'yuv', 'width': VGA_W, 'height': VGA_H}
       logging.debug('YUV size: %d x %d', fmt['width'], fmt['height'])
-      if debug_mode:
-        fmt = [{'format': 'raw'}, fmt]
       lumas = []
       for j, ev in enumerate(evs):
         luma_locked_rtol = luma_locked_rtols[j]
         # Capture a single shot with the same EV comp and locked AE.
         req = create_request_with_ev(ev)
-        if debug_mode:
-          caps_raw, caps = cam.do_capture([req]*THRESH_CONVERGE_FOR_EV, fmt)
-          for k in range(THRESH_CONVERGE_FOR_EV):
-            img_raw = image_processing_utils.convert_capture_to_rgb_image(
-                caps_raw[k], props=props)
-            image_processing_utils.write_image(
-                img_raw, f'{test_name_w_path}_RAW_EV_{ev}_{k}.png', True)
-            img = image_processing_utils.convert_capture_to_rgb_image(
-                caps[k], props=props)
-            image_processing_utils.write_image(
-                img, f'{test_name_w_path}_YUV_EV_{ev}_{k}.png', True)
-        else:
-          caps = cam.do_capture([req]*THRESH_CONVERGE_FOR_EV, fmt)
+        caps = cam.do_capture([req]*THRESH_CONVERGE_FOR_EV, fmt)
         luma_locked = []
         for i, cap in enumerate(caps):
           if cap['metadata']['android.control.aeState'] == LOCKED:
             ev_meta = cap['metadata']['android.control.aeExposureCompensation']
-            logging.debug('cap EV compensation: %d', ev_meta)
+            exp = cap['metadata']['android.sensor.exposureTime']
+            iso = cap['metadata']['android.sensor.sensitivity']
+            logging.debug('cap EV: %d, exp: %dns, ISO: %d', ev_meta, exp, iso)
             if ev != ev_meta:
               raise AssertionError(
                   f'EV compensation cap != req! cap: {ev_meta}, req: {ev}')
