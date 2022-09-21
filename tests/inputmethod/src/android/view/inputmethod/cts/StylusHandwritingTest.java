@@ -54,6 +54,7 @@ import androidx.test.filters.FlakyTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.compatibility.common.util.ApiTest;
+import com.android.compatibility.common.util.CommonTestUtils;
 import com.android.compatibility.common.util.SystemUtil;
 import com.android.cts.mockime.ImeEventStream;
 import com.android.cts.mockime.ImeSettings;
@@ -67,6 +68,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -188,10 +190,7 @@ public class StylusHandwritingTest extends EndToEndImeTestBase {
                     editorMatcher("onStartStylusHandwriting", marker),
                     TIMEOUT);
 
-            // Verify Stylus Handwriting window is shown
-            assertTrue(expectCommand(
-                    stream, imeSession.callGetStylusHandwritingWindowVisibility(), TIMEOUT)
-                            .getReturnBooleanValue());
+            verifyStylusHandwritingWindowIsShown(stream, imeSession);
 
             // Release the stylus pointer
             TestUtils.injectStylusUpEvent(editText, x, y);
@@ -232,6 +231,14 @@ public class StylusHandwritingTest extends EndToEndImeTestBase {
         testHandwritingStylusEvents(false /* verifyOnInkView */);
     }
 
+    private void verifyStylusHandwritingWindowIsShown(ImeEventStream stream,
+            MockImeSession imeSession) throws InterruptedException, TimeoutException {
+        CommonTestUtils.waitUntil("Stylus handwriting window should be shown", TIMEOUT,
+                () -> expectCommand(
+                        stream, imeSession.callGetStylusHandwritingWindowVisibility(), TIMEOUT)
+                .getReturnBooleanValue());
+    }
+
     private void testHandwritingStylusEvents(boolean verifyOnInkView) throws Exception {
         final InputMethodManager imm = InstrumentationRegistry.getInstrumentation()
                 .getTargetContext().getSystemService(InputMethodManager.class);
@@ -263,10 +270,7 @@ public class StylusHandwritingTest extends EndToEndImeTestBase {
                     editorMatcher("onStartStylusHandwriting", marker),
                     TIMEOUT);
 
-            // Verify Stylus Handwriting window is shown
-            assertTrue(expectCommand(
-                    stream, imeSession.callGetStylusHandwritingWindowVisibility(), TIMEOUT)
-                    .getReturnBooleanValue());
+            verifyStylusHandwritingWindowIsShown(stream, imeSession);
 
             if (verifyOnInkView) {
                 // Verify IME stylus Ink view receives the motion Event.
