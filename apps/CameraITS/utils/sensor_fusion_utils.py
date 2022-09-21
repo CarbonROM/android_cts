@@ -424,8 +424,7 @@ def procrustes_rotation(x, y):
   return np.dot(vt.T, u.T)
 
 
-def get_cam_rotations(frames, facing, h, file_name_stem,
-                      start_frame, stabilized_video=False):
+def get_cam_rotations(frames, facing, h, file_name_stem, start_frame):
   """Get the rotations of the camera between each pair of frames.
 
   Takes N frames and returns N-1 angular displacements corresponding to the
@@ -518,7 +517,7 @@ def get_cam_rotations(frames, facing, h, file_name_stem,
   rot_per_frame_max = max(abs(rotations))
   logging.debug('Max rotation in frame: %.2f degrees',
                 rot_per_frame_max*_RADS_TO_DEGS)
-  if rot_per_frame_max < _ROTATION_PER_FRAME_MIN and not stabilized_video:
+  if rot_per_frame_max < _ROTATION_PER_FRAME_MIN:
     raise AssertionError(f'Device not moved enough: {rot_per_frame_max:.3f} '
                          f'movement. THRESH: {_ROTATION_PER_FRAME_MIN} rads.')
   return rotations
