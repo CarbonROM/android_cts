@@ -59,6 +59,8 @@
         <option name="push" value="CtsInstallPermissionUserApp.apk->/data/local/tmp/cts/permissions/CtsInstallPermissionUserApp.apk" />
         <option name="push" value="CtsInstallPermissionEscalatorApp.apk->/data/local/tmp/cts/permissions/CtsInstallPermissionEscalatorApp.apk" />
         <option name="push" value="AppThatDefinesUndefinedPermissionGroupElement.apk->/data/local/tmp/cts/permissions/AppThatDefinesUndefinedPermissionGroupElement.apk" />
+        <option name="push" value="CtsAppThatRequestsSystemAlertWindow22.apk->/data/local/tmp/cts/permissions/CtsAppThatRequestsSystemAlertWindow22.apk" />
+        <option name="push" value="CtsAppThatRequestsSystemAlertWindow23.apk->/data/local/tmp/cts/permissions/CtsAppThatRequestsSystemAlertWindow23.apk" />
     </target_preparer>
 
     <!-- Remove additional apps if installed -->
