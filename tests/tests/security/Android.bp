@@ -63,6 +63,7 @@ android_test {
     data: [
         ":CtsUsePermissionApp22_2",
         ":CtsHelperAppOverlay",
+        ":CtsDummyTargetApi15TestApp",
     ],
     //sdk_version: "current",
     platform_apis: true,
