@@ -117,6 +117,12 @@ class PreviewRecorder implements AutoCloseable {
 
     private boolean mMediaRecorderConsumed = false; // tracks if the MediaRecorder instance was
                                                     // already used to record a video.
+
+    // Lock to protect reads/writes to the various Surfaces below.
+    private final Object mRecorderLock = new Object();
+    // Tracks if the mMediaRecorder is currently recording. Protected by mRecorderLock.
+    private volatile boolean mIsRecording = false;
+
     private final Size mPreviewSize;
 
     private Surface mRecorderSurface; // MediaRecorder source. EGL writes to this surface
@@ -190,20 +196,26 @@ class PreviewRecorder implements AutoCloseable {
 
 
         mCameraTexture.setOnFrameAvailableListener(surfaceTexture -> {
-            if (surfaceTexture.isReleased()) {
-                return;
-            }
+            // Synchronized on mRecorderLock to ensure that all surface are valid while encoding
+            // frames. All surfaces should be valid for as long as mIsRecording is true.
+            synchronized (mRecorderLock) {
+                // Only update the texture if the recorder is currently recording.
+                if (!mIsRecording) {
+                    return;
+                }
 
-            // Bind EGL context to the current thread (just in case the executing thread changes)
-            EGL14.eglMakeCurrent(mEGLDisplay, mEGLRecorderSurface,
-                    mEGLRecorderSurface, mEGLContext);
-            surfaceTexture.updateTexImage(); // update texture to the latest frame
+                // Bind EGL context to the current thread (just in case the
+                // executing thread changes)
+                EGL14.eglMakeCurrent(mEGLDisplay, mEGLRecorderSurface,
+                        mEGLRecorderSurface, mEGLContext);
+                surfaceTexture.updateTexImage(); // update texture to the latest frame
 
-            try {
-                copyFrameToRecorder();
-            } catch (ItsException e) {
-                Logt.e(TAG, "Failed to copy texture to recorder.", e);
-                throw new ItsRuntimeException("Failed to copy texture to recorder.", e);
+                try {
+                    copyFrameToRecorder();
+                } catch (ItsException e) {
+                    Logt.e(TAG, "Failed to copy texture to recorder.", e);
+                    throw new ItsRuntimeException("Failed to copy texture to recorder.", e);
+                }
             }
         }, handler);
     }
@@ -524,22 +536,30 @@ class PreviewRecorder implements AutoCloseable {
 
         try {
             Logt.i(TAG, "Starting Preview Recording.");
-            mMediaRecorder.start();
+            synchronized (mRecorderLock) {
+                mIsRecording = true;
+                mMediaRecorder.start();
+            }
             Thread.sleep(durationMs);
         } catch (InterruptedException e) {
             throw new ItsException("Recording interrupted.", e);
         } finally {
             Logt.i(TAG, "Stopping Preview Recording.");
-            mMediaRecorder.stop();
+            synchronized (mRecorderLock) {
+                mIsRecording = false;
+                mMediaRecorder.stop();
+            }
         }
     }
 
     @Override
     public void close() {
-        // release order is important to prevent writes to stale Surfaces
-        mCameraSurface.release();
-        mCameraTexture.release();
-        mMediaRecorder.release();
-        mRecorderSurface.release();
+        // synchronized to prevent reads and writes to surfaces while they are being released.
+        synchronized (mRecorderLock) {
+            mCameraSurface.release();
+            mCameraTexture.release();
+            mMediaRecorder.release();
+            mRecorderSurface.release();
+        }
     }
 }
