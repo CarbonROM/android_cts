@@ -124,6 +124,7 @@ class PreviewRecorder implements AutoCloseable {
     private volatile boolean mIsRecording = false;
 
     private final Size mPreviewSize;
+    private final Handler mHandler;
 
     private Surface mRecorderSurface; // MediaRecorder source. EGL writes to this surface
     private MediaRecorder mMediaRecorder;
@@ -133,6 +134,7 @@ class PreviewRecorder implements AutoCloseable {
     private Surface mCameraSurface; // Surface corresponding to mCameraTexture that the
                                     // Camera HAL writes to
 
+    private int mGLShaderProgram = 0;
     private EGLDisplay mEGLDisplay = EGL14.EGL_NO_DISPLAY;
     private EGLContext mEGLContext = EGL14.EGL_NO_CONTEXT;
     private EGLSurface mEGLRecorderSurface; // EGL Surface corresponding to mRecorderSurface
@@ -162,6 +164,7 @@ class PreviewRecorder implements AutoCloseable {
                     + "supported preview size.");
         }
 
+        mHandler = handler;
         mPreviewSize = previewSize;
         // rotate the texture as needed by the sensor orientation
         mTexRotMatrix = getRotationMatrix(sensorOrientation);
@@ -169,9 +172,9 @@ class PreviewRecorder implements AutoCloseable {
         ConditionVariable cv = new ConditionVariable();
         cv.close();
         // Init fields in the passed handler to bind egl context to the handler thread.
-        handler.post(() -> {
+        mHandler.post(() -> {
             try {
-                initPreviewRecorder(cameraId, outputFile, handler, context);
+                initPreviewRecorder(cameraId, outputFile, context);
             } catch (ItsException e) {
                 Logt.e(TAG, "Failed to init preview recorder", e);
                 throw new ItsRuntimeException("Failed to init preview recorder", e);
@@ -186,7 +189,7 @@ class PreviewRecorder implements AutoCloseable {
 
     }
 
-    private void initPreviewRecorder(int cameraId, String outputFile, Handler handler,
+    private void initPreviewRecorder(int cameraId, String outputFile,
             Context context) throws ItsException {
         // order of initialization is important
         setupMediaRecorder(cameraId, outputFile, context);
@@ -217,7 +220,7 @@ class PreviewRecorder implements AutoCloseable {
                     throw new ItsRuntimeException("Failed to copy texture to recorder.", e);
                 }
             }
-        }, handler);
+        }, mHandler);
     }
 
     private void setupMediaRecorder(int cameraId, String outputFile, Context context)
@@ -320,23 +323,23 @@ class PreviewRecorder implements AutoCloseable {
         int vertexShader = createShader(GLES20.GL_VERTEX_SHADER, VERTEX_SHADER);
         int fragmentShader = createShader(GLES20.GL_FRAGMENT_SHADER, FRAGMENT_SHADER);
 
-        int shaderProgram = GLES20.glCreateProgram();
-        GLES20.glAttachShader(shaderProgram, vertexShader);
-        GLES20.glAttachShader(shaderProgram, fragmentShader);
-        GLES20.glLinkProgram(shaderProgram);
+        mGLShaderProgram = GLES20.glCreateProgram();
+        GLES20.glAttachShader(mGLShaderProgram, vertexShader);
+        GLES20.glAttachShader(mGLShaderProgram, fragmentShader);
+        GLES20.glLinkProgram(mGLShaderProgram);
 
         int[] linkStatus = {0};
-        GLES20.glGetProgramiv(shaderProgram, GLES20.GL_LINK_STATUS, linkStatus, 0);
+        GLES20.glGetProgramiv(mGLShaderProgram, GLES20.GL_LINK_STATUS, linkStatus, 0);
         if (linkStatus[0] == 0) {
-            String msg = "Could not link program: " + GLES20.glGetProgramInfoLog(shaderProgram);
-            GLES20.glDeleteProgram(shaderProgram);
+            String msg = "Could not link program: " + GLES20.glGetProgramInfoLog(mGLShaderProgram);
+            GLES20.glDeleteProgram(mGLShaderProgram);
             throw new ItsException(msg);
         }
 
-        mVPositionLoc = GLES20.glGetAttribLocation(shaderProgram, "vPosition");
-        mTexMatrixLoc = GLES20.glGetUniformLocation(shaderProgram, "texMatrix");
-        mTexRotMatrixLoc = GLES20.glGetUniformLocation(shaderProgram, "texRotMatrix");
-        GLES20.glUseProgram(shaderProgram);
+        mVPositionLoc = GLES20.glGetAttribLocation(mGLShaderProgram, "vPosition");
+        mTexMatrixLoc = GLES20.glGetUniformLocation(mGLShaderProgram, "texMatrix");
+        mTexRotMatrixLoc = GLES20.glGetUniformLocation(mGLShaderProgram, "texRotMatrix");
+        GLES20.glUseProgram(mGLShaderProgram);
         assertNoGLError("glUseProgram");
     }
 
@@ -560,6 +563,38 @@ class PreviewRecorder implements AutoCloseable {
             mCameraTexture.release();
             mMediaRecorder.release();
             mRecorderSurface.release();
+
+            ConditionVariable cv = new ConditionVariable();
+            cv.close();
+            // GL Cleanup should happen on the thread EGL Context was bound to
+            mHandler.post(() -> {
+                try {
+                    cleanupEgl();
+                } finally {
+                    cv.open();
+                }
+            });
+
+            // Wait for up to a second for egl to clean up.
+            // Since this is clean up, do nothing if the handler takes longer than 1s.
+            cv.block(/*timeoutMs=*/ 1000);
         }
+    }
+
+    private void cleanupEgl() {
+        if (mGLShaderProgram == 0) {
+            // egl program was never set up, no cleanup needed
+            return;
+        }
+
+        Logt.i(TAG, "Cleaning up EGL Context");
+        GLES20.glDeleteProgram(mGLShaderProgram);
+        // Release the egl surfaces and context from the handler
+        EGL14.eglMakeCurrent(mEGLDisplay, EGL14.EGL_NO_SURFACE,
+                EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
+        EGL14.eglDestroySurface(mEGLDisplay, mEGLRecorderSurface);
+        EGL14.eglDestroyContext(mEGLDisplay, mEGLContext);
+
+        EGL14.eglTerminate(mEGLDisplay);
     }
 }
