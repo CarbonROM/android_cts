@@ -31,7 +31,12 @@
         <option name="teardown-command"
             value="pm uninstall --user 0 android.security.cts" />
     </target_preparer>
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="run-command" value="mkdir -p /data/local/tmp/cts/security" />
+        <option name="teardown-command" value="rm -rf /data/local/tmp/cts"/>
+    </target_preparer>
     <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
+        <option name="push" value="CtsDummyTargetApi15TestApp.apk->/data/local/tmp/cts/security/CtsDummyTargetApi15TestApp.apk" />
         <option name="push" value="CtsUsePermissionApp22_2.apk->/data/local/tmp/cts/permission3/CtsUsePermissionApp22_2.apk" />
         <option name="push" value="CtsHelperAppOverlay.apk->/data/local/tmp/cts/permission3/CtsHelperAppOverlay.apk" />
     </target_preparer>
