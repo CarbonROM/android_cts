@@ -38,6 +38,8 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Set of tests that verify behavior of Resume on Reboot, if supported.
@@ -63,6 +65,7 @@ public class ResumeOnRebootHostTest extends BaseHostJUnit4Test {
     private static final int USER_SYSTEM = 0;
 
     private static final long USER_SWITCH_WAIT = TimeUnit.SECONDS.toMillis(10);
+    private static final int UNLOCK_BROADCAST_WAIT_SECONDS = 10;
 
     private boolean mSupportsMultiUser;
 
@@ -337,9 +340,34 @@ public class ResumeOnRebootHostTest extends BaseHostJUnit4Test {
         runDeviceTestsAsUser("testUnlockScreen", userId);
     }
 
+    private void verifyLskfCaptured() throws Exception {
+        HostSideTestUtils.waitUntil(
+                "Lskf isn't captured after " + UNLOCK_BROADCAST_WAIT_SECONDS + " seconds",
+                UNLOCK_BROADCAST_WAIT_SECONDS, this::isLskfCapturedBasedOnDumpsys);
+    }
+
+    private boolean isLskfCapturedBasedOnDumpsys() throws DeviceNotAvailableException {
+        Pattern pattern = Pattern.compile("\\w*mRebootEscrowReady=((?i)true|false(?-i))");
+        String lockSettingsDumpsys = getDevice().executeShellCommand("dumpsys lock_settings");
+        Matcher matcher = pattern.matcher(lockSettingsDumpsys);
+        if (!matcher.find()) {
+            CLog.d("lock_settings dumpsys did not contain mRebootEscrowReady entry. "
+                    + "Assuming reboot escrow is not ready");
+            return false;
+        }
+        return "true".equalsIgnoreCase(matcher.group(1));
+    }
+
     private void deviceRebootAndApply() throws Exception {
-        String res = getDevice().executeShellCommand("cmd recovery reboot-and-apply cts-test1 cts-test");
-        if (res != null && res.contains("failure")) {
+        deviceRebootAndApply(PKG);
+    }
+
+    private void deviceRebootAndApply(String clientName) throws Exception {
+        verifyLskfCaptured();
+
+        String res = executeShellCommandWithLogging(
+                "cmd recovery reboot-and-apply " + clientName + " cts-test");
+        if (res != null && res.contains("Reboot and apply status: failure")) {
             fail("could not call reboot-and-apply");
         }
 
@@ -374,10 +402,7 @@ public class ResumeOnRebootHostTest extends BaseHostJUnit4Test {
     }
 
     private void stopUserAsync(int userId) throws Exception {
-        String stopUserCommand = "am stop-user -f " + userId;
-        CLog.d("starting command \"" + stopUserCommand);
-        CLog.d("Output for command " + stopUserCommand + ": "
-                + getDevice().executeShellCommand(stopUserCommand));
+        executeShellCommandWithLogging("am stop-user -f " + userId);
     }
 
     private void removeUser(int userId) throws Exception  {
@@ -432,5 +457,13 @@ public class ResumeOnRebootHostTest extends BaseHostJUnit4Test {
         public InstallMultiple() {
             super(getDevice(), getBuild(), getAbi());
         }
+    }
+
+    private String executeShellCommandWithLogging(String command)
+            throws DeviceNotAvailableException {
+        CLog.d("Starting command: " + command);
+        String result = getDevice().executeShellCommand(command);
+        CLog.d("Output for command \"" + command + "\": " + result);
+        return result;
     }
 }
