@@ -204,6 +204,21 @@
         <activity android:name="android.security.cts.ActivityManagerTest$ActivityOptionsActivity" />
         <activity android:name="android.security.cts.ActivityManagerTest$BaseActivity" />
 
+        <provider android:name="android.security.cts.CVE_2022_20358.PocContentProvider"
+            android:authorities="android.security.cts.CVE_2022_20358.provider"
+            android:enabled="true"
+            android:exported="true" />
+
+        <service android:name="android.security.cts.CVE_2022_20358.PocSyncService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter"
+                android:resource="@xml/syncadapter" />
+        </service>
+
     </application>
 
     <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
