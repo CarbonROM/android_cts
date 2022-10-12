@@ -28,7 +28,6 @@ import android.attentionservice.cts.CtsTestAttentionService;
 import android.os.Parcelable;
 import android.platform.test.annotations.AppModeFull;
 import android.provider.DeviceConfig;
-import android.service.attention.AttentionService;
 import android.service.voice.HotwordDetectedResult;
 import android.voiceinteraction.common.Utils;
 import android.voiceinteraction.service.EventPayloadParcelable;
@@ -39,6 +38,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.compatibility.common.util.ApiTest;
 import com.android.compatibility.common.util.DeviceConfigStateChangerRule;
+import com.android.compatibility.common.util.RequiredServiceRule;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -55,8 +55,9 @@ import org.junit.runner.RunWith;
 @AppModeFull(reason = "No real use case for instant mode hotword detection service")
 public final class HotwordDetectionServiceProximityTest
         extends AbstractVoiceInteractionBasicTestCase {
-    /** TODO(b/247920386): Replace with the system constant. */
-    private static final boolean ENABLE_PROXIMITY_RESULT = false;
+    @Rule
+    public final RequiredServiceRule mAttentionServiceRule =
+            new RequiredServiceRule(ATTENTION_SERVICE);
 
     @Rule
     public final DeviceConfigStateChangerRule mEnableAttentionManagerServiceRule =
@@ -65,15 +66,21 @@ public final class HotwordDetectionServiceProximityTest
                     SERVICE_ENABLED,
                     "true");
 
-    private static final String EXTRA_PROXIMITY_METERS =
-            "android.service.voice.extra.PROXIMITY_METERS";
+    private static final String EXTRA_PROXIMITY =
+            "android.service.voice.extra.PROXIMITY";
 
     private static Instrumentation sInstrumentation = InstrumentationRegistry.getInstrumentation();
 
     private static final String SERVICE_ENABLED = "service_enabled";
     private static final String FAKE_SERVICE_PACKAGE =
             HotwordDetectionServiceProximityTest.class.getPackage().getName();
-    private static final double SUCCESSFUL_PROXIMITY_DISTANCE = 1.0;
+    private static final double PROXIMITY_NEAR_METERS = 2.0;
+    private static final double PROXIMITY_FAR_METERS = 6.0;
+    private static final int PROXIMITY_UNKNOWN = -1;
+    private static final int PROXIMITY_NEAR = 1;
+    private static final int PROXIMITY_FAR = 2;
+    private static final String ATTENTION_SERVICE = "attention";
+    private static final boolean ENABLE_PROXIMITY_RESULT = true;
 
     @BeforeClass
     public static void enableAttentionService() throws InterruptedException {
@@ -106,7 +113,7 @@ public final class HotwordDetectionServiceProximityTest
                 null);
 
         // when proximity is unknown, proximity should not be returned.
-        CtsTestAttentionService.respondProximity(AttentionService.PROXIMITY_UNKNOWN);
+        CtsTestAttentionService.respondProximity(PROXIMITY_UNKNOWN);
 
         verifyProximityBundle(
                 performAndGetDetectionResult(mActivityTestRule, mContext,
@@ -114,14 +121,21 @@ public final class HotwordDetectionServiceProximityTest
                         Utils.HOTWORD_DETECTION_SERVICE_BASIC),
                 null);
 
-        // when proximity is known, proximity should be returned.
-        CtsTestAttentionService.respondProximity(SUCCESSFUL_PROXIMITY_DISTANCE);
+        CtsTestAttentionService.respondProximity(PROXIMITY_NEAR_METERS);
 
         verifyProximityBundle(
                 performAndGetDetectionResult(mActivityTestRule, mContext,
                         Utils.HOTWORD_DETECTION_SERVICE_DSP_ONDETECT_TEST,
                         Utils.HOTWORD_DETECTION_SERVICE_BASIC),
-                SUCCESSFUL_PROXIMITY_DISTANCE);
+                PROXIMITY_NEAR);
+
+        CtsTestAttentionService.respondProximity(PROXIMITY_FAR_METERS);
+
+        verifyProximityBundle(
+                performAndGetDetectionResult(mActivityTestRule, mContext,
+                        Utils.HOTWORD_DETECTION_SERVICE_DSP_ONDETECT_TEST,
+                        Utils.HOTWORD_DETECTION_SERVICE_BASIC),
+                PROXIMITY_FAR);
 
         testHotwordDetection(mActivityTestRule, mContext,
                 Utils.HOTWORD_DETECTION_SERVICE_DSP_DESTROY_DETECTOR,
@@ -164,7 +178,7 @@ public final class HotwordDetectionServiceProximityTest
                 Utils.HOTWORD_DETECTION_SERVICE_TRIGGER_SUCCESS,
                 Utils.HOTWORD_DETECTION_SERVICE_BASIC);
 
-        CtsTestAttentionService.respondProximity(AttentionService.PROXIMITY_UNKNOWN);
+        CtsTestAttentionService.respondProximity(PROXIMITY_UNKNOWN);
 
         verifyProximityBundle(
                 performAndGetDetectionResult(mActivityTestRule, mContext,
@@ -189,13 +203,13 @@ public final class HotwordDetectionServiceProximityTest
                 Utils.HOTWORD_DETECTION_SERVICE_TRIGGER_SUCCESS,
                 Utils.HOTWORD_DETECTION_SERVICE_BASIC);
 
-        CtsTestAttentionService.respondProximity(SUCCESSFUL_PROXIMITY_DISTANCE);
+        CtsTestAttentionService.respondProximity(PROXIMITY_NEAR_METERS);
 
         verifyProximityBundle(
                 performAndGetDetectionResult(mActivityTestRule, mContext,
                         Utils.HOTWORD_DETECTION_SERVICE_MIC_ONDETECT_TEST,
                         Utils.HOTWORD_DETECTION_SERVICE_BASIC),
-                SUCCESSFUL_PROXIMITY_DISTANCE);
+                PROXIMITY_NEAR);
 
         testHotwordDetection(mActivityTestRule, mContext,
                 Utils.HOTWORD_DETECTION_SERVICE_SOFTWARE_DESTROY_DETECTOR,
@@ -214,7 +228,7 @@ public final class HotwordDetectionServiceProximityTest
                 Utils.HOTWORD_DETECTION_SERVICE_TRIGGER_SUCCESS,
                 Utils.HOTWORD_DETECTION_SERVICE_BASIC);
 
-        CtsTestAttentionService.respondProximity(SUCCESSFUL_PROXIMITY_DISTANCE);
+        CtsTestAttentionService.respondProximity(PROXIMITY_FAR);
 
         verifyProximityBundle(
                 performAndGetDetectionResult(mActivityTestRule, mContext,
@@ -230,21 +244,16 @@ public final class HotwordDetectionServiceProximityTest
     }
 
     // simply check that the proximity values are equal.
-    private void verifyProximityBundle(Parcelable result, Double expected) {
+    private void verifyProximityBundle(Parcelable result, Integer expected) {
         assertThat(result).isInstanceOf(EventPayloadParcelable.class);
         HotwordDetectedResult hotwordDetectedResult =
                 ((EventPayloadParcelable) result).mHotwordDetectedResult;
         assertThat(hotwordDetectedResult).isNotNull();
         if (expected == null || !ENABLE_PROXIMITY_RESULT) {
-            assertThat(
-                    hotwordDetectedResult.getExtras().containsKey(EXTRA_PROXIMITY_METERS))
-                    .isFalse();
+            assertThat(hotwordDetectedResult.getExtras().containsKey(EXTRA_PROXIMITY)).isFalse();
         } else {
-            assertThat(
-                    hotwordDetectedResult.getExtras().containsKey(EXTRA_PROXIMITY_METERS))
-                    .isTrue();
-            assertThat(
-                    hotwordDetectedResult.getExtras().getDouble(EXTRA_PROXIMITY_METERS))
+            assertThat(hotwordDetectedResult.getExtras().containsKey(EXTRA_PROXIMITY)).isTrue();
+            assertThat(hotwordDetectedResult.getExtras().getInt(EXTRA_PROXIMITY))
                     .isEqualTo(expected);
         }
     }
