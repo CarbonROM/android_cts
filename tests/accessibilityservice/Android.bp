@@ -27,6 +27,7 @@ android_test {
         "platform-test-annotations",
         "CtsAccessibilityCommon",
         "CtsInputMethodServiceCommon",
+        "sts-device-util",
     ],
     libs: [
         "android.test.runner",
@@ -37,7 +38,11 @@ android_test {
     test_suites: [
         "cts",
         "general-tests",
+        "sts",
     ],
     sdk_version: "test_current",
-    data: [":CtsAccessibilityWidgetProvider"],
+    data: [
+        ":CtsAccessibilityMultipleServicesApp",
+        ":CtsAccessibilityWidgetProvider",
+    ],
 }
