@@ -108,6 +108,10 @@ public class ToastTest {
         mContext = InstrumentationRegistry.getTargetContext();
         mUiAutomation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
         mLayoutListener = () -> mLayoutDone = true;
+
+        // Wait until the activity is resumed. Otherwise, custom toasts from non-resumed activity
+        // may be blocked depending on the timing.
+        PollingCheck.waitFor(TIME_OUT, () -> null != mActivityRule.getActivity());
     }
 
     @UiThreadTest
