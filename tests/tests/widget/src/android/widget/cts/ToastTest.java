@@ -130,6 +130,10 @@ public class ToastTest {
         // disable rate limiting for tests
         SystemUtil.runWithShellPermissionIdentity(() -> mNotificationManager
                 .setToastRateLimitingEnabled(false));
+
+        // Wait until the activity is resumed. Otherwise, custom toasts from non-resumed activity
+        // may be blocked depending on the timing.
+        PollingCheck.waitFor(TIME_OUT, () -> null != mActivityRule.getActivity());
     }
 
     @After
