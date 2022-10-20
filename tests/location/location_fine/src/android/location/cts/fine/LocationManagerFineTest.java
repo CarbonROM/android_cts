@@ -650,6 +650,7 @@ public class LocationManagerFineTest {
         // battery saver is unsupported on auto and tv
         assumeFalse(mContext.getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE));
         assumeFalse(mContext.getPackageManager().hasSystemFeature(FEATURE_TELEVISION));
+        assumeTrue(BatteryUtils.isBatterySaverSupported());
 
         PowerManager powerManager = Objects.requireNonNull(
                 mContext.getSystemService(PowerManager.class));
@@ -711,6 +712,7 @@ public class LocationManagerFineTest {
         // battery saver is unsupported on auto and tv
         assumeFalse(mContext.getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE));
         assumeFalse(mContext.getPackageManager().hasSystemFeature(FEATURE_TELEVISION));
+        assumeTrue(BatteryUtils.isBatterySaverSupported());
 
         PowerManager powerManager = Objects.requireNonNull(
                 mContext.getSystemService(PowerManager.class));
@@ -753,6 +755,7 @@ public class LocationManagerFineTest {
         // battery saver is unsupported on auto and tv
         assumeFalse(mContext.getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE));
         assumeFalse(mContext.getPackageManager().hasSystemFeature(FEATURE_TELEVISION));
+        assumeTrue(BatteryUtils.isBatterySaverSupported());
 
         PowerManager powerManager = Objects.requireNonNull(
                 mContext.getSystemService(PowerManager.class));
