@@ -6318,6 +6318,7 @@
             </intent-filter>
         </service>
 
+        <!-- TODO: Reenable when b/249043995 is rolled out.
         <activity android:name=".instantapps.NotificationTestActivity"
                 android:exported="true"
                  android:label="@string/ia_notification">
@@ -6331,6 +6332,7 @@
                        android:value="multi_display_mode" />
             <meta-data android:name="CddTest" android:value="3.15/C-0-6" />
         </activity>
+        -->
         <activity android:name=".instantapps.RecentAppsTestActivity"
                 android:exported="true"
                  android:label="@string/ia_recents">
