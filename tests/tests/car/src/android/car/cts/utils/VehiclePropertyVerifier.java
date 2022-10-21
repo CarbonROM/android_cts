@@ -278,7 +278,7 @@ public class VehiclePropertyVerifier<T> {
     private void verifySetterWithMinMaxValues(CarPropertyConfig<?> carPropertyConfig,
             CarPropertyManager carPropertyManager) {
         for (int areaId : carPropertyConfig.getAreaIds()) {
-            if (carPropertyConfig.getMinValue(areaId) == null || carPropertyConfig.getMinValue(
+            if (carPropertyConfig.getMinValue(areaId) == null || carPropertyConfig.getMaxValue(
                     areaId) == null) {
                 continue;
             }
