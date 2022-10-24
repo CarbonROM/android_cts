@@ -119,6 +119,13 @@ public class JvmtiRunTestBasedTest extends JvmtiTestBase {
     public void testRunTest() throws Exception {
         final int nr = getTestNumber();
 
+        // b/242276152 - skip test for watches
+        if (nr == 910) {
+            if (mActivity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_WATCH)) {
+                return;
+            }
+        }
+
         // Load the test class.
         Class<?> testClass = Class.forName("art.Test" + nr);
         final Method runMethod = testClass.getDeclaredMethod("run");
