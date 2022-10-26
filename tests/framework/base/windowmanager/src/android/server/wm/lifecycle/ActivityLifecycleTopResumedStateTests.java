@@ -470,6 +470,8 @@ public class ActivityLifecycleTopResumedStateTests extends ActivityLifecycleClie
                 .setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_MULTIPLE_TASK)
                 .launch();
 
+        waitAndAssertActivityStates(state(SideActivity.class,ON_STOP));
+
         // Tap on first activity to switch the focus
         getLifecycleLog().clear();
         final Task dockedTask = getRootTaskForLeafTaskId(firstActivity.getTaskId());
