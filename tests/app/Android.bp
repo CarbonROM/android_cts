@@ -33,7 +33,10 @@ android_test {
         "platformprotosnano",
         "permission-test-util-lib"
     ],
-    srcs: ["src/**/*.java"],
+    srcs: [
+        "src/**/*.java",
+        "app/src/android/app/stubs/RemoteActivity.java",
+    ],
     // Tag this module as a cts test artifact
     test_suites: [
         "cts",
