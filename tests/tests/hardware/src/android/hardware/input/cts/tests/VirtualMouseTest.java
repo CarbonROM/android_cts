@@ -128,10 +128,6 @@ public class VirtualMouseTest extends VirtualDeviceTestCase {
         maybeConsumeHoverEnter();
 
         verifyEvents(Arrays.asList(
-                createMotionEvent(MotionEvent.ACTION_HOVER_ENTER, secondStopPositionX,
-                        secondStopPositionY, -relativeChangeX,
-                        -relativeChangeY, /* vScroll= */ 0f,
-                        /* hScroll= */ 0f, /* buttonState= */ 0, /* pressure= */ 0.0f),
                 createMotionEvent(MotionEvent.ACTION_HOVER_MOVE, secondStopPositionX,
                         secondStopPositionY, -relativeChangeX,
                         -relativeChangeY, /* vScroll= */ 0f,
