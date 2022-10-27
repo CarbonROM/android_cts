@@ -65,6 +65,7 @@ public class OsHostTests extends DeviceTestCase implements IBuildReceiver, IAbiR
     private static final String HOST_WILDCARD = "wildcard.tld";
 
     private static final String FEATURE_WATCH = "android.hardware.type.watch";
+    private static final String FEATURE_TELEVISION = "android.hardware.type.television";
 
     /**
      * A reference to the device under test.
@@ -152,6 +153,9 @@ public class OsHostTests extends DeviceTestCase implements IBuildReceiver, IAbiR
 
     public void testIntentFilterHostValidation() throws Exception {
         if (mDevice.executeShellCommand("pm list features").contains(FEATURE_WATCH)) {
+            return;
+        }
+        if (mDevice.executeShellCommand("pm list features").contains(FEATURE_TELEVISION)) {
             return;
         }
 
