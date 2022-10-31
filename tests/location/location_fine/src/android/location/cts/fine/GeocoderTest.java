@@ -16,14 +16,9 @@
 
 package android.location.cts.fine;
 
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Geocoder;
 import android.platform.test.annotations.AppModeFull;
 
@@ -61,15 +56,6 @@ public class GeocoderTest {
             fail("should throw NullPointerException.");
         } catch (NullPointerException e) {
             // expected.
-        }
-    }
-
-    @Test
-    public void testIsPresent() {
-        if (isServiceMissing()) {
-            assertFalse(Geocoder.isPresent());
-        } else {
-            assertTrue(Geocoder.isPresent());
         }
     }
 
@@ -191,14 +177,5 @@ public class GeocoderTest {
         } catch (IllegalArgumentException e) {
             // pass
         }
-    }
-
-    private boolean isServiceMissing() {
-        PackageManager pm = mContext.getPackageManager();
-
-        final Intent intent = new Intent("com.android.location.service.GeocodeProvider");
-        final int flags = PackageManager.MATCH_DIRECT_BOOT_AWARE
-                | PackageManager.MATCH_DIRECT_BOOT_UNAWARE;
-        return pm.queryIntentServices(intent, flags).isEmpty();
     }
 }
