@@ -34,6 +34,7 @@ android_test {
         "androidx.annotation_annotation",
         "platformprotosnano",
         "permission-test-util-lib",
+        "sts-device-util",
     ],
     jni_libs: [
         "libctspermission_jni",
