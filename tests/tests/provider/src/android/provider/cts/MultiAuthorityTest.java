@@ -35,6 +35,7 @@ import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -68,6 +69,7 @@ public class MultiAuthorityTest {
         });
     }
 
+    @Ignore
     @Test
     public void testAuthority1() {
         ContentProviderClient cpc = mContentResolver.acquireContentProviderClient(PROVIDER1);
