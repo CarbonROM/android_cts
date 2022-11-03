@@ -1858,11 +1858,23 @@ public class StaticMetadata {
         return modes;
     }
 
+    public Integer getChosenVideoStabilizationMode() {
+        Integer[] videoStabilizationModes =
+                CameraTestUtils.toObject(getAvailableVideoStabilizationModesChecked());
+        if (videoStabilizationModes.length == 1) {
+            return CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_OFF;
+        }
+        return Arrays.asList(videoStabilizationModes).contains(
+                CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON) ?
+                CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON :
+                CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION;
+    }
+
     public boolean isVideoStabilizationSupported() {
         Integer[] videoStabModes =
                 CameraTestUtils.toObject(getAvailableVideoStabilizationModesChecked());
-        return Arrays.asList(videoStabModes).contains(
-                CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON);
+        // VIDEO_STABILIZATION_MODE_OFF is guaranteed to be present
+        return (videoStabModes.length > 1);
     }
 
     /**
