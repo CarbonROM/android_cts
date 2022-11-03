@@ -86,9 +86,9 @@ class CameraMicIndicatorsPermissionTest {
     private val isCar = packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)
     private var wasEnabled = false
     private val micLabel = packageManager.getPermissionGroupInfo(
-        Manifest.permission_group.MICROPHONE, 0).loadLabel(packageManager).toString()
+        Manifest.permission_group.MICROPHONE, 0).loadLabel(packageManager).toString().toLowerCase()
     private val cameraLabel = packageManager.getPermissionGroupInfo(
-        Manifest.permission_group.CAMERA, 0).loadLabel(packageManager).toString()
+        Manifest.permission_group.CAMERA, 0).loadLabel(packageManager).toString().toLowerCase()
     private var isScreenOn = false
     private var screenTimeoutBeforeTest: Long = 0L
 
