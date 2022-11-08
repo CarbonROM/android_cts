@@ -52,6 +52,7 @@
         <option name="cleanup" value="true" />
         <option name="push" value="RolePermissionOverrideTestApp.apk->/data/local/tmp/cts/security/RolePermissionOverrideTestApp.apk" />
         <option name="push" value="SplitBluetoothPermissionTestApp.apk->/data/local/tmp/cts/security/SplitBluetoothPermissionTestApp.apk" />
+        <option name="push" value="CtsAppThatRequestCustomCameraPermission.apk->/data/local/tmp/cts/permissions/CtsAppThatRequestCustomCameraPermission.apk" />
     </target_preparer>
 
     <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
