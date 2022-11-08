@@ -80,6 +80,7 @@ android_test {
         ":CtsDeviceInfo",
         ":RolePermissionOverrideTestApp",
         ":SplitBluetoothPermissionTestApp",
+        ":CtsAppThatRequestCustomCameraPermission",
     ],
 }
 
