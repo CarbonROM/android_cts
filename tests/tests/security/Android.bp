@@ -91,7 +91,8 @@ android_test {
         ":CtsPermissionBackupAppCert34",
         ":CtsPermissionBackupAppCert123",
         ":CtsPermissionBackupAppCert4History124",
-     ],
+        ":CtsAppThatRequestCustomCameraPermission",
+    ],
 }
 
 android_test_helper_app {
