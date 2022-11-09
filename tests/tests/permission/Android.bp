@@ -113,7 +113,6 @@ android_test {
         ":CtsVictimPermissionDefinerApp",
         ":CtsAppThatRequestsSystemAlertWindow22",
         ":CtsAppThatRequestsSystemAlertWindow23",
-        ":CtsAppThatRequestCustomCameraPermission",
     ],
     per_testcase_directory: true,
 }
