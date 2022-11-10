@@ -21,11 +21,14 @@ import static com.android.compatibility.common.util.SystemUtil.runShellCommand;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
 
+import android.content.pm.PackageManager;
 import android.os.SystemClock;
 import android.platform.test.annotations.AppModeFull;
 import android.util.Range;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -61,6 +64,11 @@ public class SystemClockSntpTest {
     private SntpTestServer mServer;
     private Instant mSetupInstant;
     private long mSetupElapsedRealtimeMillis;
+
+    private boolean isWatch() {
+        return ApplicationProvider.getApplicationContext().getPackageManager()
+                .hasSystemFeature(PackageManager.FEATURE_WATCH);
+    }
 
     @Before
     public void setUp() {
@@ -102,6 +110,7 @@ public class SystemClockSntpTest {
     @AppModeFull(reason = "Cannot bind socket in instant app mode")
     @Test
     public void testCurrentNetworkTimeClock() throws Exception {
+        assumeFalse("network_time_update_service does not exist on Wear", isWatch());
         // Start a local SNTP test server. But does not setup a fake response.
         // So the server will not reply to any request.
         runWithShellPermissionIdentity(() -> mServer = new SntpTestServer());
