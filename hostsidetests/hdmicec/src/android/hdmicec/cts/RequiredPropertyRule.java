@@ -17,6 +17,7 @@
 package android.hdmicec.cts;
 
 import static org.junit.Assume.assumeTrue;
+import static org.junit.Assume.assumeFalse;
 
 import com.android.tradefed.device.ITestDevice;
 import com.android.tradefed.testtype.junit4.BaseHostJUnit4Test;
@@ -93,6 +94,36 @@ public class RequiredPropertyRule implements TestRule {
                                 + " is not present in " + deviceProperties.toString()
                                 + " of device " + test.getDevice().getSerialNumber(),
                             deviceProperties.contains(propertyValue));
+                        base.evaluate();
+                    }
+                };
+            }
+        };
+    }
+
+    public static RequiredPropertyRule asCsvDoesNotContainsValue(
+            final BaseHostJUnit4Test test, final String propertyName, final String propertyValue) {
+        return new RequiredPropertyRule() {
+            @Override
+            public Statement apply(final Statement base, final Description description) {
+                return new Statement() {
+                    @Override
+                    public void evaluate() throws Throwable {
+                        List<String> deviceProperties =
+                                Arrays.asList(
+                                        getDevicePropertyValue(test, propertyName)
+                                                .replaceAll("\\s+", "")
+                                                .split(","));
+                        assumeFalse(
+                                "The Property "
+                                        + propertyName
+                                        + " = "
+                                        + propertyValue
+                                        + " is expected to not be present in "
+                                        + deviceProperties.toString()
+                                        + " of device "
+                                        + test.getDevice().getSerialNumber(),
+                                deviceProperties.contains(propertyValue));
                         base.evaluate();
                     }
                 };
