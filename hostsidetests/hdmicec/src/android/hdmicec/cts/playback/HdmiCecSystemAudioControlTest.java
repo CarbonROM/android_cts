@@ -52,9 +52,13 @@ public final class HdmiCecSystemAudioControlTest extends BaseHostJUnit4Test {
             .outerRule(new RequiredFeatureRule(this, LogicalAddress.HDMI_CEC_FEATURE))
             .around(new RequiredFeatureRule(this, LogicalAddress.LEANBACK_FEATURE))
             .around(RequiredPropertyRule.asCsvContainsValue(
+                            this,
+                            LogicalAddress.HDMI_DEVICE_TYPE_PROPERTY,
+                            PLAYBACK_DEVICE.getDeviceType()))
+            .around(RequiredPropertyRule.asCsvDoesNotContainsValue(
                 this,
                 LogicalAddress.HDMI_DEVICE_TYPE_PROPERTY,
-                PLAYBACK_DEVICE.getDeviceType()))
+                LogicalAddress.AUDIO_SYSTEM.getDeviceType()))
             .around(hdmiCecClient);
 
     /**
