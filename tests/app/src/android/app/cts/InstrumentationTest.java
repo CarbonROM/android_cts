@@ -16,6 +16,15 @@
 
 package android.app.cts;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
+
 import android.app.Activity;
 import android.app.Application;
 import android.app.Instrumentation;
@@ -32,10 +41,11 @@ import android.content.res.Configuration;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.SystemClock;
-import android.test.InstrumentationTestCase;
+import android.os.SystemProperties;
 import android.test.UiThreadTest;
 import android.view.InputQueue;
 import android.view.KeyCharacterMap;
@@ -47,16 +57,24 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 
-import java.util.List;
-
 import android.app.stubs.R;
 
 import com.android.compatibility.common.util.PollingCheck;
 import com.android.compatibility.common.util.SystemUtil;
 
 import androidx.test.filters.FlakyTest;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
 
-public class InstrumentationTest extends InstrumentationTestCase {
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.util.List;
+
+@RunWith(AndroidJUnit4.class)
+public class InstrumentationTest {
 
     private static final int WAIT_TIME = 1000;
 
@@ -70,10 +88,9 @@ public class InstrumentationTest extends InstrumentationTestCase {
     private Context mContext;
     private MockActivity mMockActivity;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        mInstrumentation = getInstrumentation();
+    @Before
+    public void setUp() throws Exception {
+        mInstrumentation = InstrumentationRegistry.getInstrumentation();
         mContext = mInstrumentation.getTargetContext();
         mIntent = new Intent(mContext, InstrumentationTestActivity.class);
         mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -81,47 +98,87 @@ public class InstrumentationTest extends InstrumentationTestCase {
         PollingCheck.waitFor(mActivity::hasWindowFocus);
     }
 
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         mInstrumentation = null;
         mIntent = null;
         if (mActivity != null) {
             mActivity.finish();
             mActivity = null;
         }
-        super.tearDown();
     }
 
+    @Test
     public void testDefaultProcessInstrumentation() throws Exception {
         String cmd = "am instrument -w android.app.cts/.DefaultProcessInstrumentation";
-        String result = SystemUtil.runShellCommand(getInstrumentation(), cmd);
+        String result = SystemUtil.runShellCommand(mInstrumentation, cmd);
         assertEquals("INSTRUMENTATION_RESULT: " + SIMPLE_PACKAGE_NAME + "=true" +
                 "\nINSTRUMENTATION_CODE: -1\n", result);
     }
 
+    @Test
     public void testAltProcessInstrumentation() throws Exception {
         String cmd = "am instrument -w android.app.cts/.AltProcessInstrumentation";
-        String result = SystemUtil.runShellCommand(getInstrumentation(), cmd);
+        String result = SystemUtil.runShellCommand(mInstrumentation, cmd);
         assertEquals("INSTRUMENTATION_RESULT: " + SIMPLE_PACKAGE_NAME + ":other=true" +
                 "\nINSTRUMENTATION_CODE: -1\n", result);
     }
 
     @FlakyTest(bugId = 133760851)
+    @Test
     public void testWildcardProcessInstrumentation() throws Exception {
         String cmd = "am instrument -w android.app.cts/.WildcardProcessInstrumentation";
-        String result = SystemUtil.runShellCommand(getInstrumentation(), cmd);
+        String result = SystemUtil.runShellCommand(mInstrumentation, cmd);
         assertEquals("INSTRUMENTATION_RESULT: " + SIMPLE_PACKAGE_NAME + "=true" +
                 "\nINSTRUMENTATION_RESULT: " + SIMPLE_PACKAGE_NAME + ":receiver=true" +
                 "\nINSTRUMENTATION_CODE: -1\n", result);
     }
 
+    @Test
     public void testMultiProcessInstrumentation() throws Exception {
         String cmd = "am instrument -w android.app.cts/.MultiProcessInstrumentation";
-        String result = SystemUtil.runShellCommand(getInstrumentation(), cmd);
+        String result = SystemUtil.runShellCommand(mInstrumentation, cmd);
         assertEquals("INSTRUMENTATION_RESULT: " + SIMPLE_PACKAGE_NAME + "=true" +
                 "\nINSTRUMENTATION_RESULT: " + SIMPLE_PACKAGE_NAME + ":other=true" +
                 "\nINSTRUMENTATION_CODE: -1\n", result);
     }
 
+    @Test
+    public void testEnforceStartFromShell() throws Exception {
+        assumeFalse(SystemProperties.getBoolean("ro.debuggable", false));
+        // Start the instrumentation from shell, it should succeed.
+        final String defaultInstrumentationName = "android.app.cts/.DefaultProcessInstrumentation";
+        String cmd = "am instrument -w " + defaultInstrumentationName;
+        String result = SystemUtil.runShellCommand(mInstrumentation, cmd);
+        assertEquals("INSTRUMENTATION_RESULT: " + SIMPLE_PACKAGE_NAME + "=true"
+                + "\nINSTRUMENTATION_CODE: -1\n", result);
+        // Start the instrumentation by ourselves, it should succeed (chained instrumentation).
+        mContext.startInstrumentation(
+                ComponentName.unflattenFromString(defaultInstrumentationName), null, null);
+        // Start the instrumentation from another process, this time it should fail.
+        SystemUtil.runShellCommand(mInstrumentation,
+                "cmd deviceidle tempwhitelist android.app.cts");
+        try {
+            assertFalse(InstrumentationHelperService.startInstrumentation(
+                    mContext, defaultInstrumentationName));
+        } finally {
+            SystemUtil.runShellCommand(mInstrumentation,
+                    "cmd deviceidle tempwhitelist -r android.app.cts");
+        }
+    }
+
+    @Test
+    public void testChainedInstrumentation() throws Exception {
+        final String testPkg1 = "com.android.test.cantsavestate1";
+        final String testPkg2 = "com.android.test.cantsavestate2";
+        String cmd = "am instrument -w android.app.cts/.ChainedInstrumentationFirst";
+        String result = SystemUtil.runShellCommand(mInstrumentation, cmd);
+        assertEquals("INSTRUMENTATION_RESULT: " + testPkg1 + "=true"
+                + "\nINSTRUMENTATION_RESULT: " + testPkg2 + "=true"
+                + "\nINSTRUMENTATION_CODE: -1\n", result);
+    }
+
+    @Test
     public void testMonitor() throws Exception {
         if (mActivity != null)
             mActivity.finish();
@@ -162,6 +219,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
         mInstrumentation.removeMonitor(am);
     }
 
+    @Test
     public void testCallActivityOnCreate() throws Throwable {
         mActivity.setOnCreateCalled(false);
         runTestOnUiThread(new Runnable() {
@@ -173,6 +231,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
         assertTrue(mActivity.isOnCreateCalled());
     }
 
+    @Test
     public void testAllocCounting() throws Exception {
         mInstrumentation.startAllocCounting();
 
@@ -208,6 +267,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
     }
 
     @FlakyTest(bugId = 133760851)
+    @Test
     public void testSendTrackballEventSync() throws Exception {
         long now = SystemClock.uptimeMillis();
         MotionEvent orig = MotionEvent.obtain(now, now, MotionEvent.ACTION_DOWN,
@@ -222,6 +282,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
     }
 
     @FlakyTest(bugId = 133760851)
+    @Test
     public void testCallApplicationOnCreate() throws Exception {
         InstrumentationTestStub ca = new InstrumentationTestStub();
         mInstrumentation.callApplicationOnCreate(ca);
@@ -229,12 +290,14 @@ public class InstrumentationTest extends InstrumentationTestCase {
     }
 
     @FlakyTest(bugId = 133760851)
+    @Test
     public void testContext() throws Exception {
         Context c1 = mInstrumentation.getContext();
         Context c2 = mInstrumentation.getTargetContext();
         assertNotSame(c1.getPackageName(), c2.getPackageName());
     }
 
+    @Test
     public void testInvokeMenuActionSync() throws Exception {
         final int resId = R.id.goto_menu_id;
         if (mActivity.getWindow().hasFeature(Window.FEATURE_OPTIONS_PANEL)) {
@@ -245,6 +308,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
         }
     }
 
+    @Test
     public void testCallActivityOnPostCreate() throws Throwable {
         mActivity.setOnPostCreate(false);
         runTestOnUiThread(new Runnable() {
@@ -256,6 +320,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
         assertTrue(mActivity.isOnPostCreate());
     }
 
+    @Test
     public void testCallActivityOnNewIntent() throws Throwable {
         mActivity.setOnNewIntentCalled(false);
         runTestOnUiThread(new Runnable() {
@@ -269,6 +334,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
     }
 
     @FlakyTest(bugId = 133760851)
+    @Test
     public void testCallActivityOnResume() throws Throwable {
         mActivity.setOnResume(false);
         runTestOnUiThread(new Runnable() {
@@ -280,15 +346,18 @@ public class InstrumentationTest extends InstrumentationTestCase {
         assertTrue(mActivity.isOnResume());
     }
 
+    @Test
     public void testMisc() throws Exception {
     }
 
+    @Test
     public void testPerformanceSnapshot() throws Exception {
         mInstrumentation.setAutomaticPerformanceSnapshots();
         mInstrumentation.startPerformanceSnapshot();
         mInstrumentation.endPerformanceSnapshot();
     }
 
+    @Test
     public void testProfiling() throws Exception {
         // by default, profiling was disabled. but after set the handleProfiling attribute in the
         // manifest file for this Instrumentation to true, the profiling was also disabled.
@@ -298,6 +367,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
         mInstrumentation.stopProfiling();
     }
 
+    @Test
     public void testInvokeContextMenuAction() throws Exception {
         mActivity.runOnUiThread(new Runnable() {
             public void run() {
@@ -314,6 +384,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
         assertEquals(flag, mMockActivity.mWindow.mFlags);
     }
 
+    @Test
     public void testSendStringSync() {
         final String text = "abcd";
         mInstrumentation.sendStringSync(text);
@@ -335,6 +406,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
     }
 
     @FlakyTest(bugId = 133760851)
+    @Test
     public void testCallActivityOnSaveInstanceState() throws Throwable {
         final Bundle bundle = new Bundle();
         mActivity.setOnSaveInstanceState(false);
@@ -349,6 +421,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
         assertSame(bundle, mActivity.getBundle());
     }
 
+    @Test
     public void testSendPointerSync() throws Exception {
         mInstrumentation.waitForIdleSync();
         mInstrumentation.setInTouchMode(true);
@@ -371,13 +444,15 @@ public class InstrumentationTest extends InstrumentationTestCase {
         mActivity.setOnTouchEventCalled(false);
     }
 
+    @Test
     public void testGetComponentName() throws Exception {
-        ComponentName com = getInstrumentation().getComponentName();
+        ComponentName com = mInstrumentation.getComponentName();
         assertNotNull(com.getPackageName());
         assertNotNull(com.getClassName());
         assertNotNull(com.getShortClassName());
     }
 
+    @Test
     public void testNewApplication() throws Exception {
         final String className = "android.app.stubs.MockApplication";
         ClassLoader cl = getClass().getClassLoader();
@@ -389,6 +464,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
         assertEquals(className, app.getClass().getName());
     }
 
+    @Test
     public void testRunOnMainSync() throws Exception {
         mRunOnMainSyncResult = false;
         mInstrumentation.runOnMainSync(new Runnable() {
@@ -400,6 +476,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
         assertTrue(mRunOnMainSyncResult);
     }
 
+    @Test
     public void testCallActivityOnPause() throws Throwable {
         mActivity.setOnPauseCalled(false);
         runTestOnUiThread(() -> {
@@ -409,6 +486,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
         assertTrue(mActivity.isOnPauseCalled());
     }
 
+    @Test
     public void testSendKeyDownUpSync() throws Exception {
         mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_0);
         mInstrumentation.waitForIdleSync();
@@ -419,6 +497,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
     }
 
     @FlakyTest(bugId = 133760851)
+    @Test
     @UiThreadTest
     public void testNewActivity() throws Exception {
         Intent intent = new Intent();
@@ -446,6 +525,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
         activity.finish();
     }
 
+    @Test
     public void testCallActivityOnStart() throws Exception {
         mActivity.setOnStart(false);
         mInstrumentation.callActivityOnStart(mActivity);
@@ -453,6 +533,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
         assertTrue(mActivity.isOnStart());
     }
 
+    @Test
     public void testWaitForIdle() throws Exception {
         MockRunnable mr = new MockRunnable();
         assertFalse(mr.isRunCalled());
@@ -461,6 +542,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
         assertTrue(mr.isRunCalled());
     }
 
+    @Test
     public void testSendCharacterSync() throws Exception {
         mInstrumentation.sendCharacterSync(KeyEvent.KEYCODE_0);
         mInstrumentation.waitForIdleSync();
@@ -469,6 +551,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
     }
 
     @FlakyTest(bugId = 133760851)
+    @Test
     public void testCallActivityOnRestart() throws Exception {
         mActivity.setOnRestart(false);
         mInstrumentation.callActivityOnRestart(mActivity);
@@ -476,6 +559,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
         assertTrue(mActivity.isOnRestart());
     }
 
+    @Test
     public void testCallActivityOnStop() throws Exception {
         mActivity.setOnStop(false);
         mInstrumentation.callActivityOnStop(mActivity);
@@ -484,6 +568,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
     }
 
     @FlakyTest(bugId = 133760851)
+    @Test
     public void testCallActivityOnUserLeaving() throws Exception {
         assertFalse(mActivity.isOnLeave());
         mInstrumentation.callActivityOnUserLeaving(mActivity);
@@ -491,6 +576,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
         assertTrue(mActivity.isOnLeave());
     }
 
+    @Test
     public void testCallActivityOnRestoreInstanceState() throws Exception {
         mActivity.setOnRestoreInstanceState(false);
         mInstrumentation.callActivityOnRestoreInstanceState(mActivity, new Bundle());
@@ -498,6 +584,7 @@ public class InstrumentationTest extends InstrumentationTestCase {
         assertTrue(mActivity.isOnRestoreInstanceState());
     }
 
+    @Test
     public void testSendKeySync() throws Exception {
         KeyEvent key = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_0);
         mInstrumentation.sendKeySync(key);
@@ -759,6 +846,22 @@ public class InstrumentationTest extends InstrumentationTestCase {
         public void onCreate() {
             super.onCreate();
             mIsOnCreateCalled = true;
+        }
+    }
+
+    private void runTestOnUiThread(final Runnable r) throws Throwable {
+        final Throwable[] exceptions = new Throwable[1];
+        mInstrumentation.runOnMainSync(new Runnable() {
+            public void run() {
+                try {
+                    r.run();
+                } catch (Throwable throwable) {
+                    exceptions[0] = throwable;
+                }
+            }
+        });
+        if (exceptions[0] != null) {
+            throw exceptions[0];
         }
     }
 }
