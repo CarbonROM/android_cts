@@ -27,6 +27,14 @@
         <option name="force-install-mode" value="FULL"/>
         <option name="test-file-name" value="CtsMockInputMethod.apk" />
     </target_preparer>
+    <!-- Load additional APKs onto device -->
+    <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
+        <option name="push" value="CtsAutoRevokeDummyApp.apk->/data/local/tmp/cts/os/CtsAutoRevokeDummyApp.apk" />
+        <option name="push" value="CtsAutoRevokePreRApp.apk->/data/local/tmp/cts/os/CtsAutoRevokePreRApp.apk" />
+    </target_preparer>
+
+    <!-- Note that DeviceSetup roots the device without unrooting it -->
+    <!-- Don't push any files after this block b/256250427 -->
     <target_preparer class="com.android.tradefed.targetprep.DeviceSetup">
         <option name="force-skip-system-props" value="true" />
         <option name="screen-always-on" value="on" />
@@ -42,10 +50,4 @@
         <option name="hidden-api-checks" value="false" />
         -->
     </test>
-
-    <!-- Load additional APKs onto device -->
-    <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
-        <option name="push" value="CtsAutoRevokeDummyApp.apk->/data/local/tmp/cts/os/CtsAutoRevokeDummyApp.apk" />
-        <option name="push" value="CtsAutoRevokePreRApp.apk->/data/local/tmp/cts/os/CtsAutoRevokePreRApp.apk" />
-    </target_preparer>
 </configuration>
