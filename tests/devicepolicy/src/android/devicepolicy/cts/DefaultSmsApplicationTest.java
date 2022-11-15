@@ -23,6 +23,7 @@ import static org.junit.Assume.assumeTrue;
 import static org.testng.Assert.assertThrows;
 
 import android.app.admin.RemoteDevicePolicyManager;
+import android.app.role.RoleManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.provider.Telephony;
@@ -68,6 +69,7 @@ public final class DefaultSmsApplicationTest {
     private ComponentName mAdmin;
     private RemoteDevicePolicyManager mDpm;
     private TelephonyManager mTelephonyManager;
+    private RoleManager mRoleManager;
 
     @Before
     public void setUp() {
@@ -75,6 +77,7 @@ public final class DefaultSmsApplicationTest {
         mAdmin = dpc.componentName();
         mDpm = dpc.devicePolicyManager();
         mTelephonyManager = sContext.getSystemService(TelephonyManager.class);
+        mRoleManager = sContext.getSystemService(RoleManager.class);
     }
 
     // TODO(b/198588696): Add support is @RequireSmsCapable and @RequireNotSmsCapable
@@ -82,7 +85,8 @@ public final class DefaultSmsApplicationTest {
     @Postsubmit(reason = "new test")
     @PositivePolicyTest(policy = DefaultSmsApplication.class)
     public void setDefaultSmsApplication_works() {
-        assumeTrue(mTelephonyManager.isSmsCapable());
+        assumeTrue(mTelephonyManager.isSmsCapable()
+                || (mRoleManager != null && mRoleManager.isRoleAvailable(RoleManager.ROLE_SMS)));
         String previousSmsAppName = getDefaultSmsPackage();
         try (TestAppInstance smsApp = sSmsApp.install()) {
             mDpm.setDefaultSmsApplication(mAdmin, smsApp.packageName());
@@ -98,7 +102,8 @@ public final class DefaultSmsApplicationTest {
     @Postsubmit(reason = "new test")
     @NegativePolicyTest(policy = DefaultSmsApplication.class)
     public void setDefaultSmsApplication_unchanged() {
-        assumeTrue(mTelephonyManager.isSmsCapable());
+        assumeTrue(mTelephonyManager.isSmsCapable()
+                || (mRoleManager != null && mRoleManager.isRoleAvailable(RoleManager.ROLE_SMS)));
         String previousSmsAppName = getDefaultSmsPackage();
         try (TestAppInstance smsApp = sSmsApp.install()) {
             mDpm.setDefaultSmsApplication(mAdmin, smsApp.packageName());
@@ -114,7 +119,8 @@ public final class DefaultSmsApplicationTest {
     @Postsubmit(reason = "new test")
     @CanSetPolicyTest(policy = DefaultSmsApplication.class)
     public void setDefaultSmsApplication_smsPackageDoesNotExist_unchanged() {
-        assumeTrue(mTelephonyManager.isSmsCapable());
+        assumeTrue(mTelephonyManager.isSmsCapable()
+                || (mRoleManager != null && mRoleManager.isRoleAvailable(RoleManager.ROLE_SMS)));
         String previousSmsAppName = getDefaultSmsPackage();
 
         mDpm.setDefaultSmsApplication(mAdmin, FAKE_SMS_APP_NAME);
@@ -143,7 +149,8 @@ public final class DefaultSmsApplicationTest {
     @Postsubmit(reason = "new test")
     @CanSetPolicyTest(policy = DefaultSmsApplication.class)
     public void setDefaultSmsApplication_notSmsCapable_unchanged() {
-        assumeTrue(!mTelephonyManager.isSmsCapable());
+        assumeTrue(!mTelephonyManager.isSmsCapable()
+                && (mRoleManager == null || !mRoleManager.isRoleAvailable(RoleManager.ROLE_SMS)));
         String previousSmsAppName = getDefaultSmsPackage();
         try (TestAppInstance smsApp = sSmsApp.install()) {
             mDpm.setDefaultSmsApplication(mAdmin, smsApp.packageName());
