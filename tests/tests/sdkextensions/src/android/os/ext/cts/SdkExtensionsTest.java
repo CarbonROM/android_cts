@@ -24,7 +24,7 @@ import junit.framework.TestCase;
 public class SdkExtensionsTest extends TestCase {
 
     // Android R launched with 0. Since then, version 1 and 2 were added.
-    private static final Set<Integer> ALLOWED_VERSIONS = Set.of(0, 1, 2, 3, 4);
+    private static final Set<Integer> ALLOWED_VERSIONS = Set.of(0, 1, 2, 3, 4, 5);
 
     private static void assertCorrectVersion(int version) throws Exception {
         assertTrue(ALLOWED_VERSIONS.contains(version));
