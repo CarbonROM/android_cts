@@ -89,18 +89,6 @@ public final class CompatChangesValidConfigTest extends CompatChangeGatingTestCa
     }
 
     /**
-     * Check that only approved changes are overridable.
-     */
-    public void testOnlyAllowedlistedChangesAreOverridable() throws Exception {
-        for (Change c : getOnDeviceCompatConfig()) {
-            if (c.overridable) {
-                assertWithMessage("Please contact compat-team@google.com for approval")
-                        .that(OVERRIDABLE_CHANGES).contains(c.changeName);
-            }
-        }
-    }
-
-    /**
      * Check that the on device config contains all the expected change ids defined in the platform.
      * The device may contain extra changes, but none may be removed.
      */
