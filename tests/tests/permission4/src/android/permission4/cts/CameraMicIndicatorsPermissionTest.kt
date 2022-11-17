@@ -89,9 +89,9 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
     private val isCar = packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)
     private var wasEnabled = false
     private val micLabel = packageManager.getPermissionGroupInfo(
-        Manifest.permission_group.MICROPHONE, 0).loadLabel(packageManager).toString()
+        Manifest.permission_group.MICROPHONE, 0).loadLabel(packageManager).toString().toLowerCase()
     private val cameraLabel = packageManager.getPermissionGroupInfo(
-        Manifest.permission_group.CAMERA, 0).loadLabel(packageManager).toString()
+        Manifest.permission_group.CAMERA, 0).loadLabel(packageManager).toString().toLowerCase()
     private var isScreenOn = false
     private var screenTimeoutBeforeTest: Long = 0L
 
@@ -293,8 +293,8 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
         openApp(useMic, useCamera, useHotword, finishEarly)
         try {
             eventually {
-                val appView = uiDevice.findObject(UiSelector().textContains(APP_LABEL))
-                assertTrue("View with text $APP_LABEL not found", appView.exists())
+                val appView = uiDevice.findObject(By.textContains(APP_LABEL))
+                assertNotNull("View with text $APP_LABEL not found", appView)
             }
             if (chainUsage) {
                 chainAttribution = createChainAttribution()
@@ -444,15 +444,15 @@ class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
                 return@eventually
             }
             if (useMic) {
-                val iconView = uiDevice.findObject(UiSelector().descriptionContains(micLabel))
-                assertTrue("View with description $micLabel not found", iconView.exists())
+                val iconView = uiDevice.findObject(By.descContains(micLabel))
+                assertNotNull("View with description $micLabel not found", iconView)
             }
             if (useCamera) {
-                val iconView = uiDevice.findObject(UiSelector().descriptionContains(cameraLabel))
-                assertTrue("View with text $APP_LABEL not found", iconView.exists())
+                val iconView = uiDevice.findObject(By.descContains(cameraLabel))
+                assertNotNull("View with text $APP_LABEL not found", iconView)
             }
-            val appView = uiDevice.findObject(UiSelector().textContains(APP_LABEL))
-            assertTrue("View with text $APP_LABEL not found", appView.exists())
+            val appView = uiDevice.findObject(By.textContains(APP_LABEL))
+            assertNotNull("View with text $APP_LABEL not found", appView)
             if (safetyCenterEnabled) {
                 assertTrue("Did not find safety center views",
                     uiDevice.findObjects(By.res(SAFETY_CENTER_ITEM_ID)).size > 0)

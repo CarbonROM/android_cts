@@ -324,6 +324,7 @@ public class KeepClearRectsTests extends WindowManagerTestBase {
         assertSameElementsEventually(EMPTY_LIST, () -> getKeepClearRectsForActivity(activity));
 
         mTestSession.runOnMainSyncAndWait(() -> {
+            v.setFocusableInTouchMode(true);
             v.setFocusable(true);
             v.requestFocus();
         });

@@ -33,11 +33,11 @@ _ARDUINO_SERVO_SPEED = 10
 _IMG_FORMAT = 'png'
 _MIN_PHONE_MOVEMENT_ANGLE = 5  # degrees
 _NAME = os.path.splitext(os.path.basename(__file__))[0]
-_NUM_ROTATIONS = 12
+_NUM_ROTATIONS = 24
 _START_FRAME = 30  # give 3A some frames to warm up
 _VIDEO_DELAY_TIME = 5.5  # seconds
 _VIDEO_DURATION = 5.5  # seconds
-_VIDEO_STABILIZATION_FACTOR = 0.7  # 70% of gyro movement allowed
+_PREVIEW_STABILIZATION_FACTOR = 0.7  # 70% of gyro movement allowed
 _PREVIEW_STABILIZATION_MODE_PREVIEW = 2
 
 
@@ -142,7 +142,8 @@ class PreviewStabilizationTest(its_base_test.ItsBaseTest):
       rot_rig['cntl'] = self.rotator_cntl
       rot_rig['ch'] = self.rotator_ch
       if rot_rig['cntl'].lower() != 'arduino':
-        raise AssertionError(f'You must use the arduino controller for {_NAME}.')
+        raise AssertionError(
+            f'You must use the arduino controller for {_NAME}.')
 
       # List of video resolutions to test
       supported_preview_sizes = cam.get_supported_preview_sizes(self.camera_id)
@@ -192,6 +193,7 @@ class PreviewStabilizationTest(its_base_test.ItsBaseTest):
             img_h,
             file_name_stem,
             _START_FRAME,
+            stabilized_video=True
         )
         sensor_fusion_utils.plot_camera_rotations(cam_rots, _START_FRAME,
                                                   video_size, file_name_stem)
@@ -223,13 +225,13 @@ class PreviewStabilizationTest(its_base_test.ItsBaseTest):
       # Assert PASS/FAIL criteria
       test_failures = []
       for i, max_camera_angle in enumerate(max_camera_angles):
-        if max_camera_angle >= max_gyro_angles[i] * _VIDEO_STABILIZATION_FACTOR:
+        if max_camera_angle >= max_gyro_angles[i] * _PREVIEW_STABILIZATION_FACTOR:
           test_failures.append(
-              f'{supported_preview_sizes[i]} video not stabilized enough! '
-              f'Max video angle:  {max_camera_angle:.3f}, '
+              f'{supported_preview_sizes[i]} preview not stabilized enough! '
+              f'Max preview angle:  {max_camera_angle:.3f}, '
               f'Max gyro angle: {max_gyro_angles[i]:.3f}, '
-              f'ratio: {max_camera_angle/max_gyro_angles[i]:.4f} '
-              f'THRESH: {_VIDEO_STABILIZATION_FACTOR}.')
+              f'ratio: {max_camera_angle/max_gyro_angles[i]:.3f} '
+              f'THRESH: {_PREVIEW_STABILIZATION_FACTOR}.')
 
       if test_failures:
         raise AssertionError(test_failures)

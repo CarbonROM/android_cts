@@ -724,10 +724,22 @@ public class CameraTestUtils extends Assert {
 
         @Override
         public void onImageAvailable(ImageReader reader) {
-            if (VERBOSE) Log.v(TAG, "new image available");
+            if (VERBOSE) Log.v(TAG, "new image available from reader " + reader.toString());
 
             if (mAcquireLatest) {
-                mLastReader = reader;
+                synchronized (mLock) {
+                    // If there is switch of image readers, acquire and releases all images
+                    // from the previous image reader
+                    if (mLastReader != reader) {
+                        if (mLastReader != null) {
+                            Image image = mLastReader.acquireLatestImage();
+                            if (image != null) {
+                                image.close();
+                            }
+                        }
+                        mLastReader = reader;
+                    }
+                }
                 mImageAvailable.open();
             } else {
                 if (mQueue.size() < mMaxBuffers) {
@@ -744,11 +756,17 @@ public class CameraTestUtils extends Assert {
             if (mAcquireLatest) {
                 Image image = null;
                 if (mImageAvailable.block(timeoutMs)) {
-                    if (mLastReader != null) {
-                        image = mLastReader.acquireLatestImage();
-                        if (VERBOSE) Log.v(TAG, "acquireLatestImage");
-                    } else {
-                        fail("invalid image reader");
+                    synchronized (mLock) {
+                        if (mLastReader != null) {
+                            image = mLastReader.acquireLatestImage();
+                            if (VERBOSE) Log.v(TAG, "acquireLatestImage from "
+                                    + mLastReader.toString() + " produces " + image);
+                            if (image == null) {
+                                return null;
+                            }
+                        } else {
+                            fail("invalid image reader");
+                        }
                     }
                     mImageAvailable.close();
                 } else {
@@ -783,6 +801,7 @@ public class CameraTestUtils extends Assert {
         private final boolean mAcquireLatest;
         private ConditionVariable mImageAvailable = new ConditionVariable();
         private ImageReader mLastReader = null;
+        private final Object mLock = new Object();
     }
 
     public static class SimpleCaptureCallback extends CameraCaptureSession.CaptureCallback {
@@ -2911,7 +2930,7 @@ public class CameraTestUtils extends Assert {
      * <p>
      * Two images are strongly equal if and only if the data, formats, sizes,
      * and timestamps are same. For {@link ImageFormat#PRIVATE PRIVATE} format
-     * images, the image data is not not accessible thus the data comparison is
+     * images, the image data is not accessible thus the data comparison is
      * effectively skipped as the number of planes is zero.
      * </p>
      * <p>
@@ -3399,7 +3418,7 @@ public class CameraTestUtils extends Assert {
                     expectedIso *= 100;
                 }
                 collector.expectInRange("Exif TAG_ISO is incorrect", iso,
-                        expectedIso/100,((expectedIso+50)/100)+MAX_ISO_MISMATCH);
+                        expectedIso/100,((expectedIso + 50)/100) + MAX_ISO_MISMATCH);
             }
         } else {
             // External camera specific checks

@@ -35,7 +35,7 @@ _ARDUINO_SERVO_SPEED = 10
 _IMG_FORMAT = 'png'
 _MIN_PHONE_MOVEMENT_ANGLE = 5  # degrees
 _NAME = os.path.splitext(os.path.basename(__file__))[0]
-_NUM_ROTATIONS = 12
+_NUM_ROTATIONS = 24
 _RADS_TO_DEGS = 180/math.pi
 _SEC_TO_NSEC = 1E9
 _START_FRAME = 30  # give 3A 1s to warm up
@@ -214,7 +214,7 @@ class VideoStabilizationTest(its_base_test.ItsBaseTest):
         file_name_stem = f'{os.path.join(log_path, _NAME)}_{video_quality}'
         cam_rots = sensor_fusion_utils.get_cam_rotations(
             frames[_START_FRAME:len(frames)], facing, img_h,
-            file_name_stem, _START_FRAME)
+            file_name_stem, _START_FRAME, stabilized_video=True)
         sensor_fusion_utils.plot_camera_rotations(
             cam_rots, _START_FRAME, video_quality, file_name_stem)
         max_camera_angles.append(sensor_fusion_utils.calc_max_rotation_angle(
@@ -245,7 +245,7 @@ class VideoStabilizationTest(its_base_test.ItsBaseTest):
               f'{tested_video_qualities[i]} video not stabilized enough! '
               f'Max video angle: {max_camera_angle:.3f}, '
               f'Max gyro angle: {max_gyro_angles[i]:.3f}, '
-              f'ratio: {max_camera_angle}/{max_gyro_angles[-1]:.3f}, '
+              f'ratio: {max_camera_angle/max_gyro_angles[i]:.3f} '
               f'THRESH: {_VIDEO_STABILIZATION_FACTOR}.')
       if test_failures:
         raise AssertionError(test_failures)

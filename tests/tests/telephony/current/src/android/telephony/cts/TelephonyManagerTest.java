@@ -214,7 +214,7 @@ public class TelephonyManagerTest {
     private static final String PLMN_A = "123456";
     private static final String PLMN_B = "78901";
     private static final List<String> FPLMN_TEST = Arrays.asList(PLMN_A, PLMN_B);
-    private static final int MAX_FPLMN_NUM = 100;
+    private static final int MAX_FPLMN_NUM = 1000;
     private static final int MIN_FPLMN_NUM = 3;
 
     private static final String THERMAL_MITIGATION_COMMAND_BASE = "cmd phone thermal-mitigation ";
@@ -1302,59 +1302,112 @@ public class TelephonyManagerTest {
     public void testSetSystemSelectionChannels() {
         assumeTrue(hasFeature(PackageManager.FEATURE_TELEPHONY_RADIO_ACCESS));
 
+        // Get initial list of system selection channels if the API is available
+        List<RadioAccessSpecifier> initialSpecifiers = tryGetSystemSelectionChannels();
+        // TODO (b/189255895): Don't allow empty or null channels once API is enforced in U.
+        boolean getAvailable = initialSpecifiers != null && !initialSpecifiers.isEmpty();
+        Log.d(TAG, "getSystemSelectionChannels is " + (getAvailable ? "" : "not ") + "available.");
+
+        List<RadioAccessSpecifier> validSpecifiers = new ArrayList<>();
+        List<RadioAccessSpecifier> specifiers;
+        for (int accessNetworkType : TelephonyUtils.ALL_BANDS.keySet()) {
+            List<Integer> validBands = new ArrayList<>();
+            for (int band : TelephonyUtils.ALL_BANDS.get(accessNetworkType)) {
+                // Set each band to see which ones are supported by the modem
+                RadioAccessSpecifier specifier = new RadioAccessSpecifier(
+                        accessNetworkType, new int[]{band}, new int[]{});
+                boolean success = trySetSystemSelectionChannels(
+                        Collections.singletonList(specifier), true);
+                if (success) {
+                    validBands.add(band);
+
+                    // Try calling the API that doesn't provide feedback.
+                    // We have no way of knowing if it succeeds, so just make sure nothing crashes.
+                    trySetSystemSelectionChannels(Collections.singletonList(specifier), false);
+
+                    if (getAvailable) {
+                        // Assert that we get back the value we set.
+                        specifiers = tryGetSystemSelectionChannels();
+                        assertNotNull(specifiers);
+                        assertEquals(1, specifiers.size());
+                        assertEquals(specifier, specifiers.get(0));
+                    }
+                }
+            }
+            if (!validBands.isEmpty()) {
+                validSpecifiers.add(new RadioAccessSpecifier(accessNetworkType,
+                        validBands.stream().mapToInt(i -> i).toArray(), new int[]{}));
+            }
+        }
+
+        // Call setSystemSelectionChannels with an empty list and verify no error
+        if (!trySetSystemSelectionChannels(Collections.emptyList(), true)) {
+            // TODO (b/189255895): Reset initial system selection channels on failure
+            fail("Failed to call setSystemSelectionChannels with an empty list.");
+        }
+
+        // Verify that getSystemSelectionChannels returns all valid specifiers
+        specifiers = tryGetSystemSelectionChannels();
+        // TODO (b/189255895): Uncomment in U after getSystemSelectionChannels is enforced
+        //assertNotNull(specifiers);
+        //assertEquals(specifiers.size(), validSpecifiers.size());
+        //assertTrue(specifiers.containsAll(validSpecifiers));
+
+        // Call setSystemSelectionChannels with all valid specifiers to test batch operations
+        if (!trySetSystemSelectionChannels(validSpecifiers, true)) {
+            // TODO (b/189255895): Reset initial system selection channels on failure
+            // TODO (b/189255895): Fail once setSystemSelectionChannels is enforced properly
+            Log.e(TAG, "Failed to call setSystemSelectionChannels with all valid specifiers.");
+        }
+
+        // Reset the values back to the original.
+        if (getAvailable) {
+            trySetSystemSelectionChannels(initialSpecifiers, true);
+        }
+    }
+
+    private List<RadioAccessSpecifier> tryGetSystemSelectionChannels() {
         UiAutomation uiAutomation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
-        List<RadioAccessSpecifier> channels;
-        try {
-            uiAutomation.adoptShellPermissionIdentity();
-            channels = mTelephonyManager.getSystemSelectionChannels();
-        } catch (IllegalStateException e) {
-            // TODO (b/189255895): Allow ISE once API is enforced in IRadio 2.1.
-            Log.d(TAG, "Skipping test since system selection channels are not available.");
-            return;
-        } finally {
-            uiAutomation.dropShellPermissionIdentity();
-        }
-
-        LinkedBlockingQueue<Boolean> queue = new LinkedBlockingQueue<>(1);
-        try {
-            uiAutomation.adoptShellPermissionIdentity();
-            // This is a oneway binder call, meaning we may return before the permission check
-            // happens. Hold shell permissions until we get a response.
-            mTelephonyManager.setSystemSelectionChannels(Collections.emptyList(),
-                    getContext().getMainExecutor(), queue::offer);
-            Boolean result = queue.poll(1000, TimeUnit.MILLISECONDS);
-            // Ensure we get a result
-            assertNotNull(result);
-            assertTrue(result);
-        } catch (InterruptedException e) {
-            fail("interrupted");
-        } finally {
-            uiAutomation.dropShellPermissionIdentity();
-        }
-
         uiAutomation.adoptShellPermissionIdentity();
-
-        // Try calling the API that doesn't provide feedback. We have no way of knowing if it
-        // succeeds, so just make sure nothing crashes.
-        mTelephonyManager.setSystemSelectionChannels(Collections.emptyList());
-
-        // Assert that we get back the value we set.
-        assertEquals(Collections.emptyList(), mTelephonyManager.getSystemSelectionChannels());
-
+        List<RadioAccessSpecifier> channels = null;
         try {
-            // Reset the values back to the original. Use callback to ensure we don't drop
-            // the shell permission until the original state is restored.
-            mTelephonyManager.setSystemSelectionChannels(channels,
-                    getContext().getMainExecutor(), queue::offer);
-            Boolean result = queue.poll(1000, TimeUnit.MILLISECONDS);
-            if (result == null || !result) {
-                Log.e(TAG, "Invalid response when resetting initial system selection channels.");
+            channels = mTelephonyManager.getSystemSelectionChannels();
+        } catch (IllegalStateException ignored) {
+            // TODO (b/189255895): Reset and fail in U after getSystemSelectionChannels is enforced
+        } finally {
+            uiAutomation.dropShellPermissionIdentity();
+        }
+        return channels;
+    }
+
+    private boolean trySetSystemSelectionChannels(List<RadioAccessSpecifier> specifiers,
+            boolean useCallback) {
+        UiAutomation uiAutomation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
+        uiAutomation.adoptShellPermissionIdentity();
+        boolean success = false;
+        try {
+            if (useCallback) {
+                LinkedBlockingQueue<Boolean> queue = new LinkedBlockingQueue<>(1);
+                // This is a oneway binder call, meaning we may return before the permission check
+                // happens. Hold shell permissions until we get a response.
+                mTelephonyManager.setSystemSelectionChannels(
+                        specifiers, getContext().getMainExecutor(), queue::offer);
+                Boolean result = queue.poll(2000, TimeUnit.MILLISECONDS);
+
+                // Ensure we get a result
+                assertNotNull(result);
+                success = result;
+            } else {
+                mTelephonyManager.setSystemSelectionChannels(specifiers);
+                success = true;
             }
         } catch (InterruptedException e) {
-            Log.e(TAG, "Interrupted while resetting initial system selection channels.");
+            // TODO (b/189255895): Reset initial system selection channels on failure
+            fail("setSystemSelectionChannels interrupted.");
         } finally {
             uiAutomation.dropShellPermissionIdentity();
         }
+        return success;
     }
 
     @Test
@@ -1444,19 +1497,19 @@ public class TelephonyManagerTest {
         for (NetworkRegistrationInfo nri : ss.getNetworkRegistrationInfoList()) {
             final int networkType = nri.getAccessNetworkTechnology();
             final CellIdentity cid = nri.getCellIdentity();
+            if (nri.getTransportType() == AccessNetworkConstants.TRANSPORT_TYPE_WLAN) {
+                assertTrue("NetworkType for WLAN transport must be IWLAN if registered or"
+                        + " UNKNOWN if unregistered",
+                    networkType == TelephonyManager.NETWORK_TYPE_UNKNOWN
+                            || networkType == TelephonyManager.NETWORK_TYPE_IWLAN);
+                assertNull("There is no valid cell type for WLAN", cid);
+                continue;
+            }
             if (!nri.isRegistered() && !nri.isEmergencyEnabled()) {
                 assertEquals(
                         "Network type cannot be known unless it is providing some service",
                         TelephonyManager.NETWORK_TYPE_UNKNOWN, networkType);
                 assertNull(cid);
-                continue;
-            }
-            if (nri.getTransportType() == AccessNetworkConstants.TRANSPORT_TYPE_WLAN) {
-                assertTrue("NetworkType for WLAN transport must be IWLAN if registered or"
-                                + " UNKNOWN if unregistered",
-                        networkType == TelephonyManager.NETWORK_TYPE_UNKNOWN
-                                || networkType == TelephonyManager.NETWORK_TYPE_IWLAN);
-                assertNull("There is no valid cell type for WLAN", cid);
                 continue;
             }
 
@@ -3323,7 +3376,7 @@ public class TelephonyManagerTest {
     public void testDisAllowedNetworkTypes() {
         assumeTrue(hasFeature(PackageManager.FEATURE_TELEPHONY_RADIO_ACCESS));
 
-        long allowedNetworkTypes = -1 & (~TelephonyManager.NETWORK_TYPE_BITMASK_NR);
+        long allowedNetworkTypes = ~TelephonyManager.NETWORK_TYPE_BITMASK_NR;
         long networkTypeBitmask = TelephonyManager.NETWORK_TYPE_BITMASK_NR
                 | TelephonyManager.NETWORK_TYPE_BITMASK_LTE
                 | TelephonyManager.NETWORK_TYPE_BITMASK_LTE_CA;
@@ -3331,15 +3384,19 @@ public class TelephonyManagerTest {
         try {
             ShellIdentityUtils.invokeMethodWithShellPermissionsNoReturn(
                     mTelephonyManager,
-                    (tm) -> tm.setAllowedNetworkTypes(allowedNetworkTypes));
+                    (tm) -> tm.setAllowedNetworkTypesForReason(
+                            TelephonyManager.ALLOWED_NETWORK_TYPES_REASON_CARRIER,
+                            allowedNetworkTypes));
 
             ShellIdentityUtils.invokeMethodWithShellPermissionsNoReturn(
                     mTelephonyManager,
-                    (tm) -> tm.setPreferredNetworkTypeBitmask(networkTypeBitmask));
+                    (tm) -> tm.setAllowedNetworkTypesForReason(
+                            TelephonyManager.ALLOWED_NETWORK_TYPES_REASON_USER,
+                            networkTypeBitmask));
 
             long modemNetworkTypeBitmask = ShellIdentityUtils.invokeMethodWithShellPermissions(
                     mTelephonyManager, (tm) -> {
-                        return tm.getPreferredNetworkTypeBitmask();
+                        return tm.getAllowedNetworkTypesBitmask();
                     }
             );
             long radioAccessFamily = ShellIdentityUtils.invokeMethodWithShellPermissions(

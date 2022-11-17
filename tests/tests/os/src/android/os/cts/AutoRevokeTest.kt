@@ -113,10 +113,11 @@ class AutoRevokeTest {
     @Before
     fun setup() {
         // Collapse notifications
-        assertThat(
-                runShellCommandOrThrow("cmd statusbar collapse"),
-                equalTo(""))
-
+        if (!hasFeatureWatch()) {
+            assertThat(
+                    runShellCommandOrThrow("cmd statusbar collapse"),
+                    equalTo(""))
+        }
         // Wake up the device
         runShellCommandOrThrow("input keyevent KEYCODE_WAKEUP")
         if ("false".equals(runShellCommandOrThrow("cmd lock_settings get-disabled"))) {
@@ -178,6 +179,7 @@ class AutoRevokeTest {
 
     @AppModeFull(reason = "Uses separate apps for testing")
     @Test
+    @Ignore("b/201545116")
     fun testUnusedApp_uninstallApp() {
         assumeFalse(
             "Unused apps screen may be unavailable on TV",
