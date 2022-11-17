@@ -36,6 +36,11 @@ public class NsdManagerTest extends WifiJUnit3TestBase {
     private static final String TAG = "NsdManagerTest";
     private static final String SERVICE_TYPE = "_nmt._tcp";
     private static final int TIMEOUT = 2000;
+    // Registration may take a long time if there are devices with the same hostname on the network,
+    // as the device needs to try another name and probe again. This is especially true since when
+    // using mdnsresponder the usual hostname is "Android", and on conflict "Android-2",
+    // "Android-3", ... are tried sequentially
+    private static final int REGISTRATION_TIMEOUT_MS = 10000;
 
     private static final boolean DBG = false;
 
@@ -184,6 +189,10 @@ public class NsdManagerTest extends WifiJUnit3TestBase {
 
     private int mWaitId = 0;
     private EventData waitForCallback(String callbackName) {
+        return waitForCallback(callbackName, TIMEOUT);
+    }
+
+    private EventData waitForCallback(String callbackName, int timeoutMs) {
 
         synchronized(mEventCache) {
 
@@ -194,7 +203,7 @@ public class NsdManagerTest extends WifiJUnit3TestBase {
                 long startTime = android.os.SystemClock.uptimeMillis();
                 long elapsedTime = 0;
                 int index = 0;
-                while (elapsedTime < TIMEOUT ) {
+                while (elapsedTime < timeoutMs) {
                     // first check if we've received that event
                     for (; index < mEventCache.size(); index++) {
                         EventData e = mEventCache.get(index);
@@ -205,10 +214,10 @@ public class NsdManagerTest extends WifiJUnit3TestBase {
                     }
 
                     // Not yet received, just wait
-                    mEventCache.wait(TIMEOUT - elapsedTime);
+                    mEventCache.wait(timeoutMs - elapsedTime);
                     elapsedTime = android.os.SystemClock.uptimeMillis() - startTime;
                 }
-                // we exited the loop because of TIMEOUT; fail the call
+                // we exited the loop because of timeout; fail the call
                 if (DBG) Log.d(TAG, "timed out waiting id=" + String.valueOf(mWaitId));
                 return null;
             } catch (InterruptedException e) {
@@ -361,7 +370,7 @@ public class NsdManagerTest extends WifiJUnit3TestBase {
         clearEventCache();
 
         mNsdManager.registerService(si, NsdManager.PROTOCOL_DNS_SD, mRegistrationListener);
-        lastEvent = waitForCallback("onServiceRegistered");                 // id = 1
+        lastEvent = waitForCallback("onServiceRegistered", REGISTRATION_TIMEOUT_MS); // id = 1
         assertTrue(lastEvent != null);
         assertTrue(lastEvent.mSucceeded);
         assertTrue(eventCacheSize() == 1);
@@ -485,7 +494,7 @@ public class NsdManagerTest extends WifiJUnit3TestBase {
 
         mNsdManager.registerService(si, NsdManager.PROTOCOL_DNS_SD, mRegistrationListener);
 
-        lastEvent = waitForCallback("onServiceRegistered");                 // id = 7
+        lastEvent = waitForCallback("onServiceRegistered", REGISTRATION_TIMEOUT_MS); // id = 7
 
         assertTrue(lastEvent != null);
         assertTrue(lastEvent.mSucceeded);
