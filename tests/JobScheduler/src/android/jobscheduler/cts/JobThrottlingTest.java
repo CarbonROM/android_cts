@@ -106,6 +106,7 @@ public class JobThrottlingTest {
     private String mInitialRestrictedBucketEnabled;
     private boolean mAutomotiveDevice;
     private boolean mLeanbackOnly;
+    private boolean mPcDevice;
 
     private TestAppInterface mTestAppInterface;
 
@@ -175,6 +176,9 @@ public class JobThrottlingTest {
         // In leanback devices, it is assumed that there is no battery.
         mLeanbackOnly =
                 mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LEANBACK_ONLY);
+        // In PC devices, it is assumed that restricted bucket is not enabled.
+        mPcDevice =
+                mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_PC);
         if (mAutomotiveDevice || mLeanbackOnly) {
             setScreenState(true);
             // TODO(b/159176758): make sure that initial power supply is on.
@@ -301,6 +305,7 @@ public class JobThrottlingTest {
         assumeTrue("app standby not enabled", mAppStandbyEnabled);
         assumeFalse("not testable in automotive device", mAutomotiveDevice);
         assumeFalse("not testable in leanback device", mLeanbackOnly);
+        assumeFalse("not testable in pc device", mPcDevice);
 
         setRestrictedBucketEnabled(true);
 
