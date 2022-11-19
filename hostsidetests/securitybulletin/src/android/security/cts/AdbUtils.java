@@ -16,7 +16,10 @@
 
 package android.security.cts;
 
-import com.android.compatibility.common.util.CrashUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
+
 import com.android.compatibility.common.util.MetricsReportLog;
 import com.android.compatibility.common.util.ResultType;
 import com.android.compatibility.common.util.ResultUnit;
@@ -24,14 +27,11 @@ import com.android.ddmlib.IShellOutputReceiver;
 import com.android.ddmlib.NullOutputReceiver;
 import com.android.ddmlib.CollectingOutputReceiver;
 import com.android.sts.common.tradefed.testtype.SecurityTestCase;
+import com.android.sts.common.util.TombstoneUtils;
 import com.android.tradefed.device.DeviceNotAvailableException;
 import com.android.tradefed.device.ITestDevice;
 import com.android.tradefed.device.NativeDevice;
 import com.android.tradefed.log.LogUtil.CLog;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -49,9 +49,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.regex.Pattern;
 import java.lang.Thread;
-
-import static org.junit.Assert.*;
-import static org.junit.Assume.*;
 
 public class AdbUtils {
 
@@ -75,9 +72,8 @@ public class AdbUtils {
         Map<String, String> envVars;
         String inputFilesDestination;
         ITestDevice device;
-        CrashUtils.Config config;
+        TombstoneUtils.Config config;
         List<String> inputFiles = Collections.emptyList();
-        boolean checkCrash = true;
 
         pocConfig(String binaryName, ITestDevice device) {
             this.binaryName = binaryName;
@@ -539,7 +535,7 @@ public class AdbUtils {
     public static void runPocAssertNoCrashes(
             String pocName, ITestDevice device, String... processPatternStrings) throws Exception {
         runPocAssertNoCrashes(pocName, device,
-                new CrashUtils.Config().setProcessPatterns(processPatternStrings));
+                new TombstoneUtils.Config().setProcessPatterns(processPatternStrings));
     }
 
     /**
@@ -553,7 +549,7 @@ public class AdbUtils {
      */
     @Deprecated
     public static void runPocAssertNoCrashes(
-            String pocName, ITestDevice device, CrashUtils.Config config) throws Exception {
+            String pocName, ITestDevice device, TombstoneUtils.Config config) throws Exception {
         runPocAssertNoCrashes(pocName, device, null, config);
     }
 
@@ -569,12 +565,12 @@ public class AdbUtils {
      */
     @Deprecated
     public static void runPocAssertNoCrashes(
-            String pocName, ITestDevice device, String arguments, CrashUtils.Config config)
+            String pocName, ITestDevice device, String arguments, TombstoneUtils.Config config)
             throws Exception {
-        AdbUtils.runCommandLine("logcat -c", device);
-        AdbUtils.runPocNoOutput(pocName, device,
-                SecurityTestCase.TIMEOUT_NONDETERMINISTIC, arguments);
-        assertNoCrashes(device, config);
+        try (AutoCloseable a = TombstoneUtils.withAssertNoSecurityCrashes(device, config)) {
+            AdbUtils.runPocNoOutput(pocName, device,
+                    SecurityTestCase.TIMEOUT_NONDETERMINISTIC, arguments);
+        }
     }
 
     /**
@@ -704,7 +700,7 @@ public class AdbUtils {
         String[] processPatternStringsWithSelf = new String[processPatternList.size()];
         processPatternList.toArray(processPatternStringsWithSelf);
         testConfig.config =
-                new CrashUtils.Config().setProcessPatterns(processPatternStringsWithSelf);
+                new TombstoneUtils.Config().setProcessPatterns(processPatternStringsWithSelf);
 
         runPocAssertNoCrashesNotVulnerable(testConfig);
     }
@@ -724,8 +720,8 @@ public class AdbUtils {
             inputFiles = testConfig.inputFiles.toArray(new String[testConfig.inputFiles.size()]);
             pushResources(inputFiles, testConfig.inputFilesDestination, testConfig.device);
         }
-        runCommandLine("logcat -c", testConfig.device);
-        try {
+        try (AutoCloseable a =
+                TombstoneUtils.withAssertNoSecurityCrashes(testConfig.device, testConfig.config)) {
             runPocAssertExitStatusNotVulnerable(testConfig.binaryName, testConfig.arguments,
                     testConfig.envVars, testConfig.device, TIMEOUT_SEC);
         } catch (IllegalArgumentException e) {
@@ -741,69 +737,6 @@ public class AdbUtils {
                 removeResources(inputFiles, testConfig.inputFilesDestination, testConfig.device);
             }
         }
-        if(testConfig.checkCrash) {
-            if (testConfig.config == null) {
-                testConfig.config = new CrashUtils.Config();
-            }
-            assertNoCrashes(testConfig.device, testConfig.config);
-        }
-    }
-
-    /**
-     * Dumps logcat and asserts that there are no security crashes that match the expected process.
-     * By default, checks min crash addresses pattern. Ensure that adb logcat -c is called
-     * beforehand.
-     *
-     * @deprecated Use {@link TombstoneUtils} instead.
-     * @param device device to be ran on
-     * @param processPatternStrings a Pattern string to match the crash tombstone process
-     */
-    @Deprecated
-    public static void assertNoCrashes(ITestDevice device, String... processPatternStrings)
-            throws Exception {
-        assertNoCrashes(device, new CrashUtils.Config().setProcessPatterns(processPatternStrings));
-    }
-
-    /**
-     * Dumps logcat and asserts that there are no security crashes that match the expected process
-     * pattern. Ensure that adb logcat -c is called beforehand.
-     *
-     * @param device device to be ran on
-     * @param config a crash parser configuration
-     * @deprecated Use {@link TombstoneUtils} instead.
-     */
-    @Deprecated
-    public static void assertNoCrashes(ITestDevice device, CrashUtils.Config config)
-            throws Exception {
-        String logcat = AdbUtils.runCommandLine("logcat -d *:S DEBUG:V", device);
-
-        JSONArray crashes = CrashUtils.addAllCrashes(logcat, new JSONArray());
-        JSONArray securityCrashes = CrashUtils.matchSecurityCrashes(crashes, config);
-
-        MetricsReportLog reportLog = SecurityTestCase.buildMetricsReportLog(device);
-        reportLog.addValue("all_crashes", crashes.toString(), ResultType.NEUTRAL, ResultUnit.NONE);
-        reportLog.addValue("security_crashes", securityCrashes.toString(),
-                ResultType.NEUTRAL, ResultUnit.NONE);
-        reportLog.submit();
-
-        if (securityCrashes.length() == 0) {
-            return; // no security crashes detected
-        }
-
-        StringBuilder error = new StringBuilder();
-        error.append("Security crash detected:\n");
-        error.append("Process patterns:");
-        for (Pattern pattern : config.getProcessPatterns()) {
-            error.append(String.format(" '%s'", pattern.toString()));
-        }
-        error.append("\nCrashes:\n");
-        for (int i = 0; i < crashes.length(); i++) {
-            try {
-                JSONObject crash = crashes.getJSONObject(i);
-                error.append(String.format("%s\n", crash));
-            } catch (JSONException e) {}
-        }
-        fail(error.toString());
     }
 
     public static void assumeHasNfc(ITestDevice device) throws DeviceNotAvailableException {
