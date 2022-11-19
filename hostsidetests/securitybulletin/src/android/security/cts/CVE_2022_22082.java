@@ -19,6 +19,7 @@ import static org.junit.Assume.*;
 
 import android.platform.test.annotations.AsbSecurityTest;
 import com.android.sts.common.tradefed.testtype.NonRootSecurityTestCase;
+import com.android.sts.common.util.TombstoneUtils;
 import com.android.tradefed.testtype.DeviceJUnit4ClassRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,11 +38,13 @@ public class CVE_2022_22082 extends NonRootSecurityTestCase {
          */
         safeReboot();
         AdbUtils.pushResource("/cve_2022_22082.dsf", "/sdcard/cve_2022_22082.dsf", getDevice());
-        AdbUtils.runCommandLine("logcat -c", getDevice());
-        AdbUtils.runCommandLine(
-                "am start -a android.intent.action.VIEW -t audio/dsf -d file:///sdcard/cve_2022_22082.dsf",
-                getDevice());
-        Thread.sleep(10000);
-        AdbUtils.assertNoCrashes(getDevice(), "media.extractor");
+        TombstoneUtils.Config config = new TombstoneUtils.Config().setProcessPatterns("media.extractor");
+        try (AutoCloseable a = TombstoneUtils.withAssertNoSecurityCrashes(getDevice(), config)) {
+            AdbUtils.runCommandLine(
+                    "am start -a android.intent.action.VIEW -t audio/dsf -d"
+                            + " file:///sdcard/cve_2022_22082.dsf",
+                    getDevice());
+            Thread.sleep(10000);
+        }
     }
 }
