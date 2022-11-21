@@ -20,14 +20,14 @@ import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
-import android.provider.DeviceConfig;
+import android.content.pm.PackageManager;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.uiautomator.UiDevice;
 
-import com.android.modules.utils.build.SdkLevel;
-
+import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 
 /**
  * Photo Picker Base class for Photo Picker tests. This includes common setup methods
@@ -39,6 +39,11 @@ public class PhotoPickerBaseTest {
     protected GetResultActivity mActivity;
     protected Context mContext;
     protected UiDevice mDevice;
+
+    @BeforeClass
+    public static void setUpClass() {
+        Assume.assumeTrue(isHardwareSupported());
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -62,5 +67,16 @@ public class PhotoPickerBaseTest {
         inst.waitForIdleSync();
         mActivity.clearResult();
         mDevice.waitForIdle();
+    }
+
+    private static boolean isHardwareSupported() {
+        final Instrumentation inst = InstrumentationRegistry.getInstrumentation();
+        // These UI tests are not optimised for Watches, TVs, Auto;
+        // IoT devices do not have a UI to run these UI tests
+        PackageManager pm = inst.getContext().getPackageManager();
+        return !pm.hasSystemFeature(pm.FEATURE_EMBEDDED)
+                && !pm.hasSystemFeature(pm.FEATURE_WATCH)
+                && !pm.hasSystemFeature(pm.FEATURE_LEANBACK)
+                && !pm.hasSystemFeature(pm.FEATURE_AUTOMOTIVE);
     }
 }
