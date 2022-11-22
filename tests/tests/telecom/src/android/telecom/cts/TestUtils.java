@@ -49,6 +49,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -79,6 +81,8 @@ public class TestUtils {
     public static final String ACCOUNT_ID_SIM = "sim_acct";
     public static final String ACCOUNT_ID_EMERGENCY = "xtstest_CALL_PROVIDER_EMERGENCY";
     public static final String EXTRA_PHONE_NUMBER = "android.telecom.cts.extra.PHONE_NUMBER";
+    public static final ComponentName TELECOM_CTS_COMPONENT_NAME = new ComponentName(
+            TestUtils.PACKAGE, TestUtils.COMPONENT);
     public static final PhoneAccountHandle TEST_PHONE_ACCOUNT_HANDLE =
             new PhoneAccountHandle(new ComponentName(PACKAGE, COMPONENT), ACCOUNT_ID_1);
     public static final PhoneAccountHandle TEST_SIM_PHONE_ACCOUNT_HANDLE =
@@ -302,6 +306,8 @@ public class TestUtils {
 
     private static final String COMMAND_ENABLE = "telecom set-phone-account-enabled ";
 
+    private static final String COMMAND_DISABLE = "telecom set-phone-account-disabled ";
+
     private static final String COMMAND_SET_ACCT_SUGGESTION =
             "telecom set-phone-acct-suggestion-component ";
 
@@ -379,6 +385,15 @@ public class TestUtils {
         final ComponentName component = handle.getComponentName();
         final long currentUserSerial = getCurrentUserSerialNumber(instrumentation);
         executeShellCommand(instrumentation, COMMAND_ENABLE
+                + component.getPackageName() + "/" + component.getClassName() + " "
+                + handle.getId() + " " + currentUserSerial);
+    }
+
+    public static void disablePhoneAccount(Instrumentation instrumentation,
+            PhoneAccountHandle handle) throws Exception {
+        final ComponentName component = handle.getComponentName();
+        final long currentUserSerial = getCurrentUserSerialNumber(instrumentation);
+        executeShellCommand(instrumentation, COMMAND_DISABLE
                 + component.getPackageName() + "/" + component.getClassName() + " "
                 + handle.getId() + " " + currentUserSerial);
     }
@@ -798,5 +813,50 @@ public class TestUtils {
 
     public static int deleteContact(ContentResolver contentResolver, Uri deleteUri) {
         return contentResolver.delete(deleteUri, null, null);
+    }
+
+    /**
+     * Generates random phone accounts.
+     * @param seed random seed to use for random UUIDs; passed in for determinism.
+     * @param count How many phone accounts to use.
+     * @return Random phone accounts.
+     */
+    public static ArrayList<PhoneAccount> generateRandomPhoneAccounts(long seed, int count,
+            String packageName, String component) {
+        Random random = new Random(seed);
+        ArrayList<PhoneAccount> accounts = new ArrayList<>();
+        for (int ix = 0; ix < count; ix++) {
+            PhoneAccountHandle handle = new PhoneAccountHandle(
+                    new ComponentName(packageName, component), getRandomUuid(random).toString());
+            PhoneAccount acct = new PhoneAccount.Builder(handle, "TelecommTests")
+                    .setAddress(Uri.parse("sip:test@test.com"))
+                    .setSubscriptionAddress(Uri.parse("sip:test@test.com"))
+                    .setCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED
+                            | PhoneAccount.CAPABILITY_SUPPORTS_VIDEO_CALLING
+                            | PhoneAccount.CAPABILITY_VIDEO_CALLING)
+                    .setHighlightColor(Color.BLUE)
+                    .setShortDescription(TestUtils.SELF_MANAGED_ACCOUNT_LABEL)
+                    .addSupportedUriScheme(PhoneAccount.SCHEME_TEL)
+                    .addSupportedUriScheme(PhoneAccount.SCHEME_SIP)
+                    .setExtras(TestUtils.SELF_MANAGED_ACCOUNT_1_EXTRAS)
+                    .build();
+            accounts.add(acct);
+        }
+        return accounts;
+    }
+
+    /**
+     * Returns a random UUID based on the passed in Random generator.
+     * @param random Random generator.
+     * @return The UUID.
+     */
+    public static UUID getRandomUuid(Random random) {
+        byte[] array = new byte[16];
+        random.nextBytes(array);
+        return UUID.nameUUIDFromBytes(array);
+    }
+
+    public static PhoneAccountHandle makePhoneAccountHandle(String id) {
+        return new PhoneAccountHandle(TELECOM_CTS_COMPONENT_NAME, id);
     }
 }
