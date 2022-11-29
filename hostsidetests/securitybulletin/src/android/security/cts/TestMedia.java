@@ -21,8 +21,9 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.*;
 
 import android.platform.test.annotations.AsbSecurityTest;
-import com.android.compatibility.common.util.CrashUtils;
+
 import com.android.sts.common.tradefed.testtype.NonRootSecurityTestCase;
+import com.android.sts.common.util.TombstoneUtils;
 import com.android.tradefed.testtype.DeviceJUnit4ClassRunner;
 import java.util.Arrays;
 import junit.framework.Assert;
@@ -119,10 +120,14 @@ public class TestMedia extends NonRootSecurityTestCase {
     @Test
     @AsbSecurityTest(cveBugId = 156997193)
     public void testPocCVE_2020_0409() throws Exception {
-        String signals[] = {CrashUtils.SIGSEGV, CrashUtils.SIGBUS, CrashUtils.SIGABRT};
+        String signals[] = {
+            TombstoneUtils.Signals.SIGSEGV,
+            TombstoneUtils.Signals.SIGBUS,
+            TombstoneUtils.Signals.SIGABRT,
+        };
         String binaryName = "CVE-2020-0409";
         AdbUtils.pocConfig testConfig = new AdbUtils.pocConfig(binaryName, getDevice());
-        testConfig.config = new CrashUtils.Config().setProcessPatterns(binaryName);
+        testConfig.config = new TombstoneUtils.Config().setProcessPatterns(binaryName);
         testConfig.config.setSignals(signals);
         AdbUtils.runPocAssertNoCrashesNotVulnerable(testConfig);
     }
@@ -134,10 +139,14 @@ public class TestMedia extends NonRootSecurityTestCase {
     @Test
     @AsbSecurityTest(cveBugId = 156999009)
     public void testPocCVE_2020_0408() throws Exception {
-        String signals[] = {CrashUtils.SIGSEGV, CrashUtils.SIGBUS, CrashUtils.SIGABRT};
+        String signals[] = {
+            TombstoneUtils.Signals.SIGSEGV,
+            TombstoneUtils.Signals.SIGBUS,
+            TombstoneUtils.Signals.SIGABRT,
+        };
         String binaryName = "CVE-2020-0408";
         AdbUtils.pocConfig testConfig = new AdbUtils.pocConfig(binaryName, getDevice());
-        testConfig.config = new CrashUtils.Config().setProcessPatterns(binaryName);
+        testConfig.config = new TombstoneUtils.Config().setProcessPatterns(binaryName);
         testConfig.config.setSignals(signals);
         AdbUtils.runPocAssertNoCrashesNotVulnerable(testConfig);
     }
@@ -149,10 +158,14 @@ public class TestMedia extends NonRootSecurityTestCase {
     @Test
     @AsbSecurityTest(cveBugId = 161894517)
     public void testPocCVE_2020_0421() throws Exception {
-        String signals[] = {CrashUtils.SIGSEGV, CrashUtils.SIGBUS, CrashUtils.SIGABRT};
+        String signals[] = {
+            TombstoneUtils.Signals.SIGSEGV,
+            TombstoneUtils.Signals.SIGBUS,
+            TombstoneUtils.Signals.SIGABRT,
+        };
         String binaryName = "CVE-2020-0421";
         AdbUtils.pocConfig testConfig = new AdbUtils.pocConfig(binaryName, getDevice());
-        testConfig.config = new CrashUtils.Config().setProcessPatterns(binaryName);
+        testConfig.config = new TombstoneUtils.Config().setProcessPatterns(binaryName);
         testConfig.config.setSignals(signals);
         AdbUtils.runPocAssertNoCrashesNotVulnerable(testConfig);
     }
@@ -269,9 +282,13 @@ public class TestMedia extends NonRootSecurityTestCase {
     @Test
     @AsbSecurityTest(cveBugId = 64340921)
     public void testPocCVE_2017_0837() throws Exception {
-        String signals[] = {CrashUtils.SIGSEGV, CrashUtils.SIGBUS, CrashUtils.SIGABRT};
+        String signals[] = {
+            TombstoneUtils.Signals.SIGSEGV,
+            TombstoneUtils.Signals.SIGBUS,
+            TombstoneUtils.Signals.SIGABRT,
+        };
         AdbUtils.pocConfig testConfig = new AdbUtils.pocConfig("CVE-2017-0837", getDevice());
-        testConfig.config = new CrashUtils.Config().setProcessPatterns("audioserver");
+        testConfig.config = new TombstoneUtils.Config().setProcessPatterns("audioserver");
         testConfig.config.setSignals(signals);
         AdbUtils.runPocAssertNoCrashesNotVulnerable(testConfig);
     }
@@ -286,9 +303,13 @@ public class TestMedia extends NonRootSecurityTestCase {
     @AsbSecurityTest(cveBugId = 62151041)
     public void testPocCVE_2018_9466_CVE_2017_9047() throws Exception {
         String binaryName = "CVE-2018-9466-CVE-2017-9047";
-        String signals[] = {CrashUtils.SIGSEGV, CrashUtils.SIGBUS, CrashUtils.SIGABRT};
+        String signals[] = {
+            TombstoneUtils.Signals.SIGSEGV,
+            TombstoneUtils.Signals.SIGBUS,
+            TombstoneUtils.Signals.SIGABRT,
+        };
         AdbUtils.pocConfig testConfig = new AdbUtils.pocConfig(binaryName, getDevice());
-        testConfig.config = new CrashUtils.Config().setProcessPatterns(binaryName);
+        testConfig.config = new TombstoneUtils.Config().setProcessPatterns(binaryName);
         testConfig.config.setSignals(signals);
         AdbUtils.runPocAssertNoCrashesNotVulnerable(testConfig);
     }
@@ -300,9 +321,13 @@ public class TestMedia extends NonRootSecurityTestCase {
     @AsbSecurityTest(cveBugId = 62151041)
     public void testPocCVE_2018_9466_CVE_2017_9048() throws Exception {
         String binaryName = "CVE-2018-9466-CVE-2017-9048";
-        String signals[] = {CrashUtils.SIGSEGV, CrashUtils.SIGBUS, CrashUtils.SIGABRT};
+        String signals[] = {
+            TombstoneUtils.Signals.SIGSEGV,
+            TombstoneUtils.Signals.SIGBUS,
+            TombstoneUtils.Signals.SIGABRT,
+        };
         AdbUtils.pocConfig testConfig = new AdbUtils.pocConfig(binaryName, getDevice());
-        testConfig.config = new CrashUtils.Config().setProcessPatterns(binaryName);
+        testConfig.config = new TombstoneUtils.Config().setProcessPatterns(binaryName);
         testConfig.config.setSignals(signals);
         AdbUtils.runPocAssertNoCrashesNotVulnerable(testConfig);
     }
@@ -315,9 +340,13 @@ public class TestMedia extends NonRootSecurityTestCase {
     public void testPocCVE_2018_9466_CVE_2017_9049() throws Exception {
         String binaryName = "CVE-2018-9466-CVE-2017-9049";
         String inputFiles[] = {"cve_2018_9466_cve_2017_9049.xml"};
-        String signals[] = {CrashUtils.SIGSEGV, CrashUtils.SIGBUS, CrashUtils.SIGABRT};
+        String signals[] = {
+            TombstoneUtils.Signals.SIGSEGV,
+            TombstoneUtils.Signals.SIGBUS,
+            TombstoneUtils.Signals.SIGABRT,
+        };
         AdbUtils.pocConfig testConfig = new AdbUtils.pocConfig(binaryName, getDevice());
-        testConfig.config = new CrashUtils.Config().setProcessPatterns(binaryName);
+        testConfig.config = new TombstoneUtils.Config().setProcessPatterns(binaryName);
         testConfig.config.setSignals(signals);
         testConfig.arguments = AdbUtils.TMP_PATH + inputFiles[0];
         testConfig.inputFiles = Arrays.asList(inputFiles);
@@ -333,9 +362,13 @@ public class TestMedia extends NonRootSecurityTestCase {
     public void testPocCVE_2018_9466_CVE_2017_9050() throws Exception {
         String binaryName = "CVE-2018-9466-CVE-2017-9049";
         String inputFiles[] = {"cve_2018_9466_cve_2017_9050.xml"};
-        String signals[] = {CrashUtils.SIGSEGV, CrashUtils.SIGBUS, CrashUtils.SIGABRT};
+        String signals[] = {
+            TombstoneUtils.Signals.SIGSEGV,
+            TombstoneUtils.Signals.SIGBUS,
+            TombstoneUtils.Signals.SIGABRT,
+        };
         AdbUtils.pocConfig testConfig = new AdbUtils.pocConfig(binaryName, getDevice());
-        testConfig.config = new CrashUtils.Config().setProcessPatterns(binaryName);
+        testConfig.config = new TombstoneUtils.Config().setProcessPatterns(binaryName);
         testConfig.config.setSignals(signals);
         testConfig.arguments = AdbUtils.TMP_PATH + inputFiles[0];
         testConfig.inputFiles = Arrays.asList(inputFiles);
@@ -352,9 +385,13 @@ public class TestMedia extends NonRootSecurityTestCase {
     public void testPocCVE_2015_3873() throws Exception {
         String inputFiles[] = {"cve_2015_3873.mp4"};
         String binaryName = "CVE-2015-3873";
-        String signals[] = {CrashUtils.SIGSEGV, CrashUtils.SIGBUS, CrashUtils.SIGABRT};
+        String signals[] = {
+            TombstoneUtils.Signals.SIGSEGV,
+            TombstoneUtils.Signals.SIGBUS,
+            TombstoneUtils.Signals.SIGABRT,
+        };
         AdbUtils.pocConfig testConfig = new AdbUtils.pocConfig(binaryName, getDevice());
-        testConfig.config = new CrashUtils.Config().setProcessPatterns(binaryName);
+        testConfig.config = new TombstoneUtils.Config().setProcessPatterns(binaryName);
         testConfig.config.setSignals(signals);
         testConfig.arguments = AdbUtils.TMP_PATH + inputFiles[0];
         testConfig.inputFiles = Arrays.asList(inputFiles);
@@ -497,9 +534,13 @@ public class TestMedia extends NonRootSecurityTestCase {
         assumeFalse(moduleIsPlayManaged("com.google.android.media.swcodec"));
         String inputFiles[] = {"cve_2020_0451.aac"};
         String binaryName = "CVE-2020-0451";
-        String signals[] = {CrashUtils.SIGSEGV, CrashUtils.SIGBUS, CrashUtils.SIGABRT};
+        String signals[] = {
+            TombstoneUtils.Signals.SIGSEGV,
+            TombstoneUtils.Signals.SIGBUS,
+            TombstoneUtils.Signals.SIGABRT,
+        };
         AdbUtils.pocConfig testConfig = new AdbUtils.pocConfig(binaryName, getDevice());
-        testConfig.config = new CrashUtils.Config().setProcessPatterns(binaryName);
+        testConfig.config = new TombstoneUtils.Config().setProcessPatterns(binaryName);
         testConfig.config.setSignals(signals);
         testConfig.arguments = AdbUtils.TMP_PATH + inputFiles[0];
         testConfig.inputFiles = Arrays.asList(inputFiles);
@@ -547,10 +588,14 @@ public class TestMedia extends NonRootSecurityTestCase {
     @Test
     @AsbSecurityTest(cveBugId = 120426980)
     public void testPocCVE_2019_9362() throws Exception {
-        String signals[] = {CrashUtils.SIGSEGV, CrashUtils.SIGBUS, CrashUtils.SIGABRT};
+        String signals[] = {
+            TombstoneUtils.Signals.SIGSEGV,
+            TombstoneUtils.Signals.SIGBUS,
+            TombstoneUtils.Signals.SIGABRT,
+        };
         String binaryName = "CVE-2019-9362";
         AdbUtils.pocConfig testConfig = new AdbUtils.pocConfig(binaryName, getDevice());
-        testConfig.config = new CrashUtils.Config().setProcessPatterns(binaryName);
+        testConfig.config = new TombstoneUtils.Config().setProcessPatterns(binaryName);
         testConfig.config.setSignals(signals);
         AdbUtils.runPocAssertNoCrashesNotVulnerable(testConfig);
     }
@@ -564,9 +609,13 @@ public class TestMedia extends NonRootSecurityTestCase {
     public void testPocCVE_2019_9308() throws Exception {
         String inputFiles[] = {"cve_2019_9308.mp4"};
         String binaryName = "CVE-2019-9308";
-        String signals[] = {CrashUtils.SIGSEGV, CrashUtils.SIGBUS, CrashUtils.SIGABRT};
+        String signals[] = {
+            TombstoneUtils.Signals.SIGSEGV,
+            TombstoneUtils.Signals.SIGBUS,
+            TombstoneUtils.Signals.SIGABRT,
+        };
         AdbUtils.pocConfig testConfig = new AdbUtils.pocConfig(binaryName, getDevice());
-        testConfig.config = new CrashUtils.Config().setProcessPatterns(binaryName);
+        testConfig.config = new TombstoneUtils.Config().setProcessPatterns(binaryName);
         testConfig.config.setSignals(signals);
         testConfig.arguments = AdbUtils.TMP_PATH + inputFiles[0];
         testConfig.inputFiles = Arrays.asList(inputFiles);
@@ -581,10 +630,14 @@ public class TestMedia extends NonRootSecurityTestCase {
     @Test
     @AsbSecurityTest(cveBugId = 112662995)
     public void testPocCVE_2019_9357() throws Exception {
-        String signals[] = {CrashUtils.SIGSEGV, CrashUtils.SIGBUS, CrashUtils.SIGABRT};
+        String signals[] = {
+            TombstoneUtils.Signals.SIGSEGV,
+            TombstoneUtils.Signals.SIGBUS,
+            TombstoneUtils.Signals.SIGABRT,
+        };
         String binaryName = "CVE-2019-9357";
         AdbUtils.pocConfig testConfig = new AdbUtils.pocConfig(binaryName, getDevice());
-        testConfig.config = new CrashUtils.Config().setProcessPatterns(binaryName);
+        testConfig.config = new TombstoneUtils.Config().setProcessPatterns(binaryName);
         testConfig.config.setSignals(signals);
         AdbUtils.runPocAssertNoCrashesNotVulnerable(testConfig);
     }

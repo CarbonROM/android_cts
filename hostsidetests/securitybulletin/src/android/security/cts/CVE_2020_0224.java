@@ -20,7 +20,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assume.*;
 
 import android.platform.test.annotations.AsbSecurityTest;
-import com.android.compatibility.common.util.CrashUtils;
+import com.android.sts.common.util.TombstoneUtils;
 import com.android.sts.common.tradefed.testtype.NonRootSecurityTestCase;
 import com.android.tradefed.testtype.DeviceJUnit4ClassRunner;
 import org.junit.Test;
@@ -37,10 +37,12 @@ public class CVE_2020_0224 extends NonRootSecurityTestCase {
     @AsbSecurityTest(cveBugId = 147664838)
     public void testPocCVE_2020_0224() throws Exception {
         assumeThat(getDevice().getProperty("ro.config.low_ram"), not(is("true")));
-        AdbUtils.runProxyAutoConfig("cve_2020_0224", getDevice());
-        AdbUtils.assertNoCrashes(getDevice(), new CrashUtils.Config()
+        TombstoneUtils.Config config = new TombstoneUtils.Config()
                 .setProcessPatterns("pacrunner")
-                .checkMinAddress(false)
-                .appendSignals(CrashUtils.SIGABRT));
+                .setIgnoreLowFaultAddress(false)
+                .appendSignals(TombstoneUtils.Signals.SIGABRT);
+        try (AutoCloseable a = TombstoneUtils.withAssertNoSecurityCrashes(getDevice(), config)) {
+            AdbUtils.runProxyAutoConfig("cve_2020_0224", getDevice());
+        }
     }
 }
