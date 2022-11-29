@@ -18,8 +18,8 @@ package android.security.cts;
 
 import android.platform.test.annotations.AsbSecurityTest;
 
-import com.android.compatibility.common.util.CrashUtils;
-import com.android.compatibility.common.util.CrashUtils.Config.BacktraceFilterPattern;
+import com.android.sts.common.util.TombstoneUtils;
+import com.android.sts.common.util.TombstoneUtils.Config.BacktraceFilterPattern;
 import com.android.sts.common.tradefed.testtype.NonRootSecurityTestCase;
 import com.android.tradefed.testtype.DeviceJUnit4ClassRunner;
 
@@ -42,15 +42,13 @@ public class CVE_2022_20123 extends NonRootSecurityTestCase {
     public void testPocCVE_2022_20123() throws Exception {
         AdbUtils.assumeHasNfc(getDevice());
         assumeIsSupportedNfcDevice(getDevice());
-        String signals[] = {CrashUtils.SIGSEGV};
         String binaryName = "CVE-2022-20123";
         AdbUtils.pocConfig testConfig = new AdbUtils.pocConfig(binaryName, getDevice());
-        testConfig.config = new CrashUtils.Config().setProcessPatterns(Pattern.compile(binaryName))
+        testConfig.config = new TombstoneUtils.Config().setProcessPatterns(Pattern.compile(binaryName))
                 .setBacktraceIncludes(
                         new BacktraceFilterPattern("libnfc_nci_jni", "Mfc_RecvPacket"));
         testConfig.config
                 .setBacktraceExcludes(new BacktraceFilterPattern("libdl", "__cfi_slowpath"));
-        testConfig.config.setSignals(signals);
         AdbUtils.runPocAssertNoCrashesNotVulnerable(testConfig);
     }
 }
