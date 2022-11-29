@@ -17,8 +17,9 @@
 package android.security.cts;
 
 import android.platform.test.annotations.AsbSecurityTest;
-import com.android.compatibility.common.util.CrashUtils;
+
 import com.android.sts.common.tradefed.testtype.NonRootSecurityTestCase;
+import com.android.sts.common.util.TombstoneUtils;
 import com.android.tradefed.testtype.DeviceJUnit4ClassRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,10 +34,10 @@ public class CVE_2020_0118 extends NonRootSecurityTestCase {
     @AsbSecurityTest(cveBugId = 150904694)
     @Test
     public void testPocCVE_2020_0118() throws Exception {
-        String signals[] = {CrashUtils.SIGBUS};
+        String signals[] = {TombstoneUtils.Signals.SIGBUS};
         String binaryName = "CVE-2020-0118";
         AdbUtils.pocConfig testConfig = new AdbUtils.pocConfig(binaryName, getDevice());
-        testConfig.config = new CrashUtils.Config().setProcessPatterns(binaryName);
+        testConfig.config = new TombstoneUtils.Config().setProcessPatterns(binaryName);
         testConfig.config.setSignals(signals);
         AdbUtils.runPocAssertNoCrashesNotVulnerable(testConfig);
     }
