@@ -36,6 +36,7 @@ import com.android.compatibility.common.util.ThrowingRunnable;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -107,6 +108,10 @@ public class SystemClockSntpTest {
         }
     }
 
+    // b/260031002 - this test breaks with newer mainline modules on T due to permission issues with
+    // the command line commands it uses. Platform changes are required to fix, so it has to be
+    // suppressed in CTS for T.
+    @Ignore
     @AppModeFull(reason = "Cannot bind socket in instant app mode")
     @Test
     public void testCurrentNetworkTimeClock() throws Exception {
