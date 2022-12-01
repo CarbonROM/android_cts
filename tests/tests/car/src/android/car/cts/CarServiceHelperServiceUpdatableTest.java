@@ -146,7 +146,8 @@ public final class CarServiceHelperServiceUpdatableTest extends CarApiTestBase {
         // check for the logcat
         // TODO(b/210874444): Use logcat helper from
         // cts/tests/tests/car_builtin/src/android/car/cts/builtin/util/LogcatHelper.java
-        String match = "car_service_on_user_removed: " + userId;
+        String match = String.format("car_service_on_user_lifecycle: [%d,%d,%d]", 9,
+                -10000, userId);
         long timeout = 60_000;
         long startTime = SystemClock.elapsedRealtime();
         UiAutomation automation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
