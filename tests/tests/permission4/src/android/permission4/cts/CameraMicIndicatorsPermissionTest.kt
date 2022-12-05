@@ -235,18 +235,7 @@ class CameraMicIndicatorsPermissionTest {
 
     private fun assertCarIndicatorsShown(useMic: Boolean, useCamera: Boolean, useHotword: Boolean) {
         // Ensure the privacy chip is present (or not)
-        var chipFound = false
-        try {
-            eventually {
-                val privacyChip = uiDevice.findObject(By.res(PRIVACY_CHIP_ID))
-                assertNotNull("view with id $PRIVACY_CHIP_ID not found", privacyChip)
-                privacyChip.click()
-                chipFound = true
-            }
-        } catch (e: Exception) {
-            // Handle more gracefully below
-        }
-
+        val chipFound = isChipPresent(useMic || useCamera || useHotword)
         if (useMic) {
             assertTrue("Did not find chip", chipFound)
         } else {
@@ -274,7 +263,7 @@ class CameraMicIndicatorsPermissionTest {
 
     private fun assertPrivacyChipAndIndicatorsPresent(useMic: Boolean, useCamera: Boolean) {
         // Ensure the privacy chip is present (or not)
-        val chipFound = isChipPresent()
+        val chipFound = isChipPresent(useMic || useCamera)
         if (useMic || useCamera) {
             assertTrue("Did not find chip", chipFound)
         } else {
@@ -297,13 +286,15 @@ class CameraMicIndicatorsPermissionTest {
         uiDevice.pressBack()
     }
 
-    private fun isChipPresent(): Boolean {
+    private fun isChipPresent(clickChip: Boolean): Boolean {
         var chipFound = false
         try {
             eventually {
                 val privacyChip = uiDevice.findObject(By.res(PRIVACY_CHIP_ID))
                 assertNotNull("view with id $PRIVACY_CHIP_ID not found", privacyChip)
-                privacyChip.click()
+                if (clickChip) {
+                    privacyChip.click()
+                }
                 chipFound = true
             }
         } catch (e: Exception) {
