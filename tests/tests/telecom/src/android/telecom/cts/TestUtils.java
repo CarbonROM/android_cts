@@ -76,10 +76,14 @@ public class TestUtils {
     public static final String REMOTE_COMPONENT = "android.telecom.cts.CtsRemoteConnectionService";
     public static final String ACCOUNT_ID_1 = "xtstest_CALL_PROVIDER_ID_1";
     public static final String ACCOUNT_ID_2 = "xtstest_CALL_PROVIDER_ID_2";
+    public static final String ACCOUNT_ID_SIM = "sim_acct";
     public static final String ACCOUNT_ID_EMERGENCY = "xtstest_CALL_PROVIDER_EMERGENCY";
     public static final String EXTRA_PHONE_NUMBER = "android.telecom.cts.extra.PHONE_NUMBER";
+    public static final String SIM_ACCOUNT_LABEL = "CTSConnectionServiceSim";
     public static final PhoneAccountHandle TEST_PHONE_ACCOUNT_HANDLE =
             new PhoneAccountHandle(new ComponentName(PACKAGE, COMPONENT), ACCOUNT_ID_1);
+    public static final PhoneAccountHandle TEST_SIM_PHONE_ACCOUNT_HANDLE =
+            new PhoneAccountHandle(new ComponentName(PACKAGE, COMPONENT), ACCOUNT_ID_SIM);
     public static final PhoneAccountHandle TEST_PHONE_ACCOUNT_HANDLE_2 =
             new PhoneAccountHandle(new ComponentName(PACKAGE, COMPONENT), ACCOUNT_ID_2);
     public static final PhoneAccountHandle TEST_EMERGENCY_PHONE_ACCOUNT_HANDLE =
@@ -123,6 +127,36 @@ public class TestUtils {
                     PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS)
             .setHighlightColor(Color.RED)
             .setShortDescription(ACCOUNT_LABEL)
+            .addSupportedUriScheme(PhoneAccount.SCHEME_TEL)
+            .addSupportedUriScheme(PhoneAccount.SCHEME_VOICEMAIL)
+            .build();
+
+    public static final PhoneAccount TEST_PHONE_ACCOUNT_THAT_HANDLES_CONTENT_SCHEME =
+            PhoneAccount.builder(
+                            TEST_PHONE_ACCOUNT_HANDLE, ACCOUNT_LABEL)
+                    .setAddress(Uri.parse("tel:555-TEST"))
+                    .setSubscriptionAddress(Uri.parse("tel:555-TEST"))
+                    .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER |
+                            PhoneAccount.CAPABILITY_VIDEO_CALLING |
+                            PhoneAccount.CAPABILITY_RTT |
+                            PhoneAccount.CAPABILITY_CONNECTION_MANAGER |
+                            PhoneAccount.CAPABILITY_PLACE_EMERGENCY_CALLS |
+                            PhoneAccount.CAPABILITY_ADHOC_CONFERENCE_CALLING)
+                    .setHighlightColor(Color.RED)
+                    .setShortDescription(ACCOUNT_LABEL)
+                    .addSupportedUriScheme(PhoneAccount.SCHEME_TEL)
+                    .addSupportedUriScheme(PhoneAccount.SCHEME_VOICEMAIL)
+                    .addSupportedUriScheme("content")
+                    .build();
+
+    public static final PhoneAccount TEST_SIM_PHONE_ACCOUNT = PhoneAccount.builder(
+            TEST_SIM_PHONE_ACCOUNT_HANDLE, SIM_ACCOUNT_LABEL)
+            .setAddress(Uri.parse("tel:555-TEST"))
+            .setSubscriptionAddress(Uri.parse("tel:555-TEST"))
+            .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER |
+                    PhoneAccount.CAPABILITY_SIM_SUBSCRIPTION)
+            .setHighlightColor(Color.RED)
+            .setShortDescription(SIM_ACCOUNT_LABEL)
             .addSupportedUriScheme(PhoneAccount.SCHEME_TEL)
             .addSupportedUriScheme(PhoneAccount.SCHEME_VOICEMAIL)
             .build();
