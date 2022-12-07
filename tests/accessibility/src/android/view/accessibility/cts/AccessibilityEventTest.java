@@ -97,17 +97,28 @@ public class AccessibilityEventTest {
         sInstrumentation = InstrumentationRegistry.getInstrumentation();
         sUiAutomation = sInstrumentation.getUiAutomation();
         mInstrumentedAccessibilityServiceRule.enableService();
-        mActivityRule.runOnUiThread(
-                () -> {
-                    final LinearLayout grandparent = new LinearLayout(activity);
-                    activity.setContentView(grandparent);
-                    mParentView = new EventReportingLinearLayout(activity);
-                    mChildView = new View(activity);
-                    mTextView = new TextView(activity);
-                    grandparent.addView(mParentView);
-                    mParentView.addView(mChildView);
-                    mParentView.addView(mTextView);
-                });
+        sUiAutomation.executeAndWaitForEvent(() -> {
+                    try {
+                        mActivityRule.runOnUiThread(() -> {
+                            final LinearLayout grandparent = new LinearLayout(activity);
+                            activity.setContentView(grandparent);
+                            mParentView = new EventReportingLinearLayout(activity);
+                            mChildView = new View(activity);
+                            mTextView = new TextView(activity);
+                            grandparent.addView(mParentView);
+                            mParentView.addView(mChildView);
+                            mParentView.addView(mTextView);
+                        });
+                    } catch (Throwable e) {
+                        fail(e.toString());
+                    }
+                },
+                // There can be a race where the test Activity gets focus and we start test.
+                // Because we don't specify flagRetrieveInteractiveWindows in this test, until
+                // the Activity gets focus, no events will be delivered from it.
+                // So. this waits for any event from the test activity.
+                accessibilityEvent -> mPackageName.equals(accessibilityEvent.getPackageName()),
+                DEFAULT_TIMEOUT_MS);
         sUiAutomation.waitForIdle(IDLE_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
     }
 
