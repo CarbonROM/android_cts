@@ -31,7 +31,6 @@ import androidx.test.runner.AndroidJUnit4;
 import junit.framework.Assert;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,17 +53,10 @@ public class AnimatorLeakTest {
     boolean mFinitePaused = false;
     boolean mFinitePausedSet = false;
     boolean mResumed = false;
-    long mDefaultAnimatorPauseDelay = 10000L;
-
-    @Before
-    public void setup() {
-        mDefaultAnimatorPauseDelay = Animator.getBackgroundPauseDelay();
-    }
 
     @After
     public void cleanup() {
         Animator.setAnimatorPausingEnabled(true);
-        Animator.setBackgroundPauseDelay(mDefaultAnimatorPauseDelay);
     }
 
     /**
