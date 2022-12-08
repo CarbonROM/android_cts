@@ -4227,7 +4227,7 @@ public class DecoderTest extends MediaTestBase {
         // This should happen when the PTS gap is encountered - silence is rendered to fill the
         // PTS gap, but this silence should not cause framePosition to advance.
         {
-            final long ptsGapTimeoutMs = 1000;
+            final long ptsGapTimeoutMs = 3000;
             long startTimeMs = System.currentTimeMillis();
             AudioTimestamp previousTimestamp;
             do {
