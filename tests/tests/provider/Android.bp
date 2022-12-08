@@ -27,6 +27,7 @@ android_test {
         "junit",
         "truth-prebuilt",
         "mockito-target-minus-junit4",
+        "sts-device-util",
     ],
 
     jni_libs: [
