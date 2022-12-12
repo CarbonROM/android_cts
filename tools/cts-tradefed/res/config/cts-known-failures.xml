@@ -302,4 +302,7 @@
     <!-- b/249936107 -->
     <option name="compatibility:exclude-filter" value="CtsTelephonyTestCases android.telephony.cts.SubscriptionManagerTest#testSubscriptionGroupingWithPermission" />
     <option name="compatibility:exclude-filter" value="CtsTelephonyTestCases android.telephony.cts.SubscriptionManagerTest#testAddSubscriptionIntoNewGroupWithPermission" />
+
+    <!-- b/260037367 -->
+    <option name="compatibility:exclude-filter" value="odsign_e2e_tests com.android.tests.odsign.CompOsSigningHostTest" />
 </configuration>
