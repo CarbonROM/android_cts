@@ -29,10 +29,13 @@ public class LeL2capSocketTest extends AndroidTestCase {
 
     private BluetoothAdapter mAdapter = null;
 
+    private boolean mHasBluetoothLe;
+
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        if (!TestUtils.isBleSupported(getContext())) {
+        mHasBluetoothLe = TestUtils.isBleSupported(getContext());
+        if (!mHasBluetoothLe) {
             return;
         }
         mAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -45,7 +48,7 @@ public class LeL2capSocketTest extends AndroidTestCase {
 
     @Override
     public void tearDown() throws Exception {
-        if (!TestUtils.isBleSupported(getContext())) {
+        if (!mHasBluetoothLe) {
             return;
         }
         assertTrue(BTAdapterUtils.disableAdapter(mAdapter, mContext));
@@ -56,7 +59,7 @@ public class LeL2capSocketTest extends AndroidTestCase {
 
     @SmallTest
     public void testOpenInsecureLeL2capServerSocketOnce() {
-        if (!TestUtils.isBleSupported(getContext())) {
+        if (shouldSkipTest()) {
             return;
         }
         assertTrue("Bluetooth is not enabled", mAdapter.isEnabled());
@@ -71,7 +74,7 @@ public class LeL2capSocketTest extends AndroidTestCase {
 
     @SmallTest
     public void testOpenInsecureLeL2capServerSocketRepeatedly() {
-        if (!TestUtils.isBleSupported(getContext())) {
+        if (shouldSkipTest()) {
             return;
         }
         assertTrue("Bluetooth is not enabled", mAdapter.isEnabled());
@@ -89,7 +92,7 @@ public class LeL2capSocketTest extends AndroidTestCase {
 
     @SmallTest
     public void testOpenSecureLeL2capServerSocketOnce() {
-        if (!TestUtils.isBleSupported(getContext())) {
+        if (shouldSkipTest()) {
             return;
         }
         assertTrue("Bluetooth is not enabled", mAdapter.isEnabled());
@@ -104,7 +107,7 @@ public class LeL2capSocketTest extends AndroidTestCase {
 
     @SmallTest
     public void testOpenSecureLeL2capServerSocketRepeatedly() {
-        if (!TestUtils.isBleSupported(getContext())) {
+        if (shouldSkipTest()) {
             return;
         }
         assertTrue("Bluetooth is not enabled", mAdapter.isEnabled());
@@ -117,5 +120,9 @@ public class LeL2capSocketTest extends AndroidTestCase {
         } catch (IOException exp) {
             fail("IOException while opening and closing server socket: " + exp);
         }
+    }
+
+    private boolean shouldSkipTest() {
+        return !mHasBluetoothLe;
     }
 }

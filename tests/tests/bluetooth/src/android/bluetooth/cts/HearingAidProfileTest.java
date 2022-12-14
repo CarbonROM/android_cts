@@ -56,8 +56,8 @@ public class HearingAidProfileTest extends AndroidTestCase {
     //                                  AdapterState.BREDR_STOP_TIMEOUT_DELAY
     private static final int ADAPTER_DISABLE_TIMEOUT_MS = 5000;
 
+    private boolean mHasBluetoothLe;
     private boolean mIsHearingAidSupported;
-    private boolean mIsBleSupported;
     private BluetoothHearingAid mService;
     private BluetoothAdapter mBluetoothAdapter;
     private BroadcastReceiver mIntentReceiver;
@@ -73,8 +73,10 @@ public class HearingAidProfileTest extends AndroidTestCase {
     private List<BluetoothDevice> mIntentCallbackDeviceList;
 
     public void setUp() throws Exception {
-        if (!isBleSupported()) return;
-        mIsBleSupported = true;
+        mHasBluetoothLe = TestUtils.isBleSupported(mContext);
+        if (!mHasBluetoothLe) {
+            return;
+        }
 
         BluetoothManager manager = (BluetoothManager) mContext.getSystemService(
                 Context.BLUETOOTH_SERVICE);
@@ -97,7 +99,9 @@ public class HearingAidProfileTest extends AndroidTestCase {
 
     @Override
     public void tearDown() {
-        if (!mIsBleSupported) return;
+        if (shouldSkipTest()) {
+            return;
+        }
 
         if (!BTAdapterUtils.disableAdapter(mBluetoothAdapter, mContext)) {
             Log.e(TAG, "Unable to disable Bluetooth Adapter!");
@@ -110,8 +114,9 @@ public class HearingAidProfileTest extends AndroidTestCase {
      */
     @MediumTest
     public void test_getProxyServiceConnect() {
-        if (!(mIsBleSupported && mIsHearingAidSupported)) return;
-
+        if (shouldSkipTest()) {
+            return;
+        }
         waitForProfileConnect();
         assertTrue(mIsProfileReady);
         assertNotNull(mService);
@@ -122,7 +127,7 @@ public class HearingAidProfileTest extends AndroidTestCase {
      */
     @MediumTest
     public void test_getConnectionState() {
-        if (!(mIsBleSupported && mIsHearingAidSupported)) {
+        if (shouldSkipTest()) {
             return;
         }
 
@@ -144,7 +149,7 @@ public class HearingAidProfileTest extends AndroidTestCase {
      */
     @MediumTest
     public void test_getConnectedDevices() {
-        if (!(mIsBleSupported && mIsHearingAidSupported)) {
+        if (shouldSkipTest()) {
             return;
         }
 
@@ -168,7 +173,7 @@ public class HearingAidProfileTest extends AndroidTestCase {
      */
     @MediumTest
     public void test_getDevicesMatchingConnectionStates() {
-        if (!(mIsBleSupported && mIsHearingAidSupported)) {
+        if (shouldSkipTest()) {
             return;
         }
 
@@ -193,7 +198,7 @@ public class HearingAidProfileTest extends AndroidTestCase {
      */
     @MediumTest
     public void test_getConnectionStateChangedIntent() {
-        if (!(mIsBleSupported && mIsHearingAidSupported)) {
+        if (shouldSkipTest()) {
             return;
         }
 
@@ -327,10 +332,8 @@ public class HearingAidProfileTest extends AndroidTestCase {
         return mBluetoothAdapter.isOffloadedScanBatchingSupported();
     }
 
-    // Check if Bluetooth LE feature is supported on DUT.
-    private boolean isBleSupported() {
-        return getContext().getPackageManager()
-                .hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
+    private boolean shouldSkipTest() {
+        return !(mHasBluetoothLe && mIsHearingAidSupported);
     }
 
     private static void sleep(long t) {

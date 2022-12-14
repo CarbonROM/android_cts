@@ -39,14 +39,30 @@ public class ScanCallbackTest extends AndroidTestCase {
     private MockScanner mMockScanner = new MockScanner();
     private BleScanCallback mMockScanCallback = new BleScanCallback();
 
+    private boolean mHasBluetoothLe;
+
+    @Override
+    public void setUp() {
+        mHasBluetoothLe = TestUtils.isBleSupported(getContext());
+        if (!mHasBluetoothLe) {
+            return;
+        }
+    }
+
     @SmallTest
     public void testScanSuccess() {
+        if (shouldSkipTest()) {
+            return;
+        }
         mMockScanCallback.mScanType = SCAN_TYPE_SUCCESS;
         mMockScanner.startScan(new ScanSettings.Builder().build(), mMockScanCallback);
     }
 
     @SmallTest
     public void testBatchScans() {
+        if (shouldSkipTest()) {
+            return;
+        }
         ScanSettings settings = new ScanSettings.Builder().setReportDelay(1000).build();
         mMockScanCallback.mScanType = SCAN_TYPE_BATCH;
         mMockScanner.startScan(settings, mMockScanCallback);
@@ -54,6 +70,9 @@ public class ScanCallbackTest extends AndroidTestCase {
 
     @SmallTest
     public void testScanFail() {
+        if (shouldSkipTest()) {
+            return;
+        }
         ScanSettings settings = new ScanSettings.Builder().build();
         // The first scan is success.
         mMockScanCallback.mScanType = SCAN_TYPE_SUCCESS;
@@ -61,6 +80,10 @@ public class ScanCallbackTest extends AndroidTestCase {
         // A second scan with the same callback should fail.
         mMockScanCallback.mScanType = SCAN_TYPE_FAIL;
         mMockScanner.startScan(settings, mMockScanCallback);
+    }
+
+    private boolean shouldSkipTest() {
+        return !mHasBluetoothLe;
     }
 
     // A mock scanner for mocking BLE scanner functionalities.
@@ -106,6 +129,5 @@ public class ScanCallbackTest extends AndroidTestCase {
                 fail("scan should not fail");
             }
         }
-
     }
 }

@@ -31,14 +31,22 @@ import android.test.suitebuilder.annotation.SmallTest;
 public class AdvertiseDataTest extends AndroidTestCase {
 
     private AdvertiseData.Builder mAdvertiseDataBuilder;
+    private boolean mHasBluetoothLe;
 
     @Override
     protected void setUp() {
+        mHasBluetoothLe = TestUtils.isBleSupported(getContext());
+        if (!mHasBluetoothLe) {
+            return;
+        }
         mAdvertiseDataBuilder = new AdvertiseData.Builder();
     }
 
     @SmallTest
     public void testEmptyData() {
+        if (shouldSkipTest()) {
+            return;
+        }
         Parcel parcel = Parcel.obtain();
         AdvertiseData data = mAdvertiseDataBuilder.build();
         data.writeToParcel(parcel, 0);
@@ -55,6 +63,9 @@ public class AdvertiseDataTest extends AndroidTestCase {
 
     @SmallTest
     public void testEmptyServiceUuid() {
+        if (shouldSkipTest()) {
+            return;
+        }
         Parcel parcel = Parcel.obtain();
         AdvertiseData data = mAdvertiseDataBuilder.setIncludeDeviceName(true).build();
         data.writeToParcel(parcel, 0);
@@ -68,6 +79,9 @@ public class AdvertiseDataTest extends AndroidTestCase {
 
     @SmallTest
     public void testEmptyManufacturerData() {
+        if (shouldSkipTest()) {
+            return;
+        }
         Parcel parcel = Parcel.obtain();
         int manufacturerId = 50;
         byte[] manufacturerData = new byte[0];
@@ -84,6 +98,9 @@ public class AdvertiseDataTest extends AndroidTestCase {
 
     @SmallTest
     public void testEmptyServiceData() {
+        if (shouldSkipTest()) {
+            return;
+        }
         Parcel parcel = Parcel.obtain();
         ParcelUuid uuid = ParcelUuid.fromString("0000110A-0000-1000-8000-00805F9B34FB");
         byte[] serviceData = new byte[0];
@@ -100,6 +117,9 @@ public class AdvertiseDataTest extends AndroidTestCase {
 
     @SmallTest
     public void testServiceUuid() {
+        if (shouldSkipTest()) {
+            return;
+        }
         Parcel parcel = Parcel.obtain();
         ParcelUuid uuid = ParcelUuid.fromString("0000110A-0000-1000-8000-00805F9B34FB");
         ParcelUuid uuid2 = ParcelUuid.fromString("0000110B-0000-1000-8000-00805F9B34FB");
@@ -118,6 +138,9 @@ public class AdvertiseDataTest extends AndroidTestCase {
 
     @SmallTest
     public void testServiceSolicitationUuids() {
+        if (shouldSkipTest()) {
+            return;
+        }
         AdvertiseData emptyData = mAdvertiseDataBuilder.build();
         assertEquals(0, emptyData.getServiceSolicitationUuids().size());
 
@@ -139,6 +162,9 @@ public class AdvertiseDataTest extends AndroidTestCase {
 
     @SmallTest
     public void testManufacturerData() {
+        if (shouldSkipTest()) {
+            return;
+        }
         Parcel parcel = Parcel.obtain();
         ParcelUuid uuid = ParcelUuid.fromString("0000110A-0000-1000-8000-00805F9B34FB");
         ParcelUuid uuid2 = ParcelUuid.fromString("0000110B-0000-1000-8000-00805F9B34FB");
@@ -162,6 +188,9 @@ public class AdvertiseDataTest extends AndroidTestCase {
 
     @SmallTest
     public void testServiceData() {
+        if (shouldSkipTest()) {
+            return;
+        }
         Parcel parcel = Parcel.obtain();
         ParcelUuid uuid = ParcelUuid.fromString("0000110A-0000-1000-8000-00805F9B34FB");
         byte[] serviceData = new byte[] {
@@ -179,6 +208,9 @@ public class AdvertiseDataTest extends AndroidTestCase {
 
     @SmallTest
     public void testIncludeTxPower() {
+        if (shouldSkipTest()) {
+            return;
+        }
         Parcel parcel = Parcel.obtain();
         AdvertiseData data = mAdvertiseDataBuilder.setIncludeTxPowerLevel(true).build();
         data.writeToParcel(parcel, 0);
@@ -190,7 +222,14 @@ public class AdvertiseDataTest extends AndroidTestCase {
 
     @SmallTest
     public void testDescribeContents() {
+        if (shouldSkipTest()) {
+            return;
+        }
         AdvertiseData data = new AdvertiseData.Builder().build();
         assertEquals(0, data.describeContents());
+    }
+
+    private boolean shouldSkipTest() {
+        return !mHasBluetoothLe;
     }
 }
