@@ -31,6 +31,9 @@ public class ScanRecordTest extends AndroidTestCase {
 
     @SmallTest
     public void testParser() {
+        if (!TestUtils.isBleSupported(getContext())) {
+            return;
+        }
         byte[] scanRecord = new byte[] {
                 0x02, 0x01, 0x1a, // advertising flags
                 0x05, 0x02, 0x0b, 0x11, 0x0a, 0x11, // 16 bit service uuids

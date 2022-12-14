@@ -34,21 +34,40 @@ public class AdvertiseCallbackTest extends AndroidTestCase {
 
     private final MockAdvertiser mMockAdvertiser = new MockAdvertiser();
     private final BleAdvertiseCallback mAdvertiseCallback = new BleAdvertiseCallback();
+    private boolean mHasBluetoothLe;
+
+    @Override
+    protected void setUp() {
+        mHasBluetoothLe = TestUtils.isBleSupported(getContext());
+        if (!mHasBluetoothLe) {
+            return;
+        }
+    }
 
     @SmallTest
     public void testAdvertiseSuccess() {
+        if (shouldSkipTest()) {
+            return;
+        }
         mAdvertiseCallback.mAdvertiseType = ADVERTISE_TYPE_SUCCESS;
         mMockAdvertiser.startAdvertise(mAdvertiseCallback);
     }
 
     @SmallTest
     public void testAdvertiseFailure() {
+        if (shouldSkipTest()) {
+            return;
+        }
         mAdvertiseCallback.mAdvertiseType = ADVERTISE_TYPE_SUCCESS;
         mMockAdvertiser.startAdvertise(mAdvertiseCallback);
 
         // Second advertise with the same callback should fail.
         mAdvertiseCallback.mAdvertiseType = ADVERTISE_TYPE_FAIL;
         mMockAdvertiser.startAdvertise(mAdvertiseCallback);
+    }
+
+    private boolean shouldSkipTest() {
+        return !mHasBluetoothLe;
     }
 
     // A mock advertiser which emulate BluetoothLeAdvertiser behavior.

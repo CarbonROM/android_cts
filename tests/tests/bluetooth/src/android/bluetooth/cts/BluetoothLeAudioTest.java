@@ -21,7 +21,6 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothLeAudio;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Build;
 import android.test.AndroidTestCase;
@@ -41,7 +40,7 @@ public class BluetoothLeAudioTest extends AndroidTestCase {
     private static final String PROFILE_SUPPORTED_LE_AUDIO = "profile_supported_leaudio";
     private static final int LE_AUDIO_PROFILE_CONSTANT = 22;
 
-    private boolean mHasBluetooth;
+    private boolean mHasBluetoothLe;
     private BluetoothAdapter mAdapter;
 
     private BluetoothLeAudio mBluetoothLeAudio;
@@ -54,10 +53,10 @@ public class BluetoothLeAudioTest extends AndroidTestCase {
     public void setUp() throws Exception {
         super.setUp();
         if (ApiLevelUtil.isAtLeast(Build.VERSION_CODES.S)) {
-            mHasBluetooth = getContext().getPackageManager().hasSystemFeature(
-                    PackageManager.FEATURE_BLUETOOTH);
-
-            if (!mHasBluetooth) return;
+            mHasBluetoothLe = TestUtils.isBleSupported(getContext());
+            if (!mHasBluetoothLe) {
+                return;
+            }
             BluetoothManager manager = getContext().getSystemService(BluetoothManager.class);
             mAdapter = manager.getAdapter();
             assertTrue(BTAdapterUtils.enableAdapter(mAdapter, mContext));
@@ -83,7 +82,7 @@ public class BluetoothLeAudioTest extends AndroidTestCase {
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
-        if (mHasBluetooth) {
+        if (mHasBluetoothLe) {
             if (mAdapter != null && mBluetoothLeAudio != null) {
                 mBluetoothLeAudio.close();
                 mBluetoothLeAudio = null;
@@ -95,8 +94,9 @@ public class BluetoothLeAudioTest extends AndroidTestCase {
     }
 
     public void testGetConnectedDevices() {
-        if (!(mHasBluetooth && mIsLeAudioSupported)) return;
-
+        if (shouldSkipTest()) {
+            return;
+        }
         assertTrue(waitForProfileConnect());
         assertNotNull(mBluetoothLeAudio);
 
@@ -108,8 +108,9 @@ public class BluetoothLeAudioTest extends AndroidTestCase {
     }
 
     public void testGetDevicesMatchingConnectionStates() {
-        if (!(mHasBluetooth && mIsLeAudioSupported)) return;
-
+        if (shouldSkipTest()) {
+            return;
+        }
         assertTrue(waitForProfileConnect());
         assertNotNull(mBluetoothLeAudio);
 
@@ -122,8 +123,9 @@ public class BluetoothLeAudioTest extends AndroidTestCase {
     }
 
     public void testGetConnectionState() {
-        if (!(mHasBluetooth && mIsLeAudioSupported)) return;
-
+        if (shouldSkipTest()) {
+            return;
+        }
         assertTrue(waitForProfileConnect());
         assertNotNull(mBluetoothLeAudio);
 
@@ -178,5 +180,9 @@ public class BluetoothLeAudioTest extends AndroidTestCase {
         @Override
         public void onServiceDisconnected(int profile) {
         }
+    }
+
+    private boolean shouldSkipTest() {
+        return !(mHasBluetoothLe && mIsLeAudioSupported);
     }
 }

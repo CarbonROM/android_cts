@@ -26,8 +26,21 @@ import android.test.suitebuilder.annotation.SmallTest;
  */
 public class AdvertiseSettingsTest extends AndroidTestCase {
 
+    private boolean mHasBluetoothLe;
+
+    @Override
+    protected void setUp() {
+        mHasBluetoothLe = TestUtils.isBleSupported(getContext());
+        if (!mHasBluetoothLe) {
+            return;
+        }
+    }
+
     @SmallTest
     public void testDefaultSettings() {
+        if (shouldSkipTest()) {
+            return;
+        }
         AdvertiseSettings settings = new AdvertiseSettings.Builder().build();
         assertEquals(AdvertiseSettings.ADVERTISE_MODE_LOW_POWER, settings.getMode());
         assertEquals(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM, settings.getTxPowerLevel());
@@ -37,12 +50,18 @@ public class AdvertiseSettingsTest extends AndroidTestCase {
 
     @SmallTest
     public void testDescribeContents() {
+        if (shouldSkipTest()) {
+            return;
+        }
         AdvertiseSettings settings = new AdvertiseSettings.Builder().build();
         assertEquals(0, settings.describeContents());
     }
 
     @SmallTest
     public void testReadWriteParcel() {
+        if (shouldSkipTest()) {
+            return;
+        }
         final int timeoutMillis = 60 * 1000;
         Parcel parcel = Parcel.obtain();
         AdvertiseSettings settings = new AdvertiseSettings.Builder()
@@ -63,6 +82,9 @@ public class AdvertiseSettingsTest extends AndroidTestCase {
 
     @SmallTest
     public void testIllegalTimeout() {
+        if (shouldSkipTest()) {
+            return;
+        }
         AdvertiseSettings.Builder builder = new AdvertiseSettings.Builder();
         builder.setTimeout(0).build();
         builder.setTimeout(180 * 1000).build();
@@ -80,6 +102,9 @@ public class AdvertiseSettingsTest extends AndroidTestCase {
         } catch (IllegalArgumentException e) {
             // nothing to do.
         }
+    }
 
+    private boolean shouldSkipTest() {
+        return !mHasBluetoothLe;
     }
 }
