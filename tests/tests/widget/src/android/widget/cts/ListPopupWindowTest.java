@@ -111,6 +111,8 @@ public class ListPopupWindowTest {
         mInstrumentation = InstrumentationRegistry.getInstrumentation();
         mActivity = mActivityRule.getActivity();
         mItemClickListener = new PopupItemClickListener();
+
+        PollingCheck.waitFor(() -> mActivity.hasWindowFocus());
     }
 
     @After
