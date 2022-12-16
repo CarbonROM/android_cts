@@ -41,6 +41,8 @@ import android.app.SyncNotedAppOp
 import android.app.WallpaperManager
 import android.app.WallpaperManager.FLAG_SYSTEM
 import android.bluetooth.BluetoothManager
+import android.bluetooth.cts.BTAdapterUtils.disableAdapter as disableBTAdapter
+import android.bluetooth.cts.BTAdapterUtils.enableAdapter as enableBTAdapter
 import android.bluetooth.le.ScanCallback
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -54,6 +56,7 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager.FEATURE_BLUETOOTH
 import android.content.pm.PackageManager.FEATURE_BLUETOOTH_LE
 import android.content.pm.PackageManager.FEATURE_TELEPHONY
+import android.content.pm.PackageManager.FEATURE_WIFI
 import android.content.pm.PackageManager.GET_ATTRIBUTIONS
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
@@ -83,6 +86,10 @@ import android.util.Log
 import android.util.Size
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit.MILLISECONDS
+import java.util.concurrent.TimeoutException
 import org.junit.After
 import org.junit.Assert.fail
 import org.junit.Assume.assumeNoException
@@ -90,12 +97,6 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Executor
-import java.util.concurrent.TimeUnit.MILLISECONDS
-import java.util.concurrent.TimeoutException
-import android.bluetooth.cts.BTAdapterUtils.disableAdapter as disableBTAdapter
-import android.bluetooth.cts.BTAdapterUtils.enableAdapter as enableBTAdapter
 
 private const val TEST_SERVICE_PKG = "android.app.appops.cts.appthatusesappops"
 private const val TIMEOUT_MILLIS = 10000L
@@ -442,6 +443,9 @@ class AppOpsLoggingTest {
      */
     @Test
     fun getWifiScanResults() {
+        assumeTrue("Device does not support WiFi feature",
+                context.packageManager.hasSystemFeature(FEATURE_WIFI))
+
         val wifiManager = context.createAttributionContext(TEST_ATTRIBUTION_TAG)
             .getSystemService(WifiManager::class.java)
 
