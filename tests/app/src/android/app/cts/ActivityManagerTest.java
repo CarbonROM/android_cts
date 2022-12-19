@@ -851,6 +851,8 @@ public class ActivityManagerTest {
 
     @Test
     public void testHomeVisibilityListener() throws Exception {
+        assumeFalse("With platforms that have no home screen, no need to test", noHomeScreen());
+
         LinkedBlockingQueue<Boolean> currentHomeScreenVisibility = new LinkedBlockingQueue<>(2);
         HomeVisibilityListener homeVisibilityListener = new HomeVisibilityListener() {
             @Override
