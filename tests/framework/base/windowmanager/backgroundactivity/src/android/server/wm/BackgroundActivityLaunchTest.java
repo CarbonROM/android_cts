@@ -57,9 +57,9 @@ import android.content.pm.PackageManager;
 import android.os.ResultReceiver;
 import android.platform.test.annotations.Presubmit;
 import android.platform.test.annotations.SystemUserOnly;
+import android.provider.Settings;
 import android.server.wm.backgroundactivity.common.CommonComponents.Event;
 import android.server.wm.backgroundactivity.common.EventReceiver;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.test.filters.FlakyTest;
@@ -92,6 +92,12 @@ public class BackgroundActivityLaunchTest extends ActivityManagerTestBase {
 
     private static final String TEST_PACKAGE_APP_A = "android.server.wm.backgroundactivity.appa";
     private static final String TEST_PACKAGE_APP_B = "android.server.wm.backgroundactivity.appb";
+    private static final int ACTIVITY_START_TIMEOUT_MS = 5000;
+    private static final int ALARM_MANAGER_MAX_DELAY_MS = 60000;
+
+    public static final ComponentName APP_A_ALARM_MANAGER_ACTIVITY =
+            new ComponentName(TEST_PACKAGE_APP_A,
+                    "android.server.wm.backgroundactivity.appa.AlarmManagerActivity");
 
     /**
      * Tests can be executed as soon as the device has booted. When that happens the broadcast queue
@@ -465,6 +471,31 @@ public class BackgroundActivityLaunchTest extends ActivityManagerTestBase {
         assertTaskStack(new ComponentName[]{APP_A_BACKGROUND_ACTIVITY}, APP_A_BACKGROUND_ACTIVITY);
     }
 
+    @Test
+    public void testAlarmManagerCannotStartBgActivity() throws Exception {
+        // Start the alarm activity which will create a pending intent and ask alarm manager to
+        // run after 30s.
+        Intent intent = new Intent();
+        intent.setComponent(APP_A_ALARM_MANAGER_ACTIVITY);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mContext.startActivity(intent);
+        assertTrue("Alarm activity not started", waitUntilForegroundChanged(
+                TEST_PACKAGE_APP_A, true, ACTIVITY_START_TIMEOUT_MS));
+
+        // Start Settings activity.
+        intent = new Intent(Settings.ACTION_SETTINGS);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mContext.startActivity(intent);
+        assertTrue("Settings activity not started", waitUntilForegroundChanged(
+                TEST_PACKAGE_APP_A, false, ACTIVITY_START_TIMEOUT_MS));
+
+        // Even Settings app is in foreground, alarm manager should not use Settings foreground
+        // state to launch the pending intent from alarm manager.
+        assertFalse("Test activity is resumed",
+                waitUntilForegroundChanged(TEST_PACKAGE_APP_A, true,
+                        ALARM_MANAGER_MAX_DELAY_MS));
+    }
+
     private Intent getLaunchActivitiesBroadcast(ComponentName... componentNames) {
         Intent broadcastIntent = new Intent(ACTION_LAUNCH_BACKGROUND_ACTIVITIES);
         Intent[] intents = Stream.of(componentNames)
@@ -558,5 +589,25 @@ public class BackgroundActivityLaunchTest extends ActivityManagerTestBase {
         }
         intent.putExtra(EVENT_NOTIFIER_EXTRA, eventNotifier);
         mContext.sendBroadcast(intent);
+    }
+
+    private boolean waitUntilForegroundChanged(String targetPkg, boolean toBeResumed, int timeout)
+            throws Exception {
+        long startTime = System.currentTimeMillis();
+        while (checkPackageResumed(targetPkg) != toBeResumed) {
+            if (System.currentTimeMillis() - startTime < timeout) {
+                Thread.sleep(100);
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean checkPackageResumed(String pkg) {
+        WindowManagerStateHelper helper = new WindowManagerStateHelper();
+        helper.computeState();
+        return ComponentName.unflattenFromString(
+                helper.getFocusedActivity()).getPackageName().equals(pkg);
     }
 }
