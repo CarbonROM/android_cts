@@ -20,6 +20,7 @@
 
     <!-- To enable the app to start activities from the background. -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
 
     <application android:testOnly="true">
         <receiver android:name=".StartBackgroundActivityReceiver"
@@ -49,6 +50,8 @@
                   android:exported="true"
                   android:supportsPictureInPicture="true"/>
         <activity android:name=".VirtualDisplayActivity"
+                  android:exported="true"/>
+        <activity android:name=".AlarmManagerActivity"
                   android:exported="true"/>
     </application>
 </manifest>
