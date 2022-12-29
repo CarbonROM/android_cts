@@ -27,7 +27,6 @@ import androidx.test.uiautomator.UiDevice;
 
 import org.junit.Assume;
 import org.junit.Before;
-import org.junit.BeforeClass;
 
 /**
  * Photo Picker Base class for Photo Picker tests. This includes common setup methods
@@ -40,13 +39,10 @@ public class PhotoPickerBaseTest {
     protected Context mContext;
     protected UiDevice mDevice;
 
-    @BeforeClass
-    public static void setUpClass() {
-        Assume.assumeTrue(isHardwareSupported());
-    }
-
     @Before
     public void setUp() throws Exception {
+        Assume.assumeTrue(isHardwareSupported());
+
         final Instrumentation inst = InstrumentationRegistry.getInstrumentation();
         mDevice = UiDevice.getInstance(inst);
 
