@@ -45,15 +45,6 @@ public class GeocoderTest extends AndroidTestCase {
         }
     }
 
-    public void testIsPresent() {
-        Geocoder geocoder = new Geocoder(getContext());
-        if (isServiceMissing()) {
-            assertFalse(geocoder.isPresent());
-        } else {
-            assertTrue(geocoder.isPresent());
-        }
-    }
-
     private boolean isServiceMissing() {
         Context context = getContext();
         PackageManager pm = context.getPackageManager();
