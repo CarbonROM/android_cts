@@ -990,6 +990,7 @@ public class ToastTest {
      */
     @Test
     public void testRateLimitingToastsWhenInBackground() throws Throwable {
+        assumeFalse("Skipping test: Watch does not support new Toast behavior yet", isWatch());
         // enable rate limiting to test it
         SystemUtil.runWithShellPermissionIdentity(() -> mNotificationManager
                 .setToastRateLimitingEnabled(true));
@@ -1052,6 +1053,7 @@ public class ToastTest {
 
     @Test
     public void testAppWithUnlimitedToastsPermissionCanPostUnlimitedToasts() throws Throwable {
+        assumeFalse("Skipping test: Watch does not support new Toast behavior yet", isWatch());
         // enable rate limiting to test it
         SystemUtil.runWithShellPermissionIdentity(() -> mNotificationManager
                 .setToastRateLimitingEnabled(true));
