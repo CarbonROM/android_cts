@@ -16,11 +16,8 @@
 
 package android.location.cts;
 
-
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Geocoder;
+import android.platform.test.annotations.AppModeFull;
 import android.test.AndroidTestCase;
 
 import java.io.IOException;
@@ -44,25 +41,7 @@ public class GeocoderTest extends AndroidTestCase {
         }
     }
 
-    public void testIsPresent() {
-        Geocoder geocoder = new Geocoder(getContext());
-        if (isServiceMissing()) {
-            assertFalse(geocoder.isPresent());
-        } else {
-            assertTrue(geocoder.isPresent());
-        }
-    }
-
-    private boolean isServiceMissing() {
-        Context context = getContext();
-        PackageManager pm = context.getPackageManager();
-
-        final Intent intent = new Intent("com.android.location.service.GeocodeProvider");
-        final int flags = PackageManager.MATCH_DIRECT_BOOT_AWARE
-               | PackageManager.MATCH_DIRECT_BOOT_UNAWARE;
-        return pm.queryIntentServices(intent, flags).isEmpty();
-    }
-
+    @AppModeFull(reason = "b/238831704 - Test cases don't apply for Instant apps")
     public void testGetFromLocation() throws IOException, InterruptedException {
         Geocoder geocoder = new Geocoder(getContext());
 
@@ -116,6 +95,7 @@ public class GeocoderTest extends AndroidTestCase {
         }
     }
 
+    @AppModeFull(reason = "b/238831704 - Test cases don't apply for Instant apps")
     public void testGetFromLocationName() throws IOException, InterruptedException {
         Geocoder geocoder = new Geocoder(getContext(), Locale.US);
 
