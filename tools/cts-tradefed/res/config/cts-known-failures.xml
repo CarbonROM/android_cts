@@ -286,4 +286,7 @@
     <option name="compatibility:exclude-filter" value="CtsGraphicsTestCases android.graphics.cts.ImageDecoderTest#testDecode10BitHeifWithLowRam" />
     <option name="compatibility:exclude-filter" value="CtsGraphicsTestCases[instant] android.graphics.cts.ImageDecoderTest#testDecode10BitHeifWithLowRam" />
 
+    <!-- b/223402586 -->
+    <option name="compatibility:exclude-filter" value="CtsAppCompatHostTestCases com.android.cts.appcompat.CompatChangesValidConfigTest#testOnlyAllowedlistedChangesAreOverridable" />
+
 </configuration>

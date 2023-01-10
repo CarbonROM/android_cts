@@ -18,10 +18,12 @@ package android.server.wm.jetpack;
 
 import static android.server.wm.jetpack.signed.Components.SIGNED_EMBEDDING_ACTIVITY;
 import static android.server.wm.jetpack.utils.ActivityEmbeddingUtil.EMBEDDED_ACTIVITY_ID;
+import static android.server.wm.jetpack.utils.ActivityEmbeddingUtil.startActivityAndVerifyNoCallback;
 import static android.server.wm.jetpack.utils.ActivityEmbeddingUtil.startActivityAndVerifySplit;
 import static android.server.wm.jetpack.utils.ActivityEmbeddingUtil.waitAndAssertResumed;
 import static android.server.wm.jetpack.utils.ExtensionUtil.assumeExtensionSupportedDevice;
 import static android.server.wm.jetpack.utils.ExtensionUtil.assumeHasDisplayFeatures;
+import static android.server.wm.jetpack.utils.ExtensionUtil.assumeVendorApiLevelAtLeast;
 import static android.server.wm.jetpack.utils.ExtensionUtil.getExtensionWindowLayoutComponent;
 import static android.server.wm.jetpack.utils.ExtensionUtil.getExtensionWindowLayoutInfo;
 
@@ -74,8 +76,8 @@ public class ActivityEmbeddingIntegrationTests extends ActivityEmbeddingTestBase
      */
     @Test
     public void testDisplayFeaturesWithEmbedding() throws Exception {
-        TestConfigChangeHandlingActivity primaryActivity = (TestConfigChangeHandlingActivity)
-                startActivityNewTask(TestConfigChangeHandlingActivity.class);
+        TestConfigChangeHandlingActivity primaryActivity = startActivityNewTask(
+                TestConfigChangeHandlingActivity.class);
         WindowLayoutInfo windowLayoutInfo = getExtensionWindowLayoutInfo(primaryActivity);
         assumeHasDisplayFeatures(windowLayoutInfo);
 
@@ -116,6 +118,33 @@ public class ActivityEmbeddingIntegrationTests extends ActivityEmbeddingTestBase
     }
 
     /**
+     * Tests that clearing the split info consumer stops notifying unregistered consumer.
+     */
+    @Test
+    public void testClearSplitInfoCallback() throws Exception {
+        assumeVendorApiLevelAtLeast(2); // TODO(b/244450254): harden the requirement in U.
+        mActivityEmbeddingComponent.clearSplitInfoCallback();
+        TestConfigChangeHandlingActivity primaryActivity = startActivityNewTask(
+                TestConfigChangeHandlingActivity.class);
+
+        // Launch a second activity in a split. Use a very small split ratio, so that the secondary
+        // activity occupies most of the screen.
+        SplitPairRule splitPairRule = new SplitPairRule.Builder(
+                activityActivityPair -> true,
+                activityIntentPair -> true,
+                windowMetrics -> true
+        )
+                .setSplitRatio(0.1f)
+                .build();
+        mActivityEmbeddingComponent.setEmbeddingRules(Collections.singleton(splitPairRule));
+
+        startActivityAndVerifyNoCallback(primaryActivity,
+                TestActivityWithId.class,
+                "secondaryActivity" /* secondActivityId */,
+                mSplitInfoConsumer);
+    }
+
+    /**
      * Tests that display features are still reported when using ActivityEmbedding. Same as above,
      * but using different packages for the host and embedded activities.
      * Fixed in CL: If2dbc337c4b8cb909914cc28ae4db28a82ff9de3
@@ -123,8 +152,8 @@ public class ActivityEmbeddingIntegrationTests extends ActivityEmbeddingTestBase
     @Test
     public void testDisplayFeaturesWithEmbedding_differentPackage() throws Exception {
         // Start an activity to collect the window layout info.
-        TestConfigChangeHandlingActivity initialActivity = (TestConfigChangeHandlingActivity)
-                startActivityNewTask(TestConfigChangeHandlingActivity.class);
+        TestConfigChangeHandlingActivity initialActivity = startActivityNewTask(
+                TestConfigChangeHandlingActivity.class);
         WindowLayoutInfo windowLayoutInfo = getExtensionWindowLayoutInfo(initialActivity);
         assumeHasDisplayFeatures(windowLayoutInfo);
 

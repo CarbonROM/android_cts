@@ -94,7 +94,7 @@ public final class CompatChangeTests extends MultiDisplayTestBase {
     // The min aspect ratio of NON_RESIZEABLE_LARGE_ASPECT_RATIO_ACTIVITY (as defined in the
     // manifest). This needs to be higher than the aspect ratio of any device, which according to
     // CDD is at most 21:9.
-    private static final float ACTIVITY_LARGE_MIN_ASPECT_RATIO = 3f;
+    private static final float ACTIVITY_LARGE_MIN_ASPECT_RATIO = 4f;
 
     private static final float FLOAT_EQUALITY_DELTA = 0.01f;
 
@@ -511,9 +511,6 @@ public final class CompatChangeTests extends MultiDisplayTestBase {
      */
     private void runSizeCompatTest(ComponentName activity, int windowingMode, double resizeRatio,
             boolean inSizeCompatModeAfterResize) {
-        // TODO(b/208918131): Remove once real cause is found.
-        assumeFalse(ENABLE_SHELL_TRANSITIONS);
-
         launchActivity(activity, windowingMode);
 
         assertSizeCompatMode(activity, /* expectedInSizeCompatMode= */ false);

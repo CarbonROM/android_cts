@@ -3512,6 +3512,7 @@ public class TelephonyManagerTest {
 
             ModemActivityInfo diff = activityInfo1.getDelta(activityInfo2);
             assertNotNull(diff);
+            assertTrue("two activityInfo are identical", !activityInfo1.equals(activityInfo2));
             assertTrue("diff is" + diff, diff.isValid() || diff.isEmpty());
         } finally {
             InstrumentationRegistry.getInstrumentation().getUiAutomation()
@@ -5095,8 +5096,12 @@ public class TelephonyManagerTest {
                 .adoptShellPermissionIdentity("android.permission.MODIFY_PHONE_STATE");
         try {
             mTelephonyManager.setSimSlotMapping(simSlotMapping);
-        } catch (IllegalArgumentException e) {
-            fail("Not Expected Fail, Error in setSimSlotMapping :" + e);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            // if HAL version is less than 2.0, vendors may not have implemented API,
+            // skipping the failure.
+            if (mRadioVersion >= RADIO_HAL_VERSION_2_0) {
+                fail("Not Expected Fail, Error in setSimSlotMapping :" + e);
+            }
         }
 
         List<UiccSlotMapping> slotMappingList = new ArrayList<>();

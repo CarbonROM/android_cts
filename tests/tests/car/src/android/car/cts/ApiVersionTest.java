@@ -16,14 +16,13 @@
 
 package android.car.cts;
 
-import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 
 import android.car.ApiVersion;
-import android.car.CarApiVersion;
-import android.car.PlatformApiVersion;
+import android.car.CarVersion;
+import android.car.PlatformVersion;
 
 //TODO(b/236153976): add when supported
 //import com.google.common.testing.EqualsTester;
@@ -68,8 +67,9 @@ public final class ApiVersionTest {
     public void testToString() {
         String string = version(42, 108).toString();
 
-        assertThat(string).contains("major=42");
-        assertThat(string).contains("minor=108");
+        assertWithMessage("version(42, 108).toString()").that(string).contains("major=42");
+        assertWithMessage("version(42, 108).toString()").that(string).contains("minor=108");
+        assertWithMessage("version(42, 108).toString()").that(string).doesNotContain("name=");
     }
 
     @Test
@@ -109,6 +109,7 @@ public final class ApiVersionTest {
     }
 
     // TODO(b/236153976): comment back once guava is supported
+    // (then also add check for different string but same versions)
 //    @Test
 //    public void testEqualsAndHashcode() {
 //        new EqualsTester()
@@ -160,40 +161,40 @@ public final class ApiVersionTest {
         ApiVersion<?> otherType(int majorVersion);
     }
 
-    private static final class CarApiVersionFactory implements ApiVersionFactory<CarApiVersion> {
+    private static final class CarApiVersionFactory implements ApiVersionFactory<CarVersion> {
 
         @Override
-        public CarApiVersion newApiVersion(int majorVersion, int minorVersion) {
-            return CarApiVersion.forMajorAndMinorVersions(majorVersion, minorVersion);
+        public CarVersion newApiVersion(int majorVersion, int minorVersion) {
+            return CarVersion.forMajorAndMinorVersions(majorVersion, minorVersion);
         }
 
         @Override
-        public CarApiVersion newApiVersion(int majorVersion) {
-            return CarApiVersion.forMajorVersion(majorVersion);
+        public CarVersion newApiVersion(int majorVersion) {
+            return CarVersion.forMajorVersion(majorVersion);
         }
 
         @Override
         public ApiVersion<?> otherType(int majorVersion) {
-            return PlatformApiVersion.forMajorVersion(majorVersion);
+            return PlatformVersion.forMajorVersion(majorVersion);
         }
     }
 
     private static final class PlatformApiVersionFactory
-            implements ApiVersionFactory<PlatformApiVersion> {
+            implements ApiVersionFactory<PlatformVersion> {
 
         @Override
-        public PlatformApiVersion newApiVersion(int majorVersion, int minorVersion) {
-            return PlatformApiVersion.forMajorAndMinorVersions(majorVersion, minorVersion);
+        public PlatformVersion newApiVersion(int majorVersion, int minorVersion) {
+            return PlatformVersion.forMajorAndMinorVersions(majorVersion, minorVersion);
         }
 
         @Override
-        public PlatformApiVersion newApiVersion(int majorVersion) {
-            return PlatformApiVersion.forMajorVersion(majorVersion);
+        public PlatformVersion newApiVersion(int majorVersion) {
+            return PlatformVersion.forMajorVersion(majorVersion);
         }
 
         @Override
         public ApiVersion<?> otherType(int majorVersion) {
-            return CarApiVersion.forMajorVersion(majorVersion);
+            return CarVersion.forMajorVersion(majorVersion);
         }
     }
 }

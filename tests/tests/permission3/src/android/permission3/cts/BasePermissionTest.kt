@@ -202,5 +202,7 @@ abstract class BasePermissionTest {
     protected fun startActivityForFuture(
         intent: Intent
     ): CompletableFuture<Instrumentation.ActivityResult> =
-        activityRule.launchActivity(null).startActivityForFuture(intent)
+        CompletableFuture<Instrumentation.ActivityResult>().also {
+            activityRule.launchActivity(null).startActivityForFuture(intent, it)
+        }
 }
