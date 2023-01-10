@@ -1092,6 +1092,11 @@ public class PinnedStackTests extends ActivityManagerTestBase {
                 extraString(EXTRA_ON_PAUSE_DELAY, "350"),
                 extraString(EXTRA_ASSERT_NO_ON_STOP_BEFORE_PIP, "true"));
         launchActivity(RESUME_WHILE_PAUSING_ACTIVITY);
+        // if the activity is not launched in same TDA, pip is not triggered.
+        assumeTrue("Should launch in same tda",
+                mWmState.getTaskDisplayArea(RESUME_WHILE_PAUSING_ACTIVITY)
+                        == mWmState.getTaskDisplayArea(PIP_ACTIVITY)
+        );
         assertPinnedStackExists();
     }
 
@@ -1481,8 +1486,13 @@ public class PinnedStackTests extends ActivityManagerTestBase {
         launchActivity(PIP_ACTIVITY, extraString(EXTRA_ALLOW_AUTO_PIP, "true"));
         assertPinnedStackDoesNotExist();
 
-        // Launch a regular activity and ensure that there is a pinned stack.
+        // Launch another and ensure that there is a pinned stack.
         launchActivity(TEST_ACTIVITY, WINDOWING_MODE_FULLSCREEN);
+        // if the activities do not launch in same TDA, pip is not triggered.
+        assumeTrue("Should launch in same tda",
+                mWmState.getTaskDisplayArea(PIP_ACTIVITY)
+                        == mWmState.getTaskDisplayArea(TEST_ACTIVITY)
+        );
         waitForEnterPip(PIP_ACTIVITY);
         assertPinnedStackExists();
         waitAndAssertActivityState(PIP_ACTIVITY, STATE_PAUSED, "activity must be paused");

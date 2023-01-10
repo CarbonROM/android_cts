@@ -26,6 +26,7 @@ import android.os.Build
 import android.provider.Settings
 import android.support.test.uiautomator.By
 import android.support.test.uiautomator.BySelector
+import android.support.test.uiautomator.UiObjectNotFoundException
 import android.support.test.uiautomator.UiScrollable
 import android.support.test.uiautomator.UiSelector
 import android.text.Spanned
@@ -97,6 +98,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
 
         const val NOTIF_TEXT = "permgrouprequest_notifications"
         const val ALLOW_BUTTON_TEXT = "grant_dialog_button_allow"
+        const val ALLOW_ALL_FILES_BUTTON_TEXT = "app_permission_button_allow_all_files"
         const val ALLOW_FOREGROUND_BUTTON_TEXT = "grant_dialog_button_allow_foreground"
         const val ALLOW_FOREGROUND_PREFERENCE_TEXT = "permission_access_only_foreground"
         const val ASK_BUTTON_TEXT = "app_permission_button_ask"
@@ -559,7 +561,7 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
                                 By.text(getPermissionControllerString(
                                         ALLOW_FOREGROUND_PREFERENCE_TEXT))
                             } else {
-                                By.text(getPermissionControllerString(ALLOW_BUTTON_TEXT))
+                                byAnyText(getPermissionControllerResString(ALLOW_BUTTON_TEXT),getPermissionControllerResString(ALLOW_ALL_FILES_BUTTON_TEXT))
                             }
                         PermissionState.DENIED ->
                             if (!isLegacyApp && hasAskButton(permission)) {
@@ -671,7 +673,13 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
         }
         waitForIdle()
         if (scrollable.exists()) {
-            scrollable.flingToEnd(10)
+            try {
+                scrollable.flingToEnd(10)
+            } catch (e: UiObjectNotFoundException) {
+                // flingToEnd() sometimes still fails despite waitForIdle() and the exists() check
+                // (b/246984354).
+                e.printStackTrace()
+            }
         }
     }
 

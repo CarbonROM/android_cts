@@ -22,6 +22,7 @@ import static android.opengl.GLES20.glClear;
 import static android.opengl.GLES20.glClearColor;
 import static android.opengl.GLES20.glEnable;
 import static android.opengl.GLES20.glScissor;
+import static android.view.WindowInsets.Type.captionBar;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -130,11 +131,15 @@ public class TextureViewTest {
         activity.waitForSurface();
         activity.initGl();
         int updatedCount;
-        updatedCount = activity.waitForSurfaceUpdateCount(0);
-        assertEquals(0, updatedCount);
+        // If the caption bar is present, the surface update counts increase by 1
+        int extraSurfaceOffset =
+                window.getDecorView().getRootWindowInsets().getInsets(captionBar()).top == 0
+                ? 0 : 1;
+        updatedCount = activity.waitForSurfaceUpdateCount(0 + extraSurfaceOffset);
+        assertEquals(0 + extraSurfaceOffset, updatedCount);
         activity.drawColor(Color.GREEN);
-        updatedCount = activity.waitForSurfaceUpdateCount(1);
-        assertEquals(1, updatedCount);
+        updatedCount = activity.waitForSurfaceUpdateCount(1 + extraSurfaceOffset);
+        assertEquals(1 + extraSurfaceOffset, updatedCount);
         assertEquals(Color.WHITE, getPixel(window, center));
         WidgetTestUtils.runOnMainAndDrawSync(mActivityRule,
                 activity.findViewById(android.R.id.content), () -> activity.removeCover());
@@ -142,8 +147,8 @@ public class TextureViewTest {
         int color = waitForChange(window, center, Color.WHITE);
         assertEquals(Color.GREEN, color);
         activity.drawColor(Color.BLUE);
-        updatedCount = activity.waitForSurfaceUpdateCount(2);
-        assertEquals(2, updatedCount);
+        updatedCount = activity.waitForSurfaceUpdateCount(2 + extraSurfaceOffset);
+        assertEquals(2 + extraSurfaceOffset, updatedCount);
         color = waitForChange(window, center, color);
         assertEquals(Color.BLUE, color);
     }
@@ -376,15 +381,28 @@ public class TextureViewTest {
     public void testCropRect() throws Throwable {
         final TextureViewCtsActivity activity = mActivityRule.launchActivity(/*startIntent*/ null);
         activity.waitForSurface();
-        mActivityRule.runOnUiThread(activity::removeCover);
-        TextureView textureView = activity.getTextureView();
+        final TextureView textureView = activity.getTextureView();
+        WidgetTestUtils.runOnMainAndDrawSync(mActivityRule, textureView, () -> {
+            activity.removeCover();
+            // This test is sensitive to GPU sampling precision, so cap the size of the textureview
+            // to a known small value that will not have float precision issues when being
+            // sampled, specifically when running on GPUs limited to fp16 precision
+            ViewGroup.LayoutParams params = textureView.getLayoutParams();
+            params.width = 100;
+            params.height = 100;
+            textureView.setLayoutParams(params);
+        });
         int textureWidth = textureView.getWidth();
         int textureHeight = textureView.getHeight();
+        assertEquals(100, textureWidth);
+        assertEquals(100, textureHeight);
         SurfaceTexture surfaceTexture = textureView.getSurfaceTexture();
         Surface surface = new Surface(surfaceTexture);
         assertTrue(surface.isValid());
         ImageWriter writer = ImageWriter.newInstance(surface, /*maxImages*/ 1);
         Image image = writer.dequeueInputImage();
+        assertEquals(100, image.getWidth());
+        assertEquals(100, image.getHeight());
         Image.Plane plane = image.getPlanes()[0];
         Bitmap bitmap = Bitmap.createBitmap(plane.getRowStride() / 4, image.getHeight(),
                 Bitmap.Config.ARGB_8888);
