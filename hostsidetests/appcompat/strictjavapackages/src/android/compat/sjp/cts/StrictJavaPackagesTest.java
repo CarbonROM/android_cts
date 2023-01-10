@@ -39,6 +39,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.google.common.collect.Sets;
 
 import org.jf.dexlib2.iface.ClassDef;
 import org.junit.Test;
@@ -263,19 +264,25 @@ public class StrictJavaPackagesTest extends BaseHostJUnit4Test {
         jars.addAll(Classpaths.getJarsOnClasspath(getDevice(), SYSTEMSERVERCLASSPATH));
         ImmutableSet<String> overlapBurndownList;
         if (hasFeature(FEATURE_AUTOMOTIVE)) {
-          overlapBurndownList = ImmutableSet.<String>builder()
-                  .addAll(BCP_AND_SSCP_OVERLAP_BURNDOWN_LIST)
-                  .addAll(AUTOMOTIVE_HIDL_OVERLAP_BURNDOWN_LIST).build();
+            final Set<String> allDuplicatedFiles = Sets.union(
+                  BCP_AND_SSCP_OVERLAP_BURNDOWN_LIST,
+                  AUTOMOTIVE_HIDL_OVERLAP_BURNDOWN_LIST
+            );
+            overlapBurndownList = ImmutableSet.copyOf(allDuplicatedFiles);
         } else if (hasFeature(FEATURE_WEARABLE)) {
-          overlapBurndownList = ImmutableSet.<String>builder()
-                  .addAll(BCP_AND_SSCP_OVERLAP_BURNDOWN_LIST)
-                  .addAll(WEAR_HIDL_OVERLAP_BURNDOWN_LIST).build();
+            final Set<String> allDuplicatedFiles = Sets.union(
+                  BCP_AND_SSCP_OVERLAP_BURNDOWN_LIST,
+                  WEAR_HIDL_OVERLAP_BURNDOWN_LIST
+            );
+            overlapBurndownList = ImmutableSet.copyOf(allDuplicatedFiles);
         } else {
           overlapBurndownList = ImmutableSet.copyOf(BCP_AND_SSCP_OVERLAP_BURNDOWN_LIST);
         }
         Multimap<String, String> duplicates = getDuplicateClasses(jars.build());
         Multimap<String, String> filtered = Multimaps.filterKeys(duplicates,
                 duplicate -> !overlapBurndownList.contains(duplicate));
+
+        assertThat(filtered).isEmpty();
     }
 
     /**
