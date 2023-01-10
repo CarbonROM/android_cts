@@ -71,6 +71,9 @@ public class PermissionPolicyTest {
     private static final String MANAGE_COMPANION_DEVICES_PERMISSION
             = "android.permission.MANAGE_COMPANION_DEVICES";
 
+    private static final String SET_UNRESTRICTED_GESTURE_EXCLUSION
+            = "android.permission.SET_UNRESTRICTED_GESTURE_EXCLUSION";
+
     private static final String LOG_TAG = "PermissionProtectionTest";
 
     private static final String PLATFORM_PACKAGE_NAME = "android";
@@ -130,6 +133,35 @@ public class PermissionPolicyTest {
 
             declaredPermissionsMap.putAll(
                     getPermissionsForPackage(sContext, carServicePackageName));
+
+            // Load signature permission declared in CarService-builtin
+            String carServiceBuiltInPackageName = "com.android.car";
+            Map<String, PermissionInfo> carServiceBuiltInPermissionsMap = getPermissionsForPackage(
+                    sContext, carServiceBuiltInPackageName);
+            // carServiceBuiltInPermissionsMap should only have signature permissions and those
+            // permissions should not be defined in car service updatable.
+            for (Map.Entry<String, PermissionInfo> permissionData : carServiceBuiltInPermissionsMap
+                    .entrySet()) {
+                PermissionInfo carServiceBuiltInDeclaredPermission = permissionData.getValue();
+                String carServiceBuiltInDeclaredPermissionName = permissionData.getKey();
+
+                // Signature only permission should be defined in built-in car service
+                if ((carServiceBuiltInDeclaredPermission
+                        .getProtection() != PermissionInfo.PROTECTION_SIGNATURE)
+                        || (carServiceBuiltInDeclaredPermission.getProtectionFlags() != 0)) {
+                    offendingList.add("Permission " + carServiceBuiltInDeclaredPermissionName
+                            + " should be signature only permission to be declared in"
+                            + " carServiceBuiltIn package.");
+                    continue;
+                }
+
+                if (declaredPermissionsMap.get(carServiceBuiltInDeclaredPermissionName) != null) {
+                    offendingList.add("Permission " + carServiceBuiltInDeclaredPermissionName
+                            + " from car service builtin is already declared in other packages.");
+                    continue;
+                }
+            }
+            declaredPermissionsMap.putAll(carServiceBuiltInPermissionsMap);
         }
 
         for (ExpectedPermissionInfo expectedPermission : expectedPermissions) {
@@ -475,6 +507,8 @@ public class PermissionPolicyTest {
                 return parseDate(SECURITY_PATCH).before(HIDE_NON_SYSTEM_OVERLAY_WINDOWS_PATCH_DATE);
             case MANAGE_COMPANION_DEVICES_PERMISSION:
                 return parseDate(SECURITY_PATCH).before(MANAGE_COMPANION_DEVICES_PATCH_DATE);
+            case SET_UNRESTRICTED_GESTURE_EXCLUSION:
+                return true;
             default:
                 return false;
         }

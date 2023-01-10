@@ -311,7 +311,7 @@
     </string>
     <string name="clipboard_preview_test_instructions">
         Press the \'Copy\' button to copy the secret code to the clipboard.
-        \nDo not press any other buttons after you press the \'Copy\' button.
+        \n\nDo not press any other buttons or tap the clipboard UI after you press the \'Copy\' button.
         \n\n If nothing happens, press Fail.
         \n\n If you see the word "FAIL" appear on screen, press Fail.
         \n\n If you see a confirmation that content has been copied to the clipboard, press Pass.
@@ -2138,10 +2138,6 @@
         device was p2p device. Check the test case on the other device.</string>
     <string name="p2p_connection_error">
         Test failed.\n\nFailed to establish a p2p connection.</string>
-    <string name="p2p_connection_latency_error">
-        Test failed. \n\nConnection was expected to be established within %1$dms. But took=%2$dms.
-        \n\nPlease ensure that the Group Owner is ready on the other device before running
-        this test</string>
     <string name="p2p_detect_disconnection_error">
         Test failed.\n\nFailed to detect client disconnection.</string>
     <string name="p2p_disconnect_error">

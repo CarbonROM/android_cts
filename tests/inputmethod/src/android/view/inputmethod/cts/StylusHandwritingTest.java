@@ -54,6 +54,7 @@ import androidx.test.filters.FlakyTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.compatibility.common.util.AdoptShellPermissionsRule;
+import com.android.compatibility.common.util.ApiTest;
 import com.android.cts.mockime.ImeEventStream;
 import com.android.cts.mockime.ImeSettings;
 import com.android.cts.mockime.MockImeSession;
@@ -147,6 +148,10 @@ public class StylusHandwritingTest extends EndToEndImeTestBase {
     }
 
     @Test
+    @ApiTest(apis = {"android.view.inputmethod.InputMethodManager#startStylusHandwriting",
+            "android.inputmethodservice.InputMethodService#onPrepareStylusHandwriting",
+            "android.inputmethodservice.InputMethodService#onStartStylusHandwriting",
+            "android.inputmethodservice.InputMethodService#onFinishStylusHandwriting"})
     public void testHandwritingStartAndFinish() throws Exception {
         final InputMethodManager imm = mContext.getSystemService(InputMethodManager.class);
         try (MockImeSession imeSession = MockImeSession.create(
@@ -157,13 +162,13 @@ public class StylusHandwritingTest extends EndToEndImeTestBase {
 
             final String marker = getTestMarker();
             final EditText editText = launchTestActivity(marker);
+            expectEvent(stream, editorMatcher("onStartInput", marker), TIMEOUT);
 
             // Touch down with a stylus
             final int x = 10;
             final int y = 10;
             TestUtils.injectStylusDownEvent(editText, x, y);
 
-            expectEvent(stream, editorMatcher("onStartInput", marker), TIMEOUT);
             notExpectEvent(
                     stream,
                     editorMatcher("onStartInputView", marker),
@@ -209,6 +214,9 @@ public class StylusHandwritingTest extends EndToEndImeTestBase {
      * @throws Exception
      */
     @Test
+    @ApiTest(apis = {"android.view.inputmethod.InputMethodManager#startStylusHandwriting",
+            "android.inputmethodservice.InputMethodService#onStylusMotionEvent",
+            "android.inputmethodservice.InputMethodService#onStartStylusHandwriting"})
     public void testHandwritingStylusEvents_onStylusHandwritingMotionEvent() throws Exception {
         testHandwritingStylusEvents(false /* verifyOnInkView */);
     }
@@ -219,6 +227,9 @@ public class StylusHandwritingTest extends EndToEndImeTestBase {
      * @throws Exception
      */
     @Test
+    @ApiTest(apis = {"android.view.inputmethod.InputMethodManager#startStylusHandwriting",
+            "android.inputmethodservice.InputMethodService#onStylusMotionEvent",
+            "android.inputmethodservice.InputMethodService#onStartStylusHandwriting"})
     public void testHandwritingStylusEvents_dispatchToInkView() throws Exception {
         testHandwritingStylusEvents(false /* verifyOnInkView */);
     }
@@ -234,6 +245,7 @@ public class StylusHandwritingTest extends EndToEndImeTestBase {
 
             final String marker = getTestMarker();
             final EditText editText = launchTestActivity(marker);
+            expectEvent(stream, editorMatcher("onStartInput", marker), TIMEOUT);
 
             final List<MotionEvent> injectedEvents = new ArrayList<>();
             // Touch down with a stylus
@@ -241,7 +253,6 @@ public class StylusHandwritingTest extends EndToEndImeTestBase {
             final int startY = 10;
             injectedEvents.add(TestUtils.injectStylusDownEvent(editText, startX, startY));
 
-            expectEvent(stream, editorMatcher("onStartInput", marker), TIMEOUT);
             notExpectEvent(
                     stream,
                     editorMatcher("onStartInputView", marker),

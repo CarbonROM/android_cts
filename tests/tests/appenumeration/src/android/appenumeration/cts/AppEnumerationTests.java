@@ -1084,6 +1084,8 @@ public class AppEnumerationTests {
 
     @Test
     public void launcherAppsCallback_unsuspended_visibleReceives() throws Exception {
+        setPackagesSuspended(/* suspend */ true, Arrays.asList(TARGET_NO_API, TARGET_FILTERS));
+
         final Result result = sendCommandAndWaitForLauncherAppsCallback(QUERIES_ACTIVITY_ACTION,
                 CALLBACK_EVENT_PACKAGES_UNSUSPENDED);
 

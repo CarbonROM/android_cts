@@ -297,7 +297,6 @@ public class ByodFlowTestActivity extends DialogTestListActivity {
                     "BYOD_ConfirmWorkCredentials",
                     R.string.provisioning_byod_confirm_work_credentials_description,
                     new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME));
-
             mPatternWorkChallenge = new DialogTestListItem(this,
                     R.string.provisioning_byod_pattern_work_challenge,
                     "BYOD_PatternWorkChallenge",

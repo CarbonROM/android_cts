@@ -53,12 +53,18 @@ import java.util.concurrent.TimeUnit;
 
 public class OneTimePermissionTest {
     private static final String APP_PKG_NAME = "android.permission.cts.appthatrequestpermission";
+    private static final String CUSTOM_CAMERA_PERM_APP_PKG_NAME =
+            "android.permission.cts.appthatrequestcustomcamerapermission";
     private static final String APK =
             "/data/local/tmp/cts/permissions/CtsAppThatRequestsOneTimePermission.apk";
+    private static final String CUSTOM_CAMERA_PERM_APK =
+            "/data/local/tmp/cts/permissions/CtsAppThatRequestCustomCameraPermission.apk";
     private static final String EXTRA_FOREGROUND_SERVICE_LIFESPAN =
             "android.permission.cts.OneTimePermissionTest.EXTRA_FOREGROUND_SERVICE_LIFESPAN";
     private static final String EXTRA_FOREGROUND_SERVICE_STICKY =
             "android.permission.cts.OneTimePermissionTest.EXTRA_FOREGROUND_SERVICE_STICKY";
+
+    public static final String CUSTOM_PERMISSION = "appthatrequestcustomcamerapermission.CUSTOM";
 
     private static final long ONE_TIME_TIMEOUT_MILLIS = 5000;
     private static final long ONE_TIME_KILLED_DELAY_MILLIS = 5000;
@@ -67,6 +73,7 @@ public class OneTimePermissionTest {
 
     private final Context mContext =
             InstrumentationRegistry.getInstrumentation().getTargetContext();
+    private final PackageManager mPackageManager = mContext.getPackageManager();
     private final UiDevice mUiDevice =
             UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
     private final ActivityManager mActivityManager =
@@ -217,7 +224,7 @@ public class OneTimePermissionTest {
 
     private void assertGrantedState(String s, int permissionGranted, long timeoutMillis) {
         eventually(() -> Assert.assertEquals(s,
-                permissionGranted, mContext.getPackageManager()
+                permissionGranted, mPackageManager
                         .checkPermission(ACCESS_FINE_LOCATION, APP_PKG_NAME)), timeoutMillis);
     }
 
