@@ -26,6 +26,7 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_DENIED
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.content.res.Resources
+import android.provider.DeviceConfig
 import android.net.Uri
 import android.os.Build
 import android.platform.test.annotations.AppModeFull
@@ -47,6 +48,7 @@ import com.android.compatibility.common.util.SystemUtil.eventually
 import com.android.compatibility.common.util.SystemUtil.getEventually
 import com.android.compatibility.common.util.SystemUtil.runShellCommandOrThrow
 import com.android.compatibility.common.util.SystemUtil.runWithShellPermissionIdentity
+import com.android.compatibility.common.util.ThrowingSupplier
 import com.android.compatibility.common.util.UI_ROOT
 import com.android.compatibility.common.util.click
 import com.android.compatibility.common.util.depthFirstSearch
@@ -249,6 +251,7 @@ class AutoRevokeTest {
     @AppModeFull(reason = "Uses separate apps for testing")
     @Test
     fun testPreMinAutoRevokeVersionUnusedApp_doesntGetPermissionRevoked() {
+        assumeFalse(isHibernationEnabledForPreSApps())
         withUnusedThresholdMs(3L) {
             withDummyApp(preMinVersionApkPath, preMinVersionAppPackageName) {
                 withDummyApp {
@@ -275,6 +278,18 @@ class AutoRevokeTest {
                 }
             }
         }
+    }
+
+    private fun isHibernationEnabledForPreSApps(): Boolean {
+        return runWithShellPermissionIdentity(
+            ThrowingSupplier {
+                DeviceConfig.getBoolean(
+                    DeviceConfig.NAMESPACE_APP_HIBERNATION,
+                    "app_hibernation_targets_pre_s_apps",
+                    false
+                )
+            }
+        )
     }
 
     @AppModeFull(reason = "Uses separate apps for testing")
