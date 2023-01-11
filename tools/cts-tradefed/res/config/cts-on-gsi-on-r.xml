@@ -29,7 +29,9 @@
 
     <!-- Excluded test cases start-->
 
-    <!-- b/240971401 -->
+    <!-- CtsLocationPrivilegedTestCases: b/240971401 -->
     <option name="compatibility:exclude-filter" value="CtsLocationPrivilegedTestCases android.location.cts.privileged.GnssLocationValuesTest#testLowPowerModeGnssLocation" />
+    <!-- CtsMediaTranscodingTestCases: b/257522539 -->
+    <option name="compatibility:exclude-filter" value="CtsMediaTranscodingTestCases android.media.mediatranscoding.cts.MediaTranscodingManagerTest#testAvcTranscoding1080PVideo30FramesWithoutAudio" />
 
 </configuration>
