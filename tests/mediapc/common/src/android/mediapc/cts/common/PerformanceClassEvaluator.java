@@ -25,6 +25,11 @@ import android.media.MediaFormat;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.test.platform.app.InstrumentationRegistry;
+
+import com.android.compatibility.common.util.DeviceReportLog;
+import com.android.cts.verifier.CtsVerifierReportLog;
+
 import com.google.common.base.Preconditions;
 
 import org.junit.rules.TestName;
@@ -676,6 +681,42 @@ public class PerformanceClassEvaluator {
         }
 
         /**
+         * Helper method used to create ConcurrentCodecRequirements, builds and fills out the
+         * a requirement for tests ran with a resolution of 720p
+         */
+        private static ConcurrentCodecRequirement create720p(String requirementId,
+                RequiredMeasurement<?> measure) {
+            RequiredMeasurement<Integer> testResolution = RequiredMeasurement.<Integer>builder()
+                .setId(RequirementConstants.TEST_RESOLUTION)
+                .setPredicate(RequirementConstants.INTEGER_EQ)
+                .addRequiredValue(Build.VERSION_CODES.R, 720)
+                .build();
+
+            ConcurrentCodecRequirement req = new ConcurrentCodecRequirement(requirementId, measure,
+                    testResolution);
+            req.setMeasuredValue(RequirementConstants.TEST_RESOLUTION, 720);
+            return req;
+        }
+
+        /**
+         * Helper method used to create ConcurrentCodecRequirements, builds and fills out the
+         * a requirement for tests ran with a resolution of 1080p
+         */
+        private static ConcurrentCodecRequirement create1080p(String requirementId,
+                RequiredMeasurement<?> measure) {
+            RequiredMeasurement<Integer> testResolution = RequiredMeasurement.<Integer>builder()
+                .setId(RequirementConstants.TEST_RESOLUTION)
+                .setPredicate(RequirementConstants.INTEGER_EQ)
+                .addRequiredValue(Build.VERSION_CODES.TIRAMISU, 1080)
+                .build();
+
+            ConcurrentCodecRequirement req = new ConcurrentCodecRequirement(requirementId, measure,
+                    testResolution);
+            req.setMeasuredValue(RequirementConstants.TEST_RESOLUTION, 1080);
+            return req;
+        }
+
+        /**
          * [2.2.7.1/5.1/H-1-1] MUST advertise the maximum number of hardware video decoder
          * sessions that can be run concurrently in any codec combination via the
          * CodecCapabilities.getMaxSupportedInstances() and VideoCapabilities
@@ -694,7 +735,7 @@ public class PerformanceClassEvaluator {
                         resolution))
                 .build();
 
-            return new ConcurrentCodecRequirement(RequirementConstants.R5_1__H_1_1, maxInstances);
+            return create720p(RequirementConstants.R5_1__H_1_1, maxInstances);
         }
 
         /**
@@ -710,7 +751,7 @@ public class PerformanceClassEvaluator {
                 .addRequiredValue(Build.VERSION_CODES.TIRAMISU, 6)
                 .build();
 
-            return new ConcurrentCodecRequirement(RequirementConstants.R5_1__H_1_1, maxInstances);
+            return create1080p(RequirementConstants.R5_1__H_1_1, maxInstances);
         }
 
         /**
@@ -729,8 +770,7 @@ public class PerformanceClassEvaluator {
                     getReqMinConcurrentFps(Build.VERSION_CODES.S, mimeType1, mimeType2, resolution))
                 .build();
 
-            return new ConcurrentCodecRequirement(RequirementConstants.R5_1__H_1_2,
-                reqConcurrentFps);
+            return create720p(RequirementConstants.R5_1__H_1_2, reqConcurrentFps);
         }
 
         /**
@@ -745,8 +785,7 @@ public class PerformanceClassEvaluator {
                 .addRequiredValue(Build.VERSION_CODES.TIRAMISU, 6 * FPS_30_TOLERANCE)
                 .build();
 
-            return new ConcurrentCodecRequirement(RequirementConstants.R5_1__H_1_2,
-                reqConcurrentFps);
+            return create1080p(RequirementConstants.R5_1__H_1_2, reqConcurrentFps);
         }
 
         /**
@@ -768,7 +807,7 @@ public class PerformanceClassEvaluator {
                         resolution))
                 .build();
 
-            return new ConcurrentCodecRequirement(RequirementConstants.R5_1__H_1_3, maxInstances);
+            return create720p(RequirementConstants.R5_1__H_1_3, maxInstances);
         }
 
         /**
@@ -784,7 +823,7 @@ public class PerformanceClassEvaluator {
                 .addRequiredValue(Build.VERSION_CODES.TIRAMISU, 6)
                 .build();
 
-            return new ConcurrentCodecRequirement(RequirementConstants.R5_1__H_1_3, maxInstances);
+            return create1080p(RequirementConstants.R5_1__H_1_3, maxInstances);
         }
 
         /**
@@ -801,8 +840,7 @@ public class PerformanceClassEvaluator {
                 .addRequiredValue(Build.VERSION_CODES.S, 0.0)
                 .build();
 
-            return new ConcurrentCodecRequirement(RequirementConstants.R5_1__H_1_4,
-                reqConcurrentFps);
+            return create720p(RequirementConstants.R5_1__H_1_4, reqConcurrentFps);
         }
 
         /**
@@ -818,8 +856,7 @@ public class PerformanceClassEvaluator {
                 .addRequiredValue(Build.VERSION_CODES.TIRAMISU, 0.0)
                 .build();
 
-            return new ConcurrentCodecRequirement(RequirementConstants.R5_1__H_1_4,
-                reqConcurrentFps);
+            return create1080p(RequirementConstants.R5_1__H_1_4, reqConcurrentFps);
         }
 
         /**
@@ -841,7 +878,7 @@ public class PerformanceClassEvaluator {
                         resolution))
                 .build();
 
-            return new ConcurrentCodecRequirement(RequirementConstants.R5_1__H_1_5, maxInstances);
+            return create720p(RequirementConstants.R5_1__H_1_5, maxInstances);
         }
 
         /**
@@ -857,7 +894,7 @@ public class PerformanceClassEvaluator {
                 .addRequiredValue(Build.VERSION_CODES.TIRAMISU, 6)
                 .build();
 
-            return new ConcurrentCodecRequirement(RequirementConstants.R5_1__H_1_5, maxInstances);
+            return create1080p(RequirementConstants.R5_1__H_1_5, maxInstances);
         }
 
         /**
@@ -879,8 +916,7 @@ public class PerformanceClassEvaluator {
                         / 2)
                 .build();
 
-            return new ConcurrentCodecRequirement(RequirementConstants.R5_1__H_1_6,
-                reqConcurrentFps);
+            return create720p(RequirementConstants.R5_1__H_1_6, reqConcurrentFps);
         }
 
         /**
@@ -896,8 +932,7 @@ public class PerformanceClassEvaluator {
                 .addRequiredValue(Build.VERSION_CODES.TIRAMISU, 6 * FPS_30_TOLERANCE / 2)
                 .build();
 
-            return new ConcurrentCodecRequirement(RequirementConstants.R5_1__H_1_6,
-                reqConcurrentFps);
+            return create1080p(RequirementConstants.R5_1__H_1_6, reqConcurrentFps);
         }
 
         /**
@@ -912,8 +947,7 @@ public class PerformanceClassEvaluator {
                 .addRequiredValue(Build.VERSION_CODES.TIRAMISU, 2 * FPS_30_TOLERANCE)
                 .build();
 
-            return new ConcurrentCodecRequirement(RequirementConstants.R5_1__H_1_9,
-                reqConcurrentFps);
+            return create1080p(RequirementConstants.R5_1__H_1_9, reqConcurrentFps);
         }
 
         /**
@@ -929,8 +963,7 @@ public class PerformanceClassEvaluator {
                 .addRequiredValue(Build.VERSION_CODES.TIRAMISU, 4 * FPS_30_TOLERANCE)
                 .build();
 
-            return new ConcurrentCodecRequirement(RequirementConstants.R5_1__H_1_10,
-                reqConcurrentFps);
+            return create1080p(RequirementConstants.R5_1__H_1_10, reqConcurrentFps);
         }
     }
 
@@ -1742,8 +1775,12 @@ public class PerformanceClassEvaluator {
         return this.addRequirement(AudioTap2ToneLatencyRequirement.createR5_6__H_1_1());
     }
 
+    private enum SubmitType {
+        TRADEFED, VERIFIER
+    }
+
     public void submitAndCheck() {
-        boolean perfClassMet = submit();
+        boolean perfClassMet = submit(SubmitType.TRADEFED);
 
         // check performance class
         assumeTrue("Build.VERSION.MEDIA_PERFORMANCE_CLASS is not declared", Utils.isPerfClass());
@@ -1751,20 +1788,34 @@ public class PerformanceClassEvaluator {
     }
 
     public void submitAndVerify() {
-        boolean perfClassMet = submit();
+        boolean perfClassMet = submit(SubmitType.VERIFIER);
 
         if (!perfClassMet && Utils.isPerfClass()) {
             Log.w(TAG, "Device did not meet specified performance class: " + Utils.getPerfClass());
         }
     }
 
-    public boolean submit() {
+    private boolean submit(SubmitType type) {
         boolean perfClassMet = true;
         for (Requirement req: this.mRequirements) {
-            perfClassMet &= req.writeLogAndCheck(this.mTestName);
+            switch (type) {
+                case VERIFIER:
+                    CtsVerifierReportLog verifierLog = new CtsVerifierReportLog(
+                            RequirementConstants.REPORT_LOG_NAME, req.id());
+                    perfClassMet &= req.writeLogAndCheck(verifierLog, this.mTestName);
+                    verifierLog.submit();
+                    break;
+
+                case TRADEFED:
+                default:
+                    DeviceReportLog tradefedLog = new DeviceReportLog(
+                            RequirementConstants.REPORT_LOG_NAME, req.id());
+                    perfClassMet &= req.writeLogAndCheck(tradefedLog, this.mTestName);
+                    tradefedLog.submit(InstrumentationRegistry.getInstrumentation());
+                    break;
+            }
         }
         this.mRequirements.clear(); // makes sure report isn't submitted twice
         return perfClassMet;
     }
-
 }
