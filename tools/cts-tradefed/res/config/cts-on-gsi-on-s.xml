@@ -31,9 +31,6 @@
 
     <!-- CtsMediaV2TestCases: b/257492672, b/257492847, b/258826057, b/241293905, b/257493109 -->
     <option name="compatibility:exclude-filter" value="CtsMediaV2TestCases android.mediav2.cts.CodecDecoderTest#testReconfigure" />
-    <option name="compatibility:exclude-filter" value="CtsMediaV2TestCases android.mediav2.cts.CodecDecoderTest#testSimpleDecode" />
-    <option name="compatibility:exclude-filter" value="CtsMediaV2TestCases android.mediav2.cts.CodecDecoderTest#testSimpleDecodeQueueCSD" />
-    <option name="compatibility:exclude-filter" value="CtsMediaV2TestCases android.mediav2.cts.CodecDecoderTest#testSimpleDecodeQueueCSDNative" />
     <!-- CtsOsTestCases: b/257553257 -->
     <option name="compatibility:exclude-filter" value="CtsOsTestCases android.os.cts.VibratorTest#testVibrateWaveformWithFrequencyStartsAndFinishesVibration" />
     <option name="compatibility:exclude-filter" value="CtsOsTestCases android.os.cts.VibratorTest#testVibratorFrequencyProfileSupportedFrequencyRange" />
