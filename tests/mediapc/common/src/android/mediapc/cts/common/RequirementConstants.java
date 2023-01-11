@@ -80,6 +80,7 @@ public class RequirementConstants {
     public static final String RTBD = "tbd"; // placeholder for requirements without a set id
 
     public static final String CONCURRENT_SESSIONS = "concurrent_sessions";
+    public static final String TEST_RESOLUTION = "resolution";
     public static final String CONCURRENT_FPS = "concurrent_fps";
     public static final String SUPPORTED_PERFORMANCE_POINTS = "supported_performance_points";
     public static final String FRAMES_DROPPED = "frame_drops_per_30sec";
