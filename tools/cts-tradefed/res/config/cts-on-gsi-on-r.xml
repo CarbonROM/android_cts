@@ -33,5 +33,9 @@
     <option name="compatibility:exclude-filter" value="CtsLocationPrivilegedTestCases android.location.cts.privileged.GnssLocationValuesTest#testLowPowerModeGnssLocation" />
     <!-- CtsMediaTranscodingTestCases: b/257522539 -->
     <option name="compatibility:exclude-filter" value="CtsMediaTranscodingTestCases android.media.mediatranscoding.cts.MediaTranscodingManagerTest#testAvcTranscoding1080PVideo30FramesWithoutAudio" />
+    <!-- CtsSecurityTestCases: b/241000034 -->
+    <option name="compatibility:exclude-filter" value="CtsSecurityTestCases android.security.cts.VerifiedBootTest#testVerifiedBootSupport" />
+    <!-- CtsKeystoreTestCases: b/218751802 -->
+    <option name="compatibility:exclude-filter" value="CtsKeystoreTestCases android.keystore.cts.KeyAttestationTest#testAttestationKmVersionMatchesFeatureVersionStrongBox" />
 
 </configuration>
