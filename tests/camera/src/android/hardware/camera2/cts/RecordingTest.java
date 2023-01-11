@@ -1240,7 +1240,27 @@ public class RecordingTest extends Camera2SurfaceViewTestCase {
                         int videoFrameRate = previewFrameRate > VIDEO_FRAME_RATE ?
                                 VIDEO_FRAME_RATE : previewFrameRate;
                         Log.v(TAG, "videoFrameRate:" + videoFrameRate);
-                        prepareRecording(size, videoFrameRate, captureRate);
+
+                        int cameraId = Integer.valueOf(mCamera.getId());
+                        int videoEncoder = MediaRecorder.VideoEncoder.H264;
+                        for (int profileId : mCamcorderProfileList) {
+                            if (CamcorderProfile.hasProfile(cameraId, profileId)) {
+                                CamcorderProfile profile =
+                                        CamcorderProfile.get(cameraId, profileId);
+
+                                if (profile.videoFrameHeight == size.getHeight() &&
+                                        profile.videoFrameWidth == size.getWidth() &&
+                                        profile.videoFrameRate == videoFrameRate) {
+                                    videoEncoder = profile.videoCodec;
+                                    // Since mCamcorderProfileList is a list representing different
+                                    // resolutions, we can break when a profile with the same
+                                    // dimensions as size is found
+                                    break;
+                                }
+                            }
+                        }
+
+                        prepareRecording(size, videoFrameRate, captureRate, videoEncoder);
 
                         SystemClock.sleep(PREVIEW_DURATION_MS);
 
@@ -1272,7 +1292,8 @@ public class RecordingTest extends Camera2SurfaceViewTestCase {
                         stopCameraStreaming();
                     }
                 }
-
+            } catch (NumberFormatException e) {
+                fail("Cannot convert cameraId " + mCamera.getId() + " to int");
             } finally {
                 closeDevice();
                 releaseRecorder();
@@ -1944,15 +1965,16 @@ public class RecordingTest extends Camera2SurfaceViewTestCase {
                         profile.videoFrameRate);
                 videoSnapshotRequestBuilder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
                         fpsRange);
-                if (mStaticInfo.isVideoStabilizationSupported()) {
-                    videoSnapshotRequestBuilder.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
-                            CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON);
+                boolean videoStabilizationSupported = mStaticInfo.isVideoStabilizationSupported();
+                if (videoStabilizationSupported) {
+                   videoSnapshotRequestBuilder.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
+                            mStaticInfo.getChosenVideoStabilizationMode());
                 }
                 CaptureRequest request = videoSnapshotRequestBuilder.build();
 
                 // Start recording
                 startRecording(/* useMediaRecorder */true, resultListener,
-                        /*useVideoStab*/mStaticInfo.isVideoStabilizationSupported());
+                        /*useVideoStab*/videoStabilizationSupported);
                 long startTime = SystemClock.elapsedRealtime();
 
                 // Record certain duration.
@@ -2182,6 +2204,17 @@ public class RecordingTest extends Camera2SurfaceViewTestCase {
     private void prepareRecording(Size sz, int videoFrameRate, int captureRate)
             throws Exception {
         // Prepare MediaRecorder.
+        prepareRecording(sz, videoFrameRate, captureRate, MediaRecorder.VideoEncoder.H264);
+    }
+
+    /**
+     * Configure MediaRecorder recording session with CamcorderProfile, prepare
+     * the recording surface. Use AAC for audio compression as required for
+     * android devices by android CDD.
+     */
+    private void prepareRecording(Size sz, int videoFrameRate, int captureRate,
+            int videoEncoder) throws Exception {
+        // Prepare MediaRecorder.
         mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -2190,7 +2223,7 @@ public class RecordingTest extends Camera2SurfaceViewTestCase {
         mMediaRecorder.setVideoFrameRate(videoFrameRate);
         mMediaRecorder.setCaptureRate(captureRate);
         mMediaRecorder.setVideoSize(sz.getWidth(), sz.getHeight());
-        mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+        mMediaRecorder.setVideoEncoder(videoEncoder);
         mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         if (mPersistentSurface != null) {
             mMediaRecorder.setInputSurface(mPersistentSurface);
@@ -2250,7 +2283,8 @@ public class RecordingTest extends Camera2SurfaceViewTestCase {
         recordingRequestBuilder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fpsRange);
         if (useVideoStab) {
             recordingRequestBuilder.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
-                    CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON);
+                    mStaticInfo.getChosenVideoStabilizationMode());
+
         }
         if (useIntermediateSurface) {
             recordingRequestBuilder.addTarget(mIntermediateSurface);
@@ -2303,7 +2337,7 @@ public class RecordingTest extends Camera2SurfaceViewTestCase {
         recordingRequestBuilder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fpsRange);
         if (useVideoStab) {
             recordingRequestBuilder.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
-                    CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON);
+                    mStaticInfo.getChosenVideoStabilizationMode());
         }
         CaptureRequest recordingRequest = recordingRequestBuilder.build();
 

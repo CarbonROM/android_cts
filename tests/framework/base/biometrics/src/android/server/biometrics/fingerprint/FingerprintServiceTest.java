@@ -252,12 +252,11 @@ public class FingerprintServiceTest extends ActivityManagerTestBase
             // and do not dispatch an acquired event via BiometricPrompt
             final boolean verifyPartial = !hasUdfps();
             if (verifyPartial) {
-                final String[] configs = Utils.getSensorConfiguration(mContext);
-                if (configs == null || configs.length == 0) {
-                    // AIDL HAL do not need config_biometric_sensors.
+                final int aidlSensorId = Utils.getAidlSensorId();
+                if (aidlSensorId >= 0 && testSessions.first().equals(
+                        testSessions.find(aidlSensorId))) {
                     testSessions.first().notifyAcquired(userId, 2 /* AcquiredInfo.PARTIAL */);
                 } else {
-                    // HIDL HAL requires config_biometric_sensors.
                     testSessions.first().notifyAcquired(userId,
                             FingerprintManager.FINGERPRINT_ACQUIRED_PARTIAL);
                 }
@@ -346,7 +345,7 @@ public class FingerprintServiceTest extends ActivityManagerTestBase
         for (SensorProperties prop : mSensorProperties) {
             BiometricTestSession session =
                     mFingerprintManager.createTestSession(prop.getSensorId());
-            testSessions.add(session);
+            testSessions.put(prop.getSensorId(), session);
 
             session.startEnroll(userId);
             mInstrumentation.waitForIdleSync();

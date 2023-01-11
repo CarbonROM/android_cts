@@ -17,6 +17,7 @@
 package android.server.wm;
 
 import static android.server.wm.ComponentNameUtils.getActivityName;
+import static android.server.wm.WindowMetricsTestHelper.getBoundsExcludingNavigationBarAndCutout;
 import static android.server.wm.app.Components.BackgroundActivityTransition.TRANSITION_REQUESTED;
 import static android.server.wm.app.Components.CUSTOM_TRANSITION_EXIT_ACTIVITY;
 
@@ -42,8 +43,6 @@ import org.junit.Before;
 import org.junit.Rule;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
 
 @Presubmit
 @android.server.wm.annotation.Group1
@@ -100,10 +99,10 @@ public class CustomActivityTransitionTestBase extends ActivityManagerTestBase {
             throw new RuntimeException(e);
         }
 
-        // The activity transition is set to last 5 seconds, wait half a second to make sure
-        // the activity transition has started after we receive confirmation through the test
+        // The activity transition is set to last 5 seconds, wait two and half a seconds to make
+        // sure the activity transition has started after we receive confirmation through the test
         // journal that we have requested to start a new activity.
-        SystemClock.sleep(500);
+        SystemClock.sleep(2500);
 
         // Take a screenshot during the transition where we hide both the activities to just
         // show the background of the transition which is set to be white.
@@ -111,7 +110,8 @@ public class CustomActivityTransitionTestBase extends ActivityManagerTestBase {
     }
 
     protected void assertAppRegionOfScreenIsColor(Bitmap screen, int color) {
-        final Rect fullyVisibleBounds = getActivityFullyVisibleRegion();
+        final Rect fullyVisibleBounds = getBoundsExcludingNavigationBarAndCutout(
+                mWm.getCurrentWindowMetrics());
 
         for (int x = 0; x < screen.getWidth(); x++) {
             for (int y = fullyVisibleBounds.top;
@@ -136,28 +136,6 @@ public class CustomActivityTransitionTestBase extends ActivityManagerTestBase {
                         0.03f); // need to allow for some variation stemming from conversions
             }
         }
-    }
-
-    protected Rect getActivityFullyVisibleRegion() {
-        final List<WindowManagerState.WindowState> windows = getWmState().getWindows();
-        Optional<WindowManagerState.WindowState> screenDecorOverlay =
-                windows.stream().filter(
-                        w -> w.getName().equals("ScreenDecorOverlay")).findFirst();
-        Optional<WindowManagerState.WindowState> screenDecorOverlayBottom =
-                windows.stream().filter(
-                        w -> w.getName().equals("ScreenDecorOverlayBottom")).findFirst();
-        getWmState().getWindowStateForAppToken("screenDecorOverlay");
-
-        final int screenDecorOverlayHeight = screenDecorOverlay.map(
-                WindowManagerState.WindowState::getRequestedHeight).orElse(0);
-        final int screenDecorOverlayBottomHeight = screenDecorOverlayBottom.map(
-                WindowManagerState.WindowState::getRequestedHeight).orElse(0);
-
-        final Rect activityBounds = getWmState().getActivity(CUSTOM_TRANSITION_EXIT_ACTIVITY)
-                .getBounds();
-
-        return new Rect(activityBounds.left, activityBounds.top + screenDecorOverlayHeight,
-                activityBounds.right, activityBounds.bottom - screenDecorOverlayBottomHeight);
     }
 
     private void setDefaultAnimationScale() {
