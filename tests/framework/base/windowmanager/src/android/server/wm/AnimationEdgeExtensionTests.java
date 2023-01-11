@@ -16,6 +16,7 @@
 
 package android.server.wm;
 
+import static android.server.wm.WindowMetricsTestHelper.getBoundsExcludingNavigationBarAndCutout;
 import static android.server.wm.app.Components.CustomTransitionAnimations.BOTTOM_EDGE_EXTENSION;
 import static android.server.wm.app.Components.CustomTransitionAnimations.LEFT_EDGE_EXTENSION;
 import static android.server.wm.app.Components.CustomTransitionAnimations.RIGHT_EDGE_EXTENSION;
@@ -57,7 +58,8 @@ public class AnimationEdgeExtensionTests extends CustomActivityTransitionTestBas
     @Test
     public void testLeftEdgeExtensionWorksDuringActivityTransition() {
         final Bitmap screenshot = runAndScreenshotTransition(LEFT_EDGE_EXTENSION);
-        final Rect fullyVisibleBounds = getActivityFullyVisibleRegion();
+        final Rect fullyVisibleBounds = getBoundsExcludingNavigationBarAndCutout(
+                mWm.getCurrentWindowMetrics());
         assertColorChangeXIndex(screenshot,
                 (fullyVisibleBounds.left + fullyVisibleBounds.right) / 4 * 3);
     }
@@ -76,7 +78,8 @@ public class AnimationEdgeExtensionTests extends CustomActivityTransitionTestBas
     @Test
     public void testTopEdgeExtensionWorksDuringActivityTransition() {
         final Bitmap screenshot = runAndScreenshotTransition(TOP_EDGE_EXTENSION);
-        final Rect fullyVisibleBounds = getActivityFullyVisibleRegion();
+        final Rect fullyVisibleBounds = getBoundsExcludingNavigationBarAndCutout(
+                mWm.getCurrentWindowMetrics());
         assertColorChangeXIndex(screenshot,
                 (fullyVisibleBounds.left + fullyVisibleBounds.right) / 2);
     }
@@ -94,7 +97,8 @@ public class AnimationEdgeExtensionTests extends CustomActivityTransitionTestBas
     @Test
     public void testRightEdgeExtensionWorksDuringActivityTransition() {
         final Bitmap screenshot = runAndScreenshotTransition(RIGHT_EDGE_EXTENSION);
-        final Rect fullyVisibleBounds = getActivityFullyVisibleRegion();
+        final Rect fullyVisibleBounds = getBoundsExcludingNavigationBarAndCutout(
+                mWm.getCurrentWindowMetrics());
         assertColorChangeXIndex(screenshot,
                 (fullyVisibleBounds.left + fullyVisibleBounds.right) / 4);
     }
@@ -114,7 +118,8 @@ public class AnimationEdgeExtensionTests extends CustomActivityTransitionTestBas
     @Test
     public void testBottomEdgeExtensionWorksDuringActivityTransition() {
         final Bitmap screenshot = runAndScreenshotTransition(BOTTOM_EDGE_EXTENSION);
-        final Rect fullyVisibleBounds = getActivityFullyVisibleRegion();
+        final Rect fullyVisibleBounds = getBoundsExcludingNavigationBarAndCutout(
+                mWm.getCurrentWindowMetrics());
         assertColorChangeXIndex(screenshot,
                 (fullyVisibleBounds.left + fullyVisibleBounds.right) / 2);
     }
@@ -126,7 +131,8 @@ public class AnimationEdgeExtensionTests extends CustomActivityTransitionTestBas
 
     private void assertColorChangeXIndex(Bitmap screen, int xIndex) {
         final int colorChangeXIndex = getColorChangeXIndex(screen);
-        final Rect fullyVisibleBounds = getActivityFullyVisibleRegion();
+        final Rect fullyVisibleBounds = getBoundsExcludingNavigationBarAndCutout(
+                mWm.getCurrentWindowMetrics());
         // Check to make sure the activity was scaled for an extension to be visible on screen
         assertEquals(xIndex, colorChangeXIndex);
 
@@ -168,8 +174,10 @@ public class AnimationEdgeExtensionTests extends CustomActivityTransitionTestBas
 
     private int getColorChangeXIndex(Bitmap screen) {
         // Look for color changing index at middle of app
+        Rect boundsExcludingNavBarAndCutout =
+                getBoundsExcludingNavigationBarAndCutout(mWm.getCurrentWindowMetrics());
         final int y =
-                (getActivityFullyVisibleRegion().top + getActivityFullyVisibleRegion().bottom) / 2;
+                (boundsExcludingNavBarAndCutout.top + boundsExcludingNavBarAndCutout.bottom) / 2;
 
         Color prevColor = screen.getColor(0, y)
                 .convert(ColorSpace.get(ColorSpace.Named.SRGB));
