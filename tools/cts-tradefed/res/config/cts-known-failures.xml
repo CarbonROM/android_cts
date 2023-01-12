@@ -305,6 +305,10 @@
     <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.TransitionSelectionTests#testOpenTask_BothWallpaper" />
     <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases android.server.wm.TransitionSelectionTests#testOpenTask_BottomWallpaper_TopNonResizable" />
 
+    <!-- b/212644293 -->
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerJetpackTestCases android.server.wm.jetpack.ActivityEmbeddingFinishTest#testFinishSecondary" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerJetpackTestCases android.server.wm.jetpack.ActivityEmbeddingFinishTest#testFinishPrimary" />
+
     <!-- b/224400993 -->
     <option name="compatibility:exclude-filter"
         value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedDeviceOwnerTest#testSuspendPackage" />
