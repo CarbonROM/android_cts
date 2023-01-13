@@ -43,6 +43,7 @@ import androidx.test.filters.FlakyTest;
 import com.android.compatibility.common.util.SystemUtil;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -66,6 +67,7 @@ public final class CarServiceHelperServiceUpdatableTest extends CarApiTestBase {
     }
 
     @Test
+    @Ignore("b/234674080")
     public void testCarServiceHelperServiceDump() throws Exception {
         assumeThat("System_server_dumper not implemented.",
                 executeShellCommand("service check system_server_dumper"),
