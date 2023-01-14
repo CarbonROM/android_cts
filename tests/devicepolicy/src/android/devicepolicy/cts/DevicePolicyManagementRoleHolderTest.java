@@ -148,24 +148,28 @@ public class DevicePolicyManagementRoleHolderTest {
         UserHandle profile = null;
         String roleHolderPackageName = null;
         try (TestAppInstance roleHolderApp = sRoleHolderApp.install()) {
-            roleHolderPackageName = roleHolderApp.packageName();
-            TestApis.devicePolicy().setDevicePolicyManagementRoleHolder(roleHolderPackageName);
+            try {
+                roleHolderPackageName = roleHolderApp.packageName();
+                TestApis.devicePolicy().setDevicePolicyManagementRoleHolder(roleHolderPackageName);
 
-            profile = sDevicePolicyManager.createAndProvisionManagedProfile(
-                    MANAGED_PROFILE_PROVISIONING_PARAMS);
+                profile = sDevicePolicyManager.createAndProvisionManagedProfile(
+                        MANAGED_PROFILE_PROVISIONING_PARAMS);
 
-            UserReference userReference = UserReference.of(profile);
-            Poll.forValue(() -> TestApis.packages().installedForUser(userReference))
-                    .toMeet(packages -> packages.contains(Package.of(roleHolderApp.packageName())))
-                    .errorOnFail("Role holder package not installed on the managed profile.")
-                    .await();
+                UserReference userReference = UserReference.of(profile);
+                Poll.forValue(() -> TestApis.packages().installedForUser(userReference))
+                        .toMeet(packages -> packages.contains(
+                                Package.of(roleHolderApp.packageName())))
+                        .errorOnFail("Role holder package not installed on the managed profile.")
+                        .await();
+            } finally {
+                if (roleHolderPackageName != null) {
+                    TestApis.devicePolicy()
+                            .unsetDevicePolicyManagementRoleHolder(roleHolderPackageName);
+                }
+            }
         } finally {
             if (profile != null) {
                 TestApis.users().find(profile).remove();
-            }
-            if (roleHolderPackageName != null) {
-                TestApis.devicePolicy()
-                        .unsetDevicePolicyManagementRoleHolder(roleHolderPackageName);
             }
         }
     }
@@ -182,28 +186,32 @@ public class DevicePolicyManagementRoleHolderTest {
         UserHandle managedUser = null;
         String roleHolderPackageName = null;
         try (TestAppInstance roleHolderApp = sRoleHolderApp.install()) {
-            roleHolderPackageName = roleHolderApp.packageName();
-            TestApis.devicePolicy().setDevicePolicyManagementRoleHolder(roleHolderPackageName);
+            try {
+                roleHolderPackageName = roleHolderApp.packageName();
+                TestApis.devicePolicy().setDevicePolicyManagementRoleHolder(roleHolderPackageName);
 
-            managedUser = sDeviceState.dpc().devicePolicyManager().createAndManageUser(
-                    RemoteDpc.DPC_COMPONENT_NAME,
-                    MANAGED_USER_NAME,
-                    RemoteDpc.DPC_COMPONENT_NAME,
-                    /* adminExtras= */ null,
-                    /* flags= */ 0);
+                managedUser = sDeviceState.dpc().devicePolicyManager().createAndManageUser(
+                        RemoteDpc.DPC_COMPONENT_NAME,
+                        MANAGED_USER_NAME,
+                        RemoteDpc.DPC_COMPONENT_NAME,
+                        /* adminExtras= */ null,
+                        /* flags= */ 0);
 
-            UserReference userReference = UserReference.of(managedUser);
-            Poll.forValue(() -> TestApis.packages().installedForUser(userReference))
-                    .toMeet(packages -> packages.contains(Package.of(roleHolderApp.packageName())))
-                    .errorOnFail("Role holder package not installed on the managed user.")
-                    .await();
+                UserReference userReference = UserReference.of(managedUser);
+                Poll.forValue(() -> TestApis.packages().installedForUser(userReference))
+                        .toMeet(packages -> packages.contains(
+                                Package.of(roleHolderApp.packageName())))
+                        .errorOnFail("Role holder package not installed on the managed user.")
+                        .await();
+            } finally {
+                if (roleHolderPackageName != null) {
+                    TestApis.devicePolicy()
+                            .unsetDevicePolicyManagementRoleHolder(roleHolderPackageName);
+                }
+            }
         } finally {
             if (managedUser != null) {
                 TestApis.users().find(managedUser).remove();
-            }
-            if (roleHolderPackageName != null) {
-                TestApis.devicePolicy()
-                        .unsetDevicePolicyManagementRoleHolder(roleHolderPackageName);
             }
         }
     }
@@ -218,20 +226,22 @@ public class DevicePolicyManagementRoleHolderTest {
     public void profileRemoved_roleHolderReceivesBroadcast() throws Exception {
         String roleHolderPackageName = null;
         try (TestAppInstance roleHolderApp = sRoleHolderApp.install()) {
-            roleHolderPackageName = roleHolderApp.packageName();
-            TestApis.devicePolicy().setDevicePolicyManagementRoleHolder(roleHolderPackageName);
-            UserHandle profile = sDevicePolicyManager.createAndProvisionManagedProfile(
-                    MANAGED_PROFILE_PROVISIONING_PARAMS);
+            try {
+                roleHolderPackageName = roleHolderApp.packageName();
+                TestApis.devicePolicy().setDevicePolicyManagementRoleHolder(roleHolderPackageName);
+                UserHandle profile = sDevicePolicyManager.createAndProvisionManagedProfile(
+                        MANAGED_PROFILE_PROVISIONING_PARAMS);
 
-            TestApis.users().find(profile).remove();
+                TestApis.users().find(profile).remove();
 
-            EventLogsSubject.assertThat(roleHolderApp.events().broadcastReceived()
-                            .whereIntent().action().isEqualTo(ACTION_MANAGED_PROFILE_REMOVED))
-                    .eventOccurred();
-        } finally {
-            if (roleHolderPackageName != null) {
-                TestApis.devicePolicy().unsetDevicePolicyManagementRoleHolder(
-                        roleHolderPackageName);
+                EventLogsSubject.assertThat(roleHolderApp.events().broadcastReceived()
+                                .whereIntent().action().isEqualTo(ACTION_MANAGED_PROFILE_REMOVED))
+                        .eventOccurred();
+            } finally {
+                if (roleHolderPackageName != null) {
+                    TestApis.devicePolicy().unsetDevicePolicyManagementRoleHolder(
+                            roleHolderPackageName);
+                }
             }
         }
     }
@@ -246,20 +256,23 @@ public class DevicePolicyManagementRoleHolderTest {
     public void profilePaused_roleHolderReceivesBroadcast() throws Exception {
         String roleHolderPackageName = null;
         try (TestAppInstance roleHolderApp = sRoleHolderApp.install()) {
-            roleHolderPackageName = roleHolderApp.packageName();
-            TestApis.devicePolicy().setDevicePolicyManagementRoleHolder(roleHolderPackageName);
-            UserHandle profile = sDevicePolicyManager.createAndProvisionManagedProfile(
-                    MANAGED_PROFILE_PROVISIONING_PARAMS);
+            try {
+                roleHolderPackageName = roleHolderApp.packageName();
+                TestApis.devicePolicy().setDevicePolicyManagementRoleHolder(roleHolderPackageName);
+                UserHandle profile = sDevicePolicyManager.createAndProvisionManagedProfile(
+                        MANAGED_PROFILE_PROVISIONING_PARAMS);
 
-            TestApis.users().find(profile).setQuietMode(true);
+                TestApis.users().find(profile).setQuietMode(true);
 
-            EventLogsSubject.assertThat(roleHolderApp.events().broadcastReceived()
-                            .whereIntent().action().isEqualTo(ACTION_MANAGED_PROFILE_UNAVAILABLE))
-                    .eventOccurred();
-        } finally {
-            if (roleHolderPackageName != null) {
-                TestApis.devicePolicy().unsetDevicePolicyManagementRoleHolder(
-                        roleHolderPackageName);
+                EventLogsSubject.assertThat(roleHolderApp.events().broadcastReceived()
+                                .whereIntent().action().isEqualTo(
+                                        ACTION_MANAGED_PROFILE_UNAVAILABLE))
+                        .eventOccurred();
+            } finally {
+                if (roleHolderPackageName != null) {
+                    TestApis.devicePolicy().unsetDevicePolicyManagementRoleHolder(
+                            roleHolderPackageName);
+                }
             }
         }
     }
@@ -274,21 +287,23 @@ public class DevicePolicyManagementRoleHolderTest {
     public void profileStarted_roleHolderReceivesBroadcast() throws Exception {
         String roleHolderPackageName = null;
         try (TestAppInstance roleHolderApp = sRoleHolderApp.install()) {
-            roleHolderPackageName = roleHolderApp.packageName();
-            TestApis.devicePolicy().setDevicePolicyManagementRoleHolder(roleHolderPackageName);
-            UserHandle profile = sDevicePolicyManager.createAndProvisionManagedProfile(
-                    MANAGED_PROFILE_PROVISIONING_PARAMS);
-            TestApis.users().find(profile).setQuietMode(true);
+            try {
+                roleHolderPackageName = roleHolderApp.packageName();
+                TestApis.devicePolicy().setDevicePolicyManagementRoleHolder(roleHolderPackageName);
+                UserHandle profile = sDevicePolicyManager.createAndProvisionManagedProfile(
+                        MANAGED_PROFILE_PROVISIONING_PARAMS);
+                TestApis.users().find(profile).setQuietMode(true);
 
-            TestApis.users().find(profile).setQuietMode(false);
+                TestApis.users().find(profile).setQuietMode(false);
 
-            EventLogsSubject.assertThat(roleHolderApp.events().broadcastReceived()
-                            .whereIntent().action().isEqualTo(ACTION_MANAGED_PROFILE_AVAILABLE))
-                    .eventOccurred();
-        } finally {
-            if (roleHolderPackageName != null) {
-                TestApis.devicePolicy().unsetDevicePolicyManagementRoleHolder(
-                        roleHolderPackageName);
+                EventLogsSubject.assertThat(roleHolderApp.events().broadcastReceived()
+                                .whereIntent().action().isEqualTo(ACTION_MANAGED_PROFILE_AVAILABLE))
+                        .eventOccurred();
+            } finally {
+                if (roleHolderPackageName != null) {
+                    TestApis.devicePolicy().unsetDevicePolicyManagementRoleHolder(
+                            roleHolderPackageName);
+                }
             }
         }
     }
