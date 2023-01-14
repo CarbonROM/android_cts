@@ -153,7 +153,7 @@ public class WindowInputTests {
             mView = new View(mActivity);
             p.width = 20;
             p.height = 20;
-            p.gravity = Gravity.LEFT | Gravity.TOP;
+            p.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
             mView.setFilterTouchesWhenObscured(true);
             mView.setOnClickListener((v) -> {
                 mClickCount++;
@@ -161,7 +161,7 @@ public class WindowInputTests {
             mActivity.addWindow(mView, p);
 
             View viewOverlap = new View(mActivity);
-            p.gravity = Gravity.RIGHT | Gravity.TOP;
+            p.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
             p.type = WindowManager.LayoutParams.TYPE_APPLICATION;
             mActivity.addWindow(viewOverlap, p);
         });
@@ -182,7 +182,7 @@ public class WindowInputTests {
                 mView = new View(mActivity);
                 p.width = 20;
                 p.height = 20;
-                p.gravity = Gravity.LEFT | Gravity.TOP;
+                p.gravity = Gravity.CENTER;
                 mView.setFilterTouchesWhenObscured(true);
                 mView.setOnClickListener((v) -> {
                     mClickCount++;
@@ -210,7 +210,7 @@ public class WindowInputTests {
             mView = new View(mActivity);
             p.width = 20;
             p.height = 20;
-            p.gravity = Gravity.LEFT | Gravity.TOP;
+            p.gravity = Gravity.CENTER;
             mView.setOnClickListener((v) -> {
                 mClickCount++;
             });
@@ -218,7 +218,7 @@ public class WindowInputTests {
 
             p.width = 100;
             p.height = 100;
-            p.gravity = Gravity.LEFT | Gravity.TOP;
+            p.gravity = Gravity.CENTER;
             p.type = WindowManager.LayoutParams.TYPE_APPLICATION;
             mActivity.addWindow(viewOverlap, p);
         });
