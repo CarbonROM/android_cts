@@ -20,7 +20,7 @@ package {
 }
 
 android_test_helper_app {
-    name: "CVE-2022-20347",
+    name: "TestBluetoothDiscoverable",
     defaults: [
         "cts_defaults",
     ],
