@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-package android.security.cts.CVE_2022_20347;
+package android.security.cts.TestBluetoothDiscoverable;
+
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 
-import androidx.test.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
+import androidx.test.uiautomator.BySelector;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
+
+import java.util.regex.Pattern;
 
 public class PocActivity extends Activity {
 
@@ -41,29 +44,36 @@ public class PocActivity extends Activity {
         super.onCreate(savedInstanceState);
         try {
             String action = getIntent().getStringExtra(getString(R.string.btAction));
-            UiDevice uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-            BluetoothManager bluetoothManager = getSystemService(BluetoothManager.class);
-            BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
             int code = getInteger(R.integer.enable);
             if (action.equals(BluetoothAdapter.ACTION_REQUEST_DISABLE)) {
                 code = getInteger(R.integer.disable);
             }
+            BluetoothManager bluetoothManager = getSystemService(BluetoothManager.class);
+            BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
             if ((action.equals(BluetoothAdapter.ACTION_REQUEST_ENABLE)
                     && !bluetoothAdapter.isEnabled())
                     || (action.equals(BluetoothAdapter.ACTION_REQUEST_DISABLE)
                             && bluetoothAdapter.isEnabled())) {
                 Intent btIntent = new Intent(action);
                 startActivityForResult(btIntent, code);
-                // Wait for the activity to appear and the allow button
-                uiDevice.wait(Until.hasObject(By.res(getString(R.string.allowButtonResName))),
-                        getInteger(R.integer.timeoutMs));
-                // Click on the allow button
-                UiObject2 uiObject =
-                        uiDevice.findObject(By.res(getString(R.string.allowButtonResName)));
+
+                // Wait for the 'Allow' button
+                String settingsPackageName = DeviceTest.getSettingsPkgName();
+                Resources settingsRes =
+                        getPackageManager().getResourcesForApplication(settingsPackageName);
+                int resIdentifier = settingsRes.getIdentifier(getString(R.string.allowButtonResKey),
+                        getString(R.string.resType), settingsPackageName);
+                String allowButtonText = settingsRes.getString(resIdentifier);
+                Pattern textPattern = Pattern.compile(allowButtonText, Pattern.CASE_INSENSITIVE);
+                BySelector selector = By.text(textPattern);
+                UiDevice uiDevice = UiDevice.getInstance(getInstrumentation());
+                uiDevice.wait(Until.hasObject(selector), getInteger(R.integer.timeoutMs));
+
+                // Click on the 'Allow' button to enable bluetooth as required by test
+                UiObject2 uiObject = uiDevice.findObject(selector);
                 uiObject.click();
             } else {
                 sendTestResult(getInteger(R.integer.success), "");
-                finish();
             }
         } catch (Exception e) {
             sendTestResult(getInteger(R.integer.assumptionFailure), e.getMessage());
@@ -74,30 +84,25 @@ public class PocActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         try {
             if (requestCode == getInteger(R.integer.enable) && resultCode == Activity.RESULT_OK) {
-                finish();
                 sendTestResult(getInteger(R.integer.enable), "");
             } else if (requestCode == getInteger(R.integer.disable)
                     && resultCode == Activity.RESULT_OK) {
-                finish();
                 sendTestResult(getInteger(R.integer.disable), "");
             }
         } catch (Exception e) {
-            // ignore exception here
+            // Ignore exception here
         }
     }
 
     void sendTestResult(int result, String message) {
         try {
-            SharedPreferences sh = getSharedPreferences(getString(R.string.sharedPreferences),
-                    Context.MODE_PRIVATE);
-            if (sh != null) {
-                SharedPreferences.Editor edit = sh.edit();
-                edit.putInt(getString(R.string.resultKey), result);
-                edit.putString(getString(R.string.messageKey), message);
-                edit.commit();
-            }
+            Intent intent = new Intent(getString(R.string.broadcastAction));
+            intent.putExtra(getString(R.string.resultKey), result);
+            intent.putExtra(getString(R.string.messageKey), message);
+            sendBroadcast(intent);
+            finish();
         } catch (Exception e) {
-            // ignore exception here
+            // Ignore exception here
         }
     }
 }
