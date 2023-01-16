@@ -34,6 +34,7 @@ import android.support.test.uiautomator.UiSelector
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.compatibility.common.util.DisableAnimationRule
 import com.android.compatibility.common.util.SystemUtil.*
+import com.android.sts.common.util.StsExtraBusinessLogicTestCase
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Assume.assumeFalse
@@ -56,7 +57,7 @@ private const val UNEXPECTED_TIMEOUT_MILLIS = 1000
 private const val TIMEOUT_MILLIS: Long = 20000
 private const val TV_MIC_INDICATOR_WINDOW_TITLE = "MicrophoneCaptureIndicator"
 
-class CameraMicIndicatorsPermissionTest {
+class CameraMicIndicatorsPermissionTest : StsExtraBusinessLogicTestCase {
     private val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = instrumentation.context
     private val uiAutomation: UiAutomation = instrumentation.uiAutomation
@@ -75,6 +76,8 @@ class CameraMicIndicatorsPermissionTest {
 
     @get:Rule
     val disableAnimationRule = DisableAnimationRule()
+
+    constructor() : super()
 
     @Before
     fun setUp() {
@@ -160,7 +163,7 @@ class CameraMicIndicatorsPermissionTest {
     }
 
     @Test
-    @AsbSecurityTest(cveBugId = [242537498])
+    @AsbSecurityTest(cveBugId = [258672042])
     fun testMicIndicatorWithManualFinishOpStillShows() {
         testCameraAndMicIndicator(useMic = true, useCamera = false, finishEarly = true)
     }
