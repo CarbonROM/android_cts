@@ -16,7 +16,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="android.security.cts.CVE_2022_20347">
+    package="android.security.cts.TestBluetoothDiscoverable">
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
@@ -31,5 +31,5 @@
     </application>
     <instrumentation
         android:name="androidx.test.runner.AndroidJUnitRunner"
-        android:targetPackage="android.security.cts.CVE_2022_20347" />
+        android:targetPackage="android.security.cts.TestBluetoothDiscoverable" />
 </manifest>
