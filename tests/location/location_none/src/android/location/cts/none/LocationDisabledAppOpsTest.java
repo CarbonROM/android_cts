@@ -91,22 +91,22 @@ public class LocationDisabledAppOpsTest {
                         runWithShellPermissionIdentity(() -> {
                             mode[0] = mAom.noteOpNoThrow(
                                     OPSTR_FINE_LOCATION, ai.uid, ai.packageName);
+                            if (mode[0] == MODE_ALLOWED && !ignoreList.containsAll(pi.packageName)
+                                    && !mLm.isProviderPackage(null, pi.packageName, null)) {
+                                bypassedNoteOps.add(pi.packageName);
+                            }
                         });
-                        if (mode[0] == MODE_ALLOWED && !ignoreList.containsAll(pi.packageName)
-                                && !mLm.isProviderPackage(null, pi.packageName, null)) {
-                            bypassedNoteOps.add(pi.packageName);
-                        }
 
 
                         mode[0] = MODE_ALLOWED;
                         runWithShellPermissionIdentity(() -> {
                             mode[0] = mAom
                                     .checkOpNoThrow(OPSTR_FINE_LOCATION, ai.uid, ai.packageName);
+                            if (mode[0] == MODE_ALLOWED && !ignoreList.includes(pi.packageName)
+                                    && !mLm.isProviderPackage(null, pi.packageName, null)) {
+                                bypassedCheckOps.add(pi.packageName);
+                            }
                         });
-                        if (mode[0] == MODE_ALLOWED && !ignoreList.includes(pi.packageName)
-                                && !mLm.isProviderPackage(null, pi.packageName, null)) {
-                            bypassedCheckOps.add(pi.packageName);
-                        }
 
                     }
                 }
