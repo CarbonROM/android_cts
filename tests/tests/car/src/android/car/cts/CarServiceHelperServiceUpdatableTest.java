@@ -16,6 +16,8 @@
 
 package android.car.cts;
 
+import static com.android.compatibility.common.util.SystemUtil.eventually;
+
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -35,8 +37,8 @@ import android.os.SystemClock;
 import android.os.UserManager;
 import android.util.Log;
 
-import androidx.test.filters.FlakyTest;
 import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.FlakyTest;
 
 import com.android.compatibility.common.util.SystemUtil;
 
@@ -81,17 +83,17 @@ public final class CarServiceHelperServiceUpdatableTest extends CarApiTestBase {
         try {
             executeShellCommand("cmd car_service emulate-driving-state drive");
 
-            assertWithMessage("CarServiceHelperService dump")
+            eventually(()-> assertWithMessage("CarServiceHelperService dump")
                     .that(executeShellCommand(
                             "dumpsys system_server_dumper --name CarServiceHelper"))
-                    .contains("Safe to run device policy operations: false");
+                    .contains("Safe to run device policy operations: false"));
         } finally {
             executeShellCommand("cmd car_service emulate-driving-state park");
         }
 
-        assertWithMessage("CarServiceHelperService dump")
+        eventually(()-> assertWithMessage("CarServiceHelperService dump")
                 .that(executeShellCommand("dumpsys system_server_dumper --name CarServiceHelper"))
-                .contains("Safe to run device policy operations: true");
+                .contains("Safe to run device policy operations: true"));
 
         // Test dumpServiceStacks
         assertWithMessage("CarServiceHelperService dump")
@@ -144,7 +146,8 @@ public final class CarServiceHelperServiceUpdatableTest extends CarApiTestBase {
         // check for the logcat
         // TODO(b/210874444): Use logcat helper from
         // cts/tests/tests/car_builtin/src/android/car/cts/builtin/util/LogcatHelper.java
-        String match = "car_service_on_user_removed: " + userId;
+        String match = String.format("car_service_on_user_lifecycle: [%d,%d,%d]", 9,
+                -10000, userId);
         long timeout = 60_000;
         long startTime = SystemClock.elapsedRealtime();
         UiAutomation automation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
