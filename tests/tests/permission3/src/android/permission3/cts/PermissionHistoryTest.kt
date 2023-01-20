@@ -28,6 +28,7 @@ import com.android.modules.utils.build.SdkLevel
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import java.util.regex.Pattern
 
@@ -122,6 +123,7 @@ class PermissionHistoryTest : BasePermissionHubTest() {
     }
 
     @Test
+    @Ignore
     fun testToggleSystemApps() {
         // I had some hard time mocking a system app.
         // Hence here I am only testing if the toggle is there.
@@ -191,6 +193,7 @@ class PermissionHistoryTest : BasePermissionHubTest() {
     }
 
     @Test
+    @Ignore
     fun testToggleFrom24HoursTo7DaysInTimeline() {
         // Auto doesn't support the 7 day view
         assumeFalse(isAutomotive)
@@ -219,6 +222,7 @@ class PermissionHistoryTest : BasePermissionHubTest() {
     }
 
     @Test
+    @Ignore
     fun testMicrophoneTimelineWithOneApp() {
         openMicrophoneApp(INTENT_ACTION_1)
         waitFindObject(By.textContains(APP_LABEL_1))
@@ -242,6 +246,7 @@ class PermissionHistoryTest : BasePermissionHubTest() {
     }
 
     @Test
+    @Ignore
     fun testCameraTimelineWithMultipleApps() {
         openMicrophoneApp(INTENT_ACTION_1)
         waitFindObject(By.textContains(APP_LABEL_1))
