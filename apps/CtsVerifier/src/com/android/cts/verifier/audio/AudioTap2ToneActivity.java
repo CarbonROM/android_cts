@@ -16,6 +16,11 @@
 
 package com.android.cts.verifier.audio;
 
+import static com.android.cts.verifier.TestListActivity.sCurrentDisplayMode;
+import static com.android.cts.verifier.TestListAdapter.setTestNameSuffix;
+
+import android.mediapc.cts.common.PerformanceClassEvaluator;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -46,6 +51,7 @@ import org.hyphonate.megaaudio.player.JavaSourceProxy;
 import org.hyphonate.megaaudio.recorder.AudioSinkProvider;
 import org.hyphonate.megaaudio.recorder.sinks.AppCallback;
 import org.hyphonate.megaaudio.recorder.sinks.AppCallbackAudioSinkProvider;
+import org.junit.rules.TestName;
 
 /**
  * CtsVerifier test to measure tap-to-tone latency.
@@ -143,6 +149,8 @@ public class AudioTap2ToneActivity
     private static final String KEY_LATENCY_MAX = "latency_max_";
     private static final String KEY_LATENCY_AVE = "latency_max_";
     private static final String KEY_LATENCY_NUM_MEASUREMENTS = "latency_num_measurements_";
+
+    public final TestName testName = new TestName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -503,6 +511,54 @@ public class AudioTap2ToneActivity
         stopAudio();
         recordTestStatus();
         super.setTestResultAndFinish(passed);
+    }
+
+    private void reportTestResultForApi(int api) {
+        CtsVerifierReportLog reportLog = getReportLog();
+        reportLog.addValue(
+                KEY_LATENCY_MIN + api,
+                mLatencyMin[api],
+                ResultType.NEUTRAL,
+                ResultUnit.NONE);
+        reportLog.addValue(
+                KEY_LATENCY_MAX + api,
+                mLatencyMax[api],
+                ResultType.NEUTRAL,
+                ResultUnit.NONE);
+        reportLog.addValue(
+                KEY_LATENCY_AVE + api,
+                mLatencyAve[api],
+                ResultType.NEUTRAL,
+                ResultUnit.NONE);
+        reportLog.addValue(
+                KEY_LATENCY_NUM_MEASUREMENTS + api,
+                mNumMeasurements[api],
+                ResultType.NEUTRAL,
+                ResultUnit.NONE);
+    }
+
+    /** Records perf class results and returns if mpc is met */
+    private void recordPerfClassResults() {
+        PerformanceClassEvaluator pce = new PerformanceClassEvaluator(testName);
+        PerformanceClassEvaluator.AudioTap2ToneLatencyRequirement r5_6__h_1_1 =
+                pce.addR5_6__H_1_1();
+
+        r5_6__h_1_1.setNativeLatency(mLatencyAve[TEST_API_NATIVE]);
+        r5_6__h_1_1.setJavaLatency(mLatencyAve[TEST_API_JAVA]);
+
+        pce.submitAndVerify();
+    }
+
+    @Override
+    public void recordTestResults() {
+        Log.i(TAG, "recordTestResults()");
+
+        reportTestResultForApi(TEST_API_NATIVE);
+        reportTestResultForApi(TEST_API_JAVA);
+
+        getReportLog().submit();
+
+        recordPerfClassResults();
     }
 
     //
