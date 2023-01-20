@@ -2925,6 +2925,7 @@ public class ExtendedCameraCharacteristicsTest extends Camera2AndroidTestCase {
      * in CDD camera section 7.5
      */
     @Test
+    @AppModeFull(reason = "DeviceStateManager is not accessible to instant apps")
     @CddTest(requirements = {
             "2.2.7.2/7.5/H-1-1",
             "2.2.7.2/7.5/H-1-2",

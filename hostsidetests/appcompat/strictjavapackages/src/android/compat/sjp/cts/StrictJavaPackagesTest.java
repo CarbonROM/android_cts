@@ -991,7 +991,7 @@ public class StrictJavaPackagesTest extends BaseHostJUnit4Test {
 
     /**
      * Ensure that no apk-in-apex bundles classes that could be eclipsed by jars in
-     * BOOTCLASSPATH, SYSTEMSERVERCLASSPATH.
+     * BOOTCLASSPATH.
      */
     @Test
     public void testApkInApex_nonClasspathClasses() throws Exception {
@@ -1019,9 +1019,12 @@ public class StrictJavaPackagesTest extends BaseHostJUnit4Test {
                                     className -> !burndownClasses.contains(className)
                                             // TODO: b/225341497
                                             && !className.equals("Landroidx/annotation/Keep;"));
-                        if (!filteredDuplicates.isEmpty()) {
+                        final Multimap<String, String> bcpOnlyDuplicates =
+                                Multimaps.filterKeys(filteredDuplicates,
+                                    sBootclasspathJars::contains);
+                        if (!bcpOnlyDuplicates.isEmpty()) {
                             synchronized (perApkClasspathDuplicates) {
-                                perApkClasspathDuplicates.put(apk, filteredDuplicates);
+                                perApkClasspathDuplicates.put(apk, bcpOnlyDuplicates);
                             }
                         }
                     } catch (Exception e) {

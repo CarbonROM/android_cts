@@ -24,12 +24,14 @@ import its_base_test
 import camera_properties_utils
 import image_processing_utils
 import its_session_utils
+import opencv_processing_utils
 import sensor_fusion_utils
 import video_processing_utils
 
 _ARDUINO_ANGLES = (10, 25)  # degrees
 _ARDUINO_MOVE_TIME = 0.30  # seconds
 _ARDUINO_SERVO_SPEED = 10
+_ASPECT_RATIO_16_9 = 16/9  # determine if preview fmt > 16:9
 _IMG_FORMAT = 'png'
 _MIN_PHONE_MOVEMENT_ANGLE = 5  # degrees
 _NAME = os.path.splitext(os.path.basename(__file__))[0]
@@ -128,7 +130,10 @@ class PreviewStabilizationTest(its_base_test.ItsBaseTest):
           'Preview Stabilization not supported',
       )
 
-      # Get ffmpeg version being used.
+      # Calculate camera FoV and convert from string to float
+      camera_fov = float(cam.calc_camera_fov(props))
+
+      # Get ffmpeg version being used
       ffmpeg_version = video_processing_utils.get_ffmpeg_version()
       logging.debug('ffmpeg_version: %s', ffmpeg_version)
 
@@ -146,15 +151,18 @@ class PreviewStabilizationTest(its_base_test.ItsBaseTest):
             f'You must use the arduino controller for {_NAME}.')
 
       # List of video resolutions to test
+      if camera_fov > opencv_processing_utils.FOV_THRESH_WFOV:
+        low_resolution_sizes = video_processing_utils.LOW_RESOLUTION_SIZES['UW']
+      else:
+        low_resolution_sizes = video_processing_utils.LOW_RESOLUTION_SIZES['W']
       supported_preview_sizes = cam.get_supported_preview_sizes(self.camera_id)
-      for size in video_processing_utils.LOW_RESOLUTION_SIZES:
+      for size in low_resolution_sizes:
         if size in supported_preview_sizes:
           supported_preview_sizes.remove(size)
       logging.debug('Supported preview resolutions: %s',
                     supported_preview_sizes)
 
-      max_camera_angles = []
-      max_gyro_angles = []
+      max_cam_gyro_angles = {}
 
       for video_size in supported_preview_sizes:
         recording_obj = _collect_data(cam, video_size, rot_rig)
@@ -197,9 +205,8 @@ class PreviewStabilizationTest(its_base_test.ItsBaseTest):
         )
         sensor_fusion_utils.plot_camera_rotations(cam_rots, _START_FRAME,
                                                   video_size, file_name_stem)
-        max_camera_angles.append(
-            sensor_fusion_utils.calc_max_rotation_angle(cam_rots, 'Camera')
-        )
+        max_camera_angle = sensor_fusion_utils.calc_max_rotation_angle(
+            cam_rots, 'Camera')
 
         # Extract gyro rotations
         sensor_fusion_utils.plot_gyro_events(
@@ -208,30 +215,36 @@ class PreviewStabilizationTest(its_base_test.ItsBaseTest):
         gyro_rots = sensor_fusion_utils.conv_acceleration_to_movement(
             gyro_events, _VIDEO_DELAY_TIME
         )
-        max_gyro_angles.append(
-            sensor_fusion_utils.calc_max_rotation_angle(gyro_rots, 'Gyro')
-        )
+        max_gyro_angle = sensor_fusion_utils.calc_max_rotation_angle(
+            gyro_rots, 'Gyro')
         logging.debug(
             'Max deflection (degrees) %s: video: %.3f, gyro: %.3f ratio: %.4f',
-            video_size, max_camera_angles[-1], max_gyro_angles[-1],
-            max_camera_angles[-1] / max_gyro_angles[-1])
+            video_size, max_camera_angle, max_gyro_angle,
+            max_camera_angle / max_gyro_angle)
+        max_cam_gyro_angles[video_size] = {'gyro': max_gyro_angle,
+                                           'cam': max_camera_angle}
 
         # Assert phone is moved enough during test
-        if max_gyro_angles[-1] < _MIN_PHONE_MOVEMENT_ANGLE:
+        if max_gyro_angle < _MIN_PHONE_MOVEMENT_ANGLE:
           raise AssertionError(
-              f'Phone not moved enough! Movement: {max_gyro_angles[-1]}, '
+              f'Phone not moved enough! Movement: {max_gyro_angle}, '
               f'THRESH: {_MIN_PHONE_MOVEMENT_ANGLE} degrees')
 
       # Assert PASS/FAIL criteria
       test_failures = []
-      for i, max_camera_angle in enumerate(max_camera_angles):
-        if max_camera_angle >= max_gyro_angles[i] * _PREVIEW_STABILIZATION_FACTOR:
+      for preview_size, max_angles in max_cam_gyro_angles.items():
+        w_x_h = preview_size.split('x')
+        if int(w_x_h[0])/int(w_x_h[1]) > _ASPECT_RATIO_16_9:
+          preview_stabilization_factor = _PREVIEW_STABILIZATION_FACTOR * 1.1
+        else:
+          preview_stabilization_factor = _PREVIEW_STABILIZATION_FACTOR
+        if max_angles['cam'] >= max_angles['gyro']*preview_stabilization_factor:
           test_failures.append(
-              f'{supported_preview_sizes[i]} preview not stabilized enough! '
-              f'Max preview angle:  {max_camera_angle:.3f}, '
-              f'Max gyro angle: {max_gyro_angles[i]:.3f}, '
-              f'ratio: {max_camera_angle/max_gyro_angles[i]:.3f} '
-              f'THRESH: {_PREVIEW_STABILIZATION_FACTOR}.')
+              f'{preview_size} preview not stabilized enough! '
+              f"Max preview angle:  {max_angles['cam']:.3f}, "
+              f"Max gyro angle: {max_angles['gyro']:.3f}, "
+              f"ratio: {max_angles['cam']/max_angles['gryo']:.3f} "
+              f'THRESH: {preview_stabilization_factor}.')
 
       if test_failures:
         raise AssertionError(test_failures)

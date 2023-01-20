@@ -43,6 +43,7 @@ import android.view.WindowMetrics;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.window.extensions.core.util.function.Predicate;
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent;
 import androidx.window.extensions.embedding.SplitInfo;
 import androidx.window.extensions.embedding.SplitPairRule;
@@ -54,7 +55,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 /**
  * Utility class for activity embedding tests.
@@ -69,18 +69,17 @@ public class ActivityEmbeddingUtil {
 
     @NonNull
     public static SplitPairRule createWildcardSplitPairRule(boolean shouldClearTop) {
-        // Any activity be split with any activity
-        final Predicate<Pair<Activity, Activity>> activityPairPredicate =
-                activityActivityPair -> true;
-        // Any activity can launch any split intent
-        final Predicate<Pair<Activity, Intent>> activityIntentPredicate =
-                activityIntentPair -> true;
-        // Allow any parent bounds to show the split containers side by side
-        Predicate<WindowMetrics> parentWindowMetricsPredicate = windowMetrics -> true;
         // Build the split pair rule
-        return new SplitPairRule.Builder(activityPairPredicate,
-                activityIntentPredicate, parentWindowMetricsPredicate).setSplitRatio(
-                DEFAULT_SPLIT_RATIO).setShouldClearTop(shouldClearTop).build();
+        return createSplitPairRuleBuilderWithJava8Predicate(
+                // Any activity be split with any activity
+                activityActivityPair -> true,
+                // Any activity can launch any split intent
+                activityIntentPair -> true,
+                // Allow any parent bounds to show the split containers side by side
+                windowMetrics -> true)
+                .setSplitRatio(DEFAULT_SPLIT_RATIO)
+                .setShouldClearTop(shouldClearTop)
+                .build();
     }
 
     @NonNull
@@ -93,23 +92,39 @@ public class ActivityEmbeddingUtil {
     @NonNull
     public static SplitPairRule.Builder createWildcardSplitPairRuleBuilderWithPrimaryActivityClass(
             Class<? extends Activity> activityClass, boolean shouldClearTop) {
-        // The specified activity be split any activity
-        final Predicate<Pair<Activity, Activity>> activityPairPredicate =
-                activityActivityPair -> activityActivityPair.first.getClass().equals(activityClass);
-        // The specified activity can launch any split intent
-        final Predicate<Pair<Activity, Intent>> activityIntentPredicate =
-                activityIntentPair -> activityIntentPair.first.getClass().equals(activityClass);
-        // Allow any parent bounds to show the split containers side by side
-        Predicate<WindowMetrics> parentWindowMetricsPredicate = windowMetrics -> true;
         // Build the split pair rule
-        return new SplitPairRule.Builder(activityPairPredicate,
-                activityIntentPredicate, parentWindowMetricsPredicate).setSplitRatio(
-                DEFAULT_SPLIT_RATIO).setShouldClearTop(shouldClearTop);
+        return createSplitPairRuleBuilderWithJava8Predicate(
+                // The specified activity be split any activity
+                activityActivityPair -> activityActivityPair.first.getClass().equals(activityClass),
+                // The specified activity can launch any split intent
+                activityIntentPair -> activityIntentPair.first.getClass().equals(activityClass),
+                // Allow any parent bounds to show the split containers side by side
+                windowMetrics -> true)
+                .setSplitRatio(DEFAULT_SPLIT_RATIO)
+                .setShouldClearTop(shouldClearTop);
     }
 
     @NonNull
     public static SplitPairRule createWildcardSplitPairRule() {
         return createWildcardSplitPairRule(false /* shouldClearTop */);
+    }
+
+    /**
+     * A wrapper to create {@link SplitPairRule} builder with Java 8 Predicate to prevent ambiguous
+     * issue when using lambda expressions.
+     * <p>
+     * It should only be used if
+     * {@link #createSplitPairRuleBuilder(Predicate, Predicate, Predicate)} cannot be called prior
+     * to {@link ExtensionUtil#EXTENSION_VERSION_2}.
+     */
+    @NonNull
+    public static SplitPairRule.Builder createSplitPairRuleBuilderWithJava8Predicate(
+            @NonNull java.util.function.Predicate<Pair<Activity, Activity>> activitiesPairPredicate,
+            @NonNull java.util.function.Predicate<Pair<Activity, Intent>>
+                    activityIntentPairPredicate,
+            @NonNull java.util.function.Predicate<WindowMetrics> windowMetricsPredicate) {
+        return new SplitPairRule.Builder(activitiesPairPredicate, activityIntentPairPredicate,
+                windowMetricsPredicate);
     }
 
     public static TestActivity startActivityAndVerifyNotSplit(
