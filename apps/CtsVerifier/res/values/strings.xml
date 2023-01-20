@@ -312,9 +312,9 @@
     <string name="clipboard_preview_test_instructions">
         Press the \'Copy\' button to copy the secret code to the clipboard.
         \n\nDo not press any other buttons or tap the clipboard UI after you press the \'Copy\' button.
-        \n\n If nothing happens, press Fail.
         \n\n If you see the word "FAIL" appear on screen, press Fail.
         \n\n If you see a confirmation that content has been copied to the clipboard, press Pass.
+        \n\n If nothing happens, press Fail if this is a handheld device, otherwise press Pass.
     </string>
     <string name="clipboard_preview_test_secret">FAIL</string>
     <string name="clipboard_preview_test_copy_button">Copy</string>
@@ -2491,9 +2491,6 @@
     <string name="tiles_request_dismissed">After pressing \"Start request\", a dialog will appear
         requesting to add a quick settings tile. When it appears, dismiss it by tapping outside of
         it, or going back.</string>
-    <string name="tiles_request_answer_no">After pressing \"Start request\", a dialog will appear
-        requesting to add a quick settings tile. When it appears, tap the option in the dialog to
-        not add the tile.</string>
     <string name="tiles_request_correct_info">After pressing \"Start request\", a dialog will appear
         requesting to add a quick settings tile. When it appears, verify the following information
         in the dialog:\n
@@ -5468,6 +5465,8 @@ You should be prompted to select credentials; choose the ones you just installed
     <string name="audio_general_pass">PASS</string>
     <string name="audio_general_fail">FAIL</string>
     <string name="audio_general_not_tested">Not Tested</string>
+    <string name="audio_general_not_required">Please Test If Supported</string>
+    <string name="audio_general_required">Required</string>
 
     <string name="audio_general_Input">Input</string>
     <string name="audio_general_Output">Output</string>
