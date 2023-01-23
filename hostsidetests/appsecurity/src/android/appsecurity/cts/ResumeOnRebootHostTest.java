@@ -303,7 +303,11 @@ public class ResumeOnRebootHostTest extends BaseHostJUnit4Test {
     }
 
     private void deviceRequestLskf() throws Exception {
-        String res = getDevice().executeShellCommand("cmd recovery request-lskf cts-test1");
+        deviceRequestLskf(PKG);
+    }
+
+    private void deviceRequestLskf(String clientName) throws Exception {
+        String res = getDevice().executeShellCommand("cmd recovery request-lskf " + clientName);
         if (res == null || !res.contains("success")) {
             fail("could not set up recovery request-lskf");
         }
