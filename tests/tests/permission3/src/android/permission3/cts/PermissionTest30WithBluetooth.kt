@@ -117,6 +117,8 @@ class PermissionTest30WithBluetooth : BaseUsePermissionTest() {
 
     @Test
     fun testGivenBluetoothIsDeniedWhenScanIsAttemptedThenThenGetEmptyScanResult() {
+        assumeTrue(supportsBluetoothLe())
+
         assertTrue("Please enable location to run this test. Bluetooth scanning " +
                 "requires location to be enabled.", locationManager.isLocationEnabled())
 
@@ -171,6 +173,9 @@ class PermissionTest30WithBluetooth : BaseUsePermissionTest() {
 
     private fun supportsBluetooth(): Boolean =
         context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)
+
+    private fun supportsBluetoothLe(): Boolean =
+        context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
 
     private fun enableTestMode() = runShellCommandOrThrow("dumpsys activity service" +
         " com.android.bluetooth/.btservice.AdapterService set-test-mode enabled")
