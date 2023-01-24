@@ -312,9 +312,9 @@
     <string name="clipboard_preview_test_instructions">
         Press the \'Copy\' button to copy the secret code to the clipboard.
         \n\nDo not press any other buttons or tap the clipboard UI after you press the \'Copy\' button.
-        \n\n If nothing happens, press Fail.
         \n\n If you see the word "FAIL" appear on screen, press Fail.
         \n\n If you see a confirmation that content has been copied to the clipboard, press Pass.
+        \n\n If nothing happens, press Fail if this is a handheld device, otherwise press Pass.
     </string>
     <string name="clipboard_preview_test_secret">FAIL</string>
     <string name="clipboard_preview_test_copy_button">Copy</string>
@@ -395,7 +395,7 @@
     <string name="read_logs_fg_allow_text">User Consent for Device Logs Allow in Foreground Test</string>
     <string name="read_logs_fg_deny_text">User Consent for Device Logs Deny in Foreground Test</string>
     <string name="read_logs_bg_text">User Consent for Device Logs in Instrumentation Test</string>
-    <string name="read_logs_test_info">"This test verifies that user consent for per-use prompt is working properly.\nThe test assumes READ_LOGS permission is granted to the app.\nStart this test by clicking User Consent for Device Logs Allow(Deny) in Foreground Test button.\nWhen the process is running in foreground, a user will see a prompt. Once a user clicks the prompt, users have an option to choose \"Allow one-time access\" or \"Don\'t Allow\". Please proceed with one option. "When the process is running in background, logd access will be denied.</string>
+    <string name="read_logs_test_info">This test verifies that user consent for per-use prompt is working properly.\nThe test assumes READ_LOGS permission is granted to the app.\nStart this test by clicking \"User Consent for Device Logs Allow in Foreground Test\" button.\nWhen the process is running in foreground, a user will see a prompt. Once a user clicks the prompt, users have an option to choose \"Allow one-time access\" or \"Don\'t Allow\". Choose \"Allow one-time access\" for the \"ALLOW\" test case and \"Don\'t Allow\" for the \"DENY\" test case.\nThe test results can be judged by the adb logcat prints from command \"adb logcat -b all -s ReadLogsTestActivity:*\"\n\"ReadLogsTestActivity: Logcat system allow log contains e.g.: true lineCount: 11 larger than: true\" shows the success of the \"ALLOW\" test case and\n\"ReadLogsTestActivity: Logcat system deny line count:0\" shows the success of the \"DENY\" test case.</string>
 
     <!-- Strings for lock bound keys test -->
     <string name="sec_lock_bound_key_test">Lock Bound Keys Test</string>
@@ -2491,9 +2491,6 @@
     <string name="tiles_request_dismissed">After pressing \"Start request\", a dialog will appear
         requesting to add a quick settings tile. When it appears, dismiss it by tapping outside of
         it, or going back.</string>
-    <string name="tiles_request_answer_no">After pressing \"Start request\", a dialog will appear
-        requesting to add a quick settings tile. When it appears, tap the option in the dialog to
-        not add the tile.</string>
     <string name="tiles_request_correct_info">After pressing \"Start request\", a dialog will appear
         requesting to add a quick settings tile. When it appears, verify the following information
         in the dialog:\n
@@ -3750,14 +3747,8 @@ You should be prompted to select credentials; choose the ones you just installed
     </string>
     <string name="device_owner_remove_device_owner_test">Remove device owner</string>
     <string name="device_owner_remove_device_owner_test_info">
-            Please check in Settings &gt; Security &gt; Device Administrators if CTSVerifier is
-            Device Owner. Then press the button below, and check that CTSVerifier is NOT Device
-            Owner anymore.
-    </string>
-    <string name="device_owner_remove_device_owner_test_info_on_tv">
-            Please check in Settings &gt; Privacy &gt; Security &amp; Restrictions &gt; Device Administrators if CTSVerifier is
-            Device Owner. Then press the button below, and check that CTSVerifier is NOT Device
-            Owner anymore.
+            Please press the Go button to check whether CTSVerifier is Device Owner. Then press the Remove Device Owner button,
+            and check that CTSVerifier is NOT Device Owner anymore.
     </string>
     <string name="remove_device_owner_button">Remove device owner</string>
     <string name="device_owner_check_device_owner_test">Check device owner</string>
@@ -5474,6 +5465,8 @@ You should be prompted to select credentials; choose the ones you just installed
     <string name="audio_general_pass">PASS</string>
     <string name="audio_general_fail">FAIL</string>
     <string name="audio_general_not_tested">Not Tested</string>
+    <string name="audio_general_not_required">Please Test If Supported</string>
+    <string name="audio_general_required">Required</string>
 
     <string name="audio_general_Input">Input</string>
     <string name="audio_general_Output">Output</string>

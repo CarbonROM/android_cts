@@ -754,10 +754,12 @@ public class LocationManagerFineTest {
     }
 
     @Test
+    @AppModeFull(reason = "Instant apps can't access ACTION_BATTERY_CHANGED intent")
     public void testRequestLocationUpdates_BatterySaver_GpsDisabledScreenOff() throws Exception {
         // battery saver is unsupported on auto and tv
         assumeFalse(mContext.getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE));
         assumeFalse(mContext.getPackageManager().hasSystemFeature(FEATURE_TELEVISION));
+        assumeTrue(BatteryUtils.isBatterySaverSupported());
 
         PowerManager powerManager = Objects.requireNonNull(
                 mContext.getSystemService(PowerManager.class));
@@ -815,10 +817,12 @@ public class LocationManagerFineTest {
     }
 
     @Test
+    @AppModeFull(reason = "Instant apps can't access ACTION_BATTERY_CHANGED intent")
     public void testRequestLocationUpdates_BatterySaver_AllDisabledScreenOff() throws Exception {
         // battery saver is unsupported on auto and tv
         assumeFalse(mContext.getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE));
         assumeFalse(mContext.getPackageManager().hasSystemFeature(FEATURE_TELEVISION));
+        assumeTrue(BatteryUtils.isBatterySaverSupported());
 
         PowerManager powerManager = Objects.requireNonNull(
                 mContext.getSystemService(PowerManager.class));
@@ -857,10 +861,12 @@ public class LocationManagerFineTest {
     }
 
     @Test
+    @AppModeFull(reason = "Instant apps can't access ACTION_BATTERY_CHANGED intent")
     public void testRequestLocationUpdates_BatterySaver_ThrottleScreenOff() throws Exception {
         // battery saver is unsupported on auto and tv
         assumeFalse(mContext.getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE));
         assumeFalse(mContext.getPackageManager().hasSystemFeature(FEATURE_TELEVISION));
+        assumeTrue(BatteryUtils.isBatterySaverSupported());
 
         PowerManager powerManager = Objects.requireNonNull(
                 mContext.getSystemService(PowerManager.class));

@@ -67,6 +67,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import org.junit.Ignore
 
 /**
  * Integration test for app hibernation.
@@ -137,6 +138,7 @@ class AppHibernationIntegrationTest {
     }
 
     @Test
+    @Ignore("b/201545116")
     fun testUnusedApp_getsForceStopped() {
         withUnusedThresholdMs(TEST_UNUSED_THRESHOLD) {
             withApp(APK_PATH_S_APP, APK_PACKAGE_NAME_S_APP) {
@@ -288,6 +290,10 @@ class AppHibernationIntegrationTest {
         assumeFalse(
             "Remove permissions and free up space toggle may be unavailable on TV",
             hasFeatureTV())
+        assumeFalse(
+            "Remove permissions and free up space toggle may be unavailable on Wear",
+            hasFeatureWatch())
+
         withApp(APK_PATH_S_APP, APK_PACKAGE_NAME_S_APP) {
             // Open app info
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)

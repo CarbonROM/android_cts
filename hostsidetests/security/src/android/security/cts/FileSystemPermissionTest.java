@@ -62,13 +62,22 @@ public class FileSystemPermissionTest extends DeviceTestCase {
             return;
         }
 
+        // Changed for Android 13 CTS:
+        // Ownership of /dev/hw_random has two possibilities depending on whether the
+        // prng seeder daemon is present, which ships in the Jan 2023 MPR, so this test
+        // allows either possibility using stat rather than ls to make the two possibilities
+        // clearer, at the cost of granular failure diagnostics.
+        //
         // This test asserts that, if present, /dev/hw_random must:
         //
         // 1. Have ownership prng_seeder:prng_seeder
         // 2. Have permissions 0400 - The only user space process requiring
         //    access is the PRNG seeder daemon which only needs read access.
         // 3. Be a character device with major:minor 10:183 (the kernel
-        //    default).
+        //    default), which in the hex output by stat corresponds to a:b7
+        //
+        // That translates to "stat -c %t,%T:%a:%U:%G: output that corresponds to one
+        // of the options below.
 
         // That translates to `ls -l` output like this:
         // cr-------- 1 prng_seeder prng_seeder 10, 183 2021-02-11 17:55 /dev/hw_random

@@ -190,6 +190,14 @@ public class TaskFragmentOrganizerTest extends TaskFragmentOrganizerTestBase {
                 .deleteTaskFragment(taskFragmentInfo.getToken());
         mTaskFragmentOrganizer.applyTransaction(wct);
 
+        assertTrue(mWmState.waitForWithAmState(
+                state -> state.getRootTask(mOwnerTaskId).getTaskFragments().isEmpty(),
+                "Wait for TaskFragment removal"));
+        // Remove an empty TaskFragment may not trigger SurfacePlacement because there is no
+        // activity resume/pause.
+        // Launch an activity to trigger a callback on SurfacePlacement to the organizer.
+        startActivityInWindowingModeFullScreen(WindowMetricsActivityTests.MetricsActivity.class);
+
         mTaskFragmentOrganizer.waitForTaskFragmentRemoved();
 
         assertEmptyTaskFragment(mTaskFragmentOrganizer.getRemovedTaskFragmentInfo(taskFragToken),
