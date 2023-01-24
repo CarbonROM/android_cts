@@ -1858,11 +1858,23 @@ public class StaticMetadata {
         return modes;
     }
 
+    public Integer getChosenVideoStabilizationMode() {
+        Integer[] videoStabilizationModes =
+                CameraTestUtils.toObject(getAvailableVideoStabilizationModesChecked());
+        if (videoStabilizationModes.length == 1) {
+            return CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_OFF;
+        }
+        return Arrays.asList(videoStabilizationModes).contains(
+                CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON) ?
+                CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON :
+                CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION;
+    }
+
     public boolean isVideoStabilizationSupported() {
         Integer[] videoStabModes =
                 CameraTestUtils.toObject(getAvailableVideoStabilizationModesChecked());
-        return Arrays.asList(videoStabModes).contains(
-                CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON);
+        // VIDEO_STABILIZATION_MODE_OFF is guaranteed to be present
+        return (videoStabModes.length > 1);
     }
 
     /**
@@ -2401,7 +2413,16 @@ public class StaticMetadata {
      * @return {@code true} if noise reduction mode control is supported
      */
     public boolean isNoiseReductionModeControlSupported() {
-        return areKeysAvailable(CaptureRequest.NOISE_REDUCTION_MODE);
+        if (!areKeysAvailable(CaptureRequest.NOISE_REDUCTION_MODE)) {
+            return false;
+        }
+        int[] availableModes = getAvailableNoiseReductionModesChecked();
+        // Let's consider noise reduction is not supported if only "OFF" is reported.
+        if (availableModes.length == 1
+                && availableModes[0] == CaptureRequest.NOISE_REDUCTION_MODE_OFF) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -2756,6 +2777,20 @@ public class StaticMetadata {
         List<Integer> availableCapabilities = getAvailableCapabilitiesChecked();
         return (availableCapabilities.contains(
                 CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE));
+    }
+
+    /**
+     * Check if the camera device's poseReference is UNDEFINED.
+     */
+    public boolean isPoseReferenceUndefined() {
+        boolean isPoseReferenceUndefined = false;
+        Integer poseReference = mCharacteristics.get(
+                CameraCharacteristics.LENS_POSE_REFERENCE);
+        if (poseReference != null) {
+            isPoseReferenceUndefined =
+                    (poseReference == CameraMetadata.LENS_POSE_REFERENCE_UNDEFINED);
+        }
+        return isPoseReferenceUndefined;
     }
 
     /**

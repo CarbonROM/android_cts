@@ -310,6 +310,11 @@ public class WindowInsetsAnimationTestBase extends WindowManagerTestBase {
         AnimCallback mCallback =
                 spy(new AnimCallback(WindowInsetsAnimation.Callback.DISPATCH_MODE_STOP));
         WindowInsets mLastWindowInsets;
+        /**
+         * Save the WindowInsets when animation done. Acoid to mLastWindowInsets
+         * always be updated after windowinsets animation done on low-ram devices.
+         */
+        WindowInsets mLastPendingWindowInsets;
 
         View.OnApplyWindowInsetsListener mListener;
         LinearLayout mView;
@@ -320,7 +325,16 @@ public class WindowInsetsAnimationTestBase extends WindowManagerTestBase {
 
             @Override
             public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+                /**
+                 * Do not update mLastWindowInsets and save the latest WindowInsets to
+                 *  mLastPendingWindowInsets.
+                 */
+                if (mCallback.animationDone) {
+                    mLastPendingWindowInsets = insets;
+                    return WindowInsets.CONSUMED;
+                }
                 mLastWindowInsets = insets;
+                mLastPendingWindowInsets = null;
                 return WindowInsets.CONSUMED;
             }
         }
@@ -351,6 +365,18 @@ public class WindowInsetsAnimationTestBase extends WindowManagerTestBase {
                     BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
             setContentView(mView);
             mEditor.requestFocus();
+        }
+
+        public void resetAnimationDone() {
+            mCallback.animationDone = false;
+            /**
+             * Do not update mLastWindowInsets and save the latest WindowInsets to
+             *  mLastPendingWindowInsets.
+             */
+            if (mLastPendingWindowInsets != null) {
+                mLastWindowInsets = new WindowInsets(mLastPendingWindowInsets);
+                mLastPendingWindowInsets = null;
+            }
         }
     }
 }

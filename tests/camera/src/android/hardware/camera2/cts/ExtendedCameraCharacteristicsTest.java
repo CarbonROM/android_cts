@@ -2925,6 +2925,7 @@ public class ExtendedCameraCharacteristicsTest extends Camera2AndroidTestCase {
      * in CDD camera section 7.5
      */
     @Test
+    @AppModeFull(reason = "DeviceStateManager is not accessible to instant apps")
     @CddTest(requirements = {
             "2.2.7.2/7.5/H-1-1",
             "2.2.7.2/7.5/H-1-2",
@@ -3065,7 +3066,9 @@ public class ExtendedCameraCharacteristicsTest extends Camera2AndroidTestCase {
             final double FOV_THRESHOLD = 0.001f;
             double primaryToMaxFovRatio = getPrimaryToMaxFovRatio(cameraId, staticInfo);
             Range<Float> zoomRatioRange = staticInfo.getZoomRatioRangeChecked();
-            boolean meetH110 = (primaryToMaxFovRatio >= 1.0f - FOV_THRESHOLD)
+            boolean meetH110 = (CameraUtils.isDeviceFoldable(mContext)
+                    && hasUndefinedPoseReferenceWithSameFacing(cameraId, staticInfo))
+                    || (primaryToMaxFovRatio >= 1.0f - FOV_THRESHOLD)
                     || (zoomRatioRange.getLower() < 1.0f - FOV_THRESHOLD);
             if (isPrimaryRear) {
                 ultrawideZoomRatioReq.setRearUltraWideZoomRatioReqMet(meetH110);
@@ -3202,6 +3205,30 @@ public class ExtendedCameraCharacteristicsTest extends Camera2AndroidTestCase {
         float[] availableFocalLengths = staticInfo.getAvailableFocalLengthsChecked();
 
         return 2 * Math.toDegrees(Math.atan2(physicalDiag / 2, availableFocalLengths[0]));
+    }
+
+    /**
+     * Whether there is a camera with UNDEFINED lens pose reference with the same facing.
+     */
+    private boolean hasUndefinedPoseReferenceWithSameFacing(String cameraId,
+            StaticMetadata staticInfo) {
+        int facing = staticInfo.getLensFacingChecked();
+        for (String id : mAllCameraIds) {
+            if (cameraId.equals(id)) {
+                continue;
+            }
+            StaticMetadata staticInfoForId = mAllStaticInfo.get(id);
+            if (staticInfoForId.getLensFacingChecked() != facing) {
+                continue;
+            }
+            if (!staticInfoForId.isColorOutputSupported()) {
+                continue;
+            }
+            if (staticInfoForId.isPoseReferenceUndefined()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
