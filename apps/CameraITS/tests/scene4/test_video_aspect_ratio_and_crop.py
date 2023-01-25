@@ -162,12 +162,11 @@ class VideoAspectRatioAndCropTest(its_base_test.ItsBaseTest):
 
       if raw_avlb and (fls_physical == fls_logical):
         logging.debug('RAW')
-        raw_bool = True
       else:
         logging.debug('JPEG')
-        raw_bool = False
+
       ref_fov, cc_ct_gt, aspect_ratio_gt = image_fov_utils.find_fov_reference(
-          cam, req, props, raw_bool, ref_img_name_stem)
+          cam, req, props, raw_avlb, ref_img_name_stem)
 
       run_crop_test = full_or_better and raw_avlb
 
