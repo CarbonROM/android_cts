@@ -305,4 +305,10 @@
 
     <!-- b/260037367 -->
     <option name="compatibility:exclude-filter" value="odsign_e2e_tests com.android.tests.odsign.CompOsSigningHostTest" />
+
+    <!-- b/264824229 -->
+    <option name="compatibility:exclude-filter" value="CtsTelephonyTestCases android.telephony.cts.VisualVoicemailServiceTest#testFilter_data" />
+    <option name="compatibility:exclude-filter" value="CtsTelephonyTestCases android.telephony.cts.VisualVoicemailServiceTest#testFilter_port_match" />
+    <option name="compatibility:exclude-filter" value="CtsTelephonyTestCases android.telephony.cts.VisualVoicemailServiceTest#testFilter_port_mismatch" />
+    <option name="compatibility:exclude-filter" value="CtsTelephonyTestCases android.telephony.cts.VisualVoicemailServiceTest#testFilter_port_anydata" />
 </configuration>
