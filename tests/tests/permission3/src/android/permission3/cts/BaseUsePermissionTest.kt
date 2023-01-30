@@ -605,7 +605,12 @@ abstract class BaseUsePermissionTest : BasePermissionTest() {
             } else if (!alreadyChecked && isLegacyApp && wasGranted) {
                 if (!isTv) {
                     // Wait for alert dialog to popup, then scroll to the bottom of it
-                    waitFindObject(By.res(ALERT_DIALOG_MESSAGE))
+                    if (isWatch) {
+                        waitFindObject(By.text(
+                                getPermissionControllerString("old_sdk_deny_warning")))
+                    } else {
+                        waitFindObject(By.res(ALERT_DIALOG_MESSAGE))
+                    }
                     scrollToBottom()
                 }
 
