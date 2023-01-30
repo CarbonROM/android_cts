@@ -30,6 +30,7 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR"/>
 
     <!-- For FileIntegrityManager -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
