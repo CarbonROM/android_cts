@@ -18,12 +18,9 @@ package android.dumpsys.cts;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.android.compatibility.common.tradefed.build.CompatibilityBuildHelper;
 import com.android.tradefed.log.LogUtil.CLog;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -166,6 +163,10 @@ public class BatteryStatsDumpsysTest extends BaseDumpsysTest {
                             checkNetwork(parts);
                             break;
                         case "ua":
+                            if (parts.length == 9) {
+                                checkUserActivityCompat(parts);
+                                break;
+                            }
                             checkUserActivity(parts);
                             break;
                         case "bt":
@@ -488,6 +489,15 @@ public class BatteryStatsDumpsysTest extends BaseDumpsysTest {
         assertInteger(parts[8]); // attention
         assertInteger(parts[9]); // faceDown
         assertInteger(parts[10]); // deviceState
+    }
+
+    private void checkUserActivityCompat(String[] parts) {
+        assertEquals(9, parts.length);
+        assertInteger(parts[4]); // other
+        assertInteger(parts[5]); // button
+        assertInteger(parts[6]); // touch
+        assertInteger(parts[7]); // accessibility
+        assertInteger(parts[8]); // attention
     }
 
     private void checkBattery(String[] parts) {
