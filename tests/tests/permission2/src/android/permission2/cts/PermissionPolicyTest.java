@@ -131,6 +131,9 @@ public class PermissionPolicyTest {
             declaredPermissionsMap.putAll(
                     getPermissionsForPackage(sContext, AUTOMOTIVE_SERVICE_PACKAGE_NAME));
         }
+        if (sContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_WATCH)) {
+            expectedPermissions.addAll(loadExpectedPermissions(R.raw.wear_android_manifest));
+        }
 
         for (ExpectedPermissionInfo expectedPermission : expectedPermissions) {
             String expectedPermissionName = expectedPermission.name;
