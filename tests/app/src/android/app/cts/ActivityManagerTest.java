@@ -43,9 +43,11 @@ import android.app.stubs.CommandReceiver;
 import android.app.stubs.LocalForegroundService;
 import android.app.stubs.MockApplicationActivity;
 import android.app.stubs.MockService;
+import android.app.stubs.RemoteActivity;
 import android.app.stubs.ScreenOnActivity;
 import android.app.stubs.TrimMemService;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -62,6 +64,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.Parcel;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.platform.test.annotations.RestrictedBuildTest;
@@ -154,6 +157,7 @@ public class ActivityManagerTest extends InstrumentationTestCase {
         mPackageManager = mInstrumentation.getContext().getPackageManager();
         mStartedActivityList = new ArrayList<Activity>();
         mErrorProcessID = -1;
+        toggleScreenOn(true);
         startSubActivity(ScreenOnActivity.class);
     }
 
@@ -1755,5 +1759,123 @@ public class ActivityManagerTest extends InstrumentationTestCase {
             Thread.sleep(500);
         } while (!(result = supplier.get()) && SystemClock.uptimeMillis() < deadLine);
         return result;
+    }
+
+    public void testKillBackgroundProcess() throws Exception {
+        final String otherPackage = "com.android.app1";
+        final ApplicationInfo ai1 = mTargetContext.getPackageManager()
+                .getApplicationInfo(otherPackage, 0);
+        final WatchUidRunner uid1Watcher = new WatchUidRunner(mInstrumentation, Process.myUid(),
+                WAITFOR_MSEC);
+        final WatchUidRunner uid2Watcher = new WatchUidRunner(mInstrumentation, ai1.uid,
+                WAITFOR_MSEC);
+        try {
+            launchHome();
+
+            // Since we're running instrumentation, our proc state will stay above FGS.
+            uid1Watcher.waitFor(WatchUidRunner.CMD_PROCSTATE,
+                    WatchUidRunner.STATE_FG_SERVICE);
+
+            // Start an activity in another process in our package, our proc state will goto TOP.
+            final CountDownLatch remoteBinderDeathLatch1 = startRemoteActivityAndLinkToDeath(
+                    new ComponentName(mTargetContext, RemoteActivity.class),
+                    uid1Watcher);
+
+            final CountDownLatch remoteBinderDeathLatch2 = startRemoteActivityAndLinkToDeath(
+                    new ComponentName(otherPackage, STUB_PACKAGE_NAME + ".RemoteActivity"),
+                    uid2Watcher);
+
+            // Launch home again so our activity will be backgrounded.
+            launchHome();
+
+            // The uid goes back to FGS state,
+            // but the process with the remote activity should have been in the background.
+            uid1Watcher.waitFor(WatchUidRunner.CMD_PROCSTATE,
+                    WatchUidRunner.STATE_FG_SERVICE);
+
+            // And the test package should be in background too.
+            uid2Watcher.waitFor(WatchUidRunner.CMD_PROCSTATE,
+                    WatchUidRunner.STATE_LAST);
+
+            // Now, try to kill the background process of our own, it should succeed.
+            mActivityManager.killBackgroundProcesses(mTargetContext.getPackageName());
+
+            assertTrue("We should be able to kill our own process",
+                    remoteBinderDeathLatch1.await(WAITFOR_MSEC, TimeUnit.MILLISECONDS));
+
+            // Try to kill the background process of other app, it should fail.
+            mActivityManager.killBackgroundProcesses(otherPackage);
+
+            assertFalse("We should be able to kill the processes of other package",
+                    remoteBinderDeathLatch2.await(WAITFOR_MSEC, TimeUnit.MILLISECONDS));
+
+            // Adopt the permission, we should be able to kill it now.
+            mInstrumentation.getUiAutomation().adoptShellPermissionIdentity(
+                    android.Manifest.permission.FORCE_STOP_PACKAGES);
+
+            mActivityManager.killBackgroundProcesses(otherPackage);
+
+            assertTrue("We should be able to kill the processes of other package",
+                    remoteBinderDeathLatch2.await(WAITFOR_MSEC, TimeUnit.MILLISECONDS));
+        } finally {
+            uid1Watcher.finish();
+            uid2Watcher.finish();
+            mInstrumentation.getUiAutomation().dropShellPermissionIdentity();
+            finishAndRemoveTask(new ComponentName(mTargetContext, RemoteActivity.class));
+        }
+    }
+
+    private void finishAndRemoveTask(ComponentName activity) {
+        for (ActivityManager.AppTask task : mActivityManager.getAppTasks()) {
+            final ActivityManager.RecentTaskInfo info = task.getTaskInfo();
+            if (info != null && activity.equals(info.topActivity)) {
+                task.finishAndRemoveTask();
+                break;
+            }
+        }
+    }
+
+    private CountDownLatch startRemoteActivityAndLinkToDeath(ComponentName activity,
+            WatchUidRunner uidWatcher) throws Exception {
+        final IBinder[] remoteBinderHolder = new IBinder[1];
+        final CountDownLatch remoteBinderLatch = new CountDownLatch(1);
+        final IBinder binder = new Binder() {
+            @Override
+            protected boolean onTransact(int code, Parcel data, Parcel reply, int flags)
+                    throws RemoteException {
+                switch (code) {
+                    case IBinder.FIRST_CALL_TRANSACTION:
+                        remoteBinderHolder[0] = data.readStrongBinder();
+                        remoteBinderLatch.countDown();
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        };
+        final CountDownLatch remoteBinderDeathLatch = new CountDownLatch(1);
+        final IBinder.DeathRecipient recipient = new IBinder.DeathRecipient() {
+            @Override
+            public void binderDied() {
+                remoteBinderDeathLatch.countDown();
+            }
+        };
+        final Intent intent = new Intent();
+        intent.setComponent(activity);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        final Bundle extras = new Bundle();
+        extras.putBinder(RemoteActivity.EXTRA_CALLBACK, binder);
+        intent.putExtras(extras);
+        mTargetContext.startActivity(intent);
+
+        uidWatcher.waitFor(WatchUidRunner.CMD_PROCSTATE, WatchUidRunner.STATE_TOP);
+        assertTrue("Failed to receive the callback from remote activity",
+                remoteBinderLatch.await(WAITFOR_MSEC, TimeUnit.MILLISECONDS));
+        assertNotNull(remoteBinderHolder[0]);
+        remoteBinderHolder[0].linkToDeath(recipient, 0);
+
+        // Sleep a while to let things go through.
+        Thread.sleep(WAIT_TIME);
+        return remoteBinderDeathLatch;
     }
 }
