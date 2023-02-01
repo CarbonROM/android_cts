@@ -31,6 +31,7 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
+import android.server.wm.jetpack.utils.JavaConsumerAdapter;
 import android.server.wm.jetpack.utils.TestActivityKnownEmbeddingCerts;
 import android.server.wm.jetpack.utils.TestValueCountConsumer;
 
@@ -84,7 +85,11 @@ public class SignedEmbeddingActivity extends Activity {
         }
 
         TestValueCountConsumer<List<SplitInfo>> splitInfoConsumer = new TestValueCountConsumer<>();
-        embeddingComponent.setSplitInfoCallback(splitInfoConsumer);
+        if (getWindowExtensions().getVendorApiLevel() >= 2) {
+            embeddingComponent.setSplitInfoCallback(splitInfoConsumer);
+        } else {
+            embeddingComponent.setSplitInfoCallback(new JavaConsumerAdapter(splitInfoConsumer));
+        }
 
         SplitPairRule splitPairRule = createSplitPairRuleBuilderWithJava8Predicate(
                 activityActivityPair -> true /* activityActivityPredicate */,
