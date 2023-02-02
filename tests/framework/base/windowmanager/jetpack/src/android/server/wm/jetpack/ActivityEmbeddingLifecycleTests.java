@@ -22,6 +22,7 @@ import static android.server.wm.jetpack.utils.ActivityEmbeddingUtil.createWildca
 import static android.server.wm.jetpack.utils.ActivityEmbeddingUtil.startActivityAndVerifySplit;
 import static android.server.wm.jetpack.utils.ActivityEmbeddingUtil.waitAndAssertNotVisible;
 import static android.server.wm.jetpack.utils.ActivityEmbeddingUtil.waitAndAssertResumed;
+import static android.server.wm.jetpack.utils.ExtensionUtil.getWindowExtensions;
 import static android.server.wm.lifecycle.LifecycleConstants.ON_CREATE;
 import static android.server.wm.lifecycle.LifecycleConstants.ON_DESTROY;
 import static android.server.wm.lifecycle.LifecycleConstants.ON_PAUSE;
@@ -40,6 +41,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.net.Uri;
 import android.os.Bundle;
+import android.server.wm.jetpack.utils.JavaConsumerAdapter;
 import android.server.wm.jetpack.utils.TestActivityWithId;
 import android.server.wm.jetpack.utils.TestActivityWithId2;
 import android.server.wm.jetpack.utils.TestConfigChangeHandlingActivity;
@@ -80,7 +82,13 @@ public class ActivityEmbeddingLifecycleTests extends ActivityEmbeddingTestBase {
     public void setUp() {
         super.setUp();
         mSplitInfoConsumer = new SplitInfoLifecycleConsumer<>();
-        mActivityEmbeddingComponent.setSplitInfoCallback(mSplitInfoConsumer);
+        if (getWindowExtensions().getVendorApiLevel() >= 2) {
+            mActivityEmbeddingComponent.setSplitInfoCallback(mSplitInfoConsumer);
+        } else {
+            mActivityEmbeddingComponent.setSplitInfoCallback(
+                    new JavaConsumerAdapter<>(mSplitInfoConsumer)
+            );
+        }
 
         mEventLogClient = EventLogClient.create(TEST_OWNER, mInstrumentation.getTargetContext(),
                 Uri.parse("content://android.server.wm.jetpack.logprovider"));
