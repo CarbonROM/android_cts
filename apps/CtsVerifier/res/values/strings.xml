@@ -3380,7 +3380,7 @@ You should be prompted to select credentials; choose the ones you just installed
         Please press the Go button to open the Settings page.
         (If this device has a separate app for work settings, ignore the Go button and open that app manually from the launcher.)\n
         Navigate to Accounts and confirm that:\n
-        - There are two auto-sync options present, one for personal and one for work data (on the screen or in the overflow menu or in differernt tab).\n
+        - There are two auto-sync options present, one for personal and one for work data (on the screen or in the overflow menu or in different tab).\n
         - De-selecting either option prompts a warning dialog.\n
         \n
         Use the Back button (or navigate back to this app using Recents) to return to this page.
@@ -5413,6 +5413,16 @@ You should be prompted to select credentials; choose the ones you just installed
        correct MIDI plugs on the USB peripheral, the BT01 output jack to the USB interface
        input jack and BT01 input plug to the USB interface output jack.
        \nThe Virtual MIDI test does not require any MIDI interface hardware.
+    </string>
+    <string name="analog_headset_test_info_tv">This test tests the following functionality with respect to wired analog headsets.\n
+        1. Correct audio playback.\n
+        2. Plug intents.\n
+        \nTo execute test:\n
+        1. Plug in an Android-compatible, analog headset. Verify connection/recognition.\n
+        2. Play test tone and verify correct behavior.\n
+        \nTo run this test it is necessary to have an Android device with a 3.5mm analog headset jack and a compatible analog headset.\n
+        \n(see <a href="https://source.android.com/devices/accessories/headset/plug-headset-spec">3.5 mm Headset: Accessory Specification</a> and
+        <a href="https://source.android.com/compatibility/android-cdd#7_8_2_1_analog_audio_ports">Android CDD § 7.8.2.1. Analog Audio Ports</a>)
     </string>
 
     <string name="midiHasMIDILbl">Has MIDI Support</string>
