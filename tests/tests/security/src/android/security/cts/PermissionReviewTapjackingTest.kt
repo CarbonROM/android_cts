@@ -16,9 +16,7 @@
 
 package android.security.cts
 
-import android.app.Instrumentation
 import android.app.UiAutomation
-import android.content.Context
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -29,9 +27,9 @@ import android.support.test.uiautomator.BySelector
 import android.support.test.uiautomator.UiDevice
 import android.support.test.uiautomator.UiObject2
 import android.support.test.uiautomator.Until
-import androidx.test.InstrumentationRegistry
 import com.android.compatibility.common.util.SystemUtil.runShellCommand
 import com.android.compatibility.common.util.SystemUtil.runWithShellPermissionIdentity
+import com.android.sts.common.util.StsExtraBusinessLogicTestCase
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assume.assumeFalse
@@ -42,7 +40,7 @@ import java.lang.Exception
 /**
  * Tests permission review screen can't be tapjacked
  */
-class PermissionReviewTapjackingTest {
+class PermissionReviewTapjackingTest : StsExtraBusinessLogicTestCase {
 
     companion object {
         const val APK_DIRECTORY = "/data/local/tmp/cts/permission3"
@@ -56,11 +54,9 @@ class PermissionReviewTapjackingTest {
         private const val HELPER_PACKAGE_NAME = "android.permission3.cts.helper.overlay"
     }
 
-    protected val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
-    protected val context: Context = instrumentation.context
-    protected val uiAutomation: UiAutomation = instrumentation.uiAutomation
-    protected val uiDevice: UiDevice = UiDevice.getInstance(instrumentation)
-    protected val packageManager: PackageManager = context.packageManager
+    protected val uiAutomation: UiAutomation = getInstrumentation().uiAutomation
+    protected val uiDevice: UiDevice = UiDevice.getInstance(getInstrumentation())
+    protected val packageManager: PackageManager = getContext().packageManager
 
     private var screenTimeoutBeforeTest: Long = 0
 
@@ -94,19 +90,21 @@ class PermissionReviewTapjackingTest {
         waitForIdle()
     }
 
+    constructor() : super()
+
     @Before
     fun setUp() {
         runWithShellPermissionIdentity {
             screenTimeoutBeforeTest = Settings.System.getLong(
-                    context.contentResolver, Settings.System.SCREEN_OFF_TIMEOUT
+                    getContext().contentResolver, Settings.System.SCREEN_OFF_TIMEOUT
             )
             Settings.System.putLong(
-                    context.contentResolver, Settings.System.SCREEN_OFF_TIMEOUT, 1800000L
+                    getContext().contentResolver, Settings.System.SCREEN_OFF_TIMEOUT, 1800000L
             )
         }
 
         uiDevice.wakeUp()
-        runShellCommand(instrumentation, "wm dismiss-keyguard")
+        runShellCommand(getInstrumentation(), "wm dismiss-keyguard")
 
         uiDevice.findObject(By.text("Close"))?.click()
     }
@@ -126,7 +124,7 @@ class PermissionReviewTapjackingTest {
     fun tearDown() {
         runWithShellPermissionIdentity {
             Settings.System.putLong(
-                    context.contentResolver, Settings.System.SCREEN_OFF_TIMEOUT,
+                    getContext().contentResolver, Settings.System.SCREEN_OFF_TIMEOUT,
                     screenTimeoutBeforeTest
             )
         }
@@ -143,13 +141,13 @@ class PermissionReviewTapjackingTest {
     @Test
     @AsbSecurityTest(cveBugId = [176094367])
     fun testOverlaysAreHidden() {
-        context.startActivity(Intent()
+        getContext().startActivity(Intent()
                 .setComponent(ComponentName(HELPER_PACKAGE_NAME,
                         "$HELPER_PACKAGE_NAME.OverlayActivity"))
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         findOverlay()
 
-        context.startActivity(Intent()
+        getContext().startActivity(Intent()
                 .setComponent(ComponentName(APP_PACKAGE_NAME,
                         "$APP_PACKAGE_NAME.FinishOnCreateActivity"))
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
