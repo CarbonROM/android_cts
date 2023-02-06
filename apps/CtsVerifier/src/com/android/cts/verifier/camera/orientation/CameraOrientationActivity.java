@@ -18,6 +18,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
@@ -484,30 +485,32 @@ implements OnClickListener, SurfaceHolder.Callback {
         @Override
         public void onPreviewFrame(byte[] data, Camera camera) {
             // adjust camera preview to match output image's aspect ratio
-            if(!mSizeAdjusted && mState == STATE_PREVIEW) {
-                int viewWidth = mFormatView.getWidth();
-                int viewHeight = mFormatView.getHeight();
-                int newWidth, newHeight;
+            if (!mSizeAdjusted && mState == STATE_PREVIEW) {
+                int viewWidth = mFormatView.getMeasuredWidth();
+                int viewHeight = mFormatView.getMeasuredHeight();
 
-                if (viewWidth == 0 || viewHeight == 0){
+                if (viewWidth == 0 || viewHeight == 0) {
                     return;
                 }
 
+                Matrix m = new Matrix(Matrix.IDENTITY_MATRIX);
+                RectF previewRect;
                 if (mPreviewOrientations.get(mNextPreviewOrientation) == 0
-                    || mPreviewOrientations.get(mNextPreviewOrientation) == 180) {
-                    // make preview width same as output image width,
-                    // then calculate height using output image's height/width ratio
-                    newWidth = viewWidth;
-                    newHeight = (int) (viewWidth * ((double) mOptimalPreviewSize.height /
-                            (double) mOptimalPreviewSize.width));
+                        || mPreviewOrientations.get(mNextPreviewOrientation) == 180) {
+                    previewRect = new RectF(0, 0, mOptimalPreviewSize.width,
+                            mOptimalPreviewSize.height);
+                } else {
+                    previewRect = new RectF(0, 0, mOptimalPreviewSize.height,
+                            mOptimalPreviewSize.width);
                 }
-                else {
-                    newHeight = viewHeight;
-                    newWidth = (int) (viewHeight * ((double) mOptimalPreviewSize.height /
-                            (double) mOptimalPreviewSize.width));
-                }
+                m.setRectToRect(previewRect,
+                                new RectF(0, 0, viewWidth, viewHeight),
+                                Matrix.ScaleToFit.CENTER);
+                RectF dstRect = new RectF();
+                m.mapRect(dstRect, previewRect);
 
-                LayoutParams layoutParams = new LayoutParams(newWidth, newHeight);
+                LayoutParams layoutParams =
+                        new LayoutParams((int) dstRect.width(), (int) dstRect.height());
                 mCameraView.setLayoutParams(layoutParams);
                 mSizeAdjusted = true;
                 mTakePictureButton.setEnabled(true);
