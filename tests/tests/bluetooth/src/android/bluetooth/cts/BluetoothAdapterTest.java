@@ -89,8 +89,6 @@ public class BluetoothAdapterTest extends AndroidTestCase {
     @Override
     public void tearDown() throws Exception {
         if (mHasBluetooth) {
-            mUiAutomation.adoptShellPermissionIdentity(BLUETOOTH_CONNECT);
-            assertTrue(BTAdapterUtils.disableAdapter(mAdapter, mContext));
             mUiAutomation.dropShellPermissionIdentity();
         }
     }
