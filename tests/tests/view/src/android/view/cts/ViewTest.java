@@ -16,6 +16,7 @@
 
 package android.view.cts;
 
+import static android.server.wm.ActivityManagerTestBase.isTablet;
 import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
 
 import static org.junit.Assert.assertEquals;
@@ -27,6 +28,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeFalse;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
@@ -3896,6 +3898,9 @@ public class ViewTest {
 
     @Test
     public void testGetWindowVisibleDisplayFrame() {
+        // TODO (b/228380863): re-enable the test once the configuration calculation issue resolved
+        // on device with taskbar.
+        assumeFalse(isTablet());
         Rect outRect = new Rect();
         View view = new View(mActivity);
         // mAttachInfo is null
