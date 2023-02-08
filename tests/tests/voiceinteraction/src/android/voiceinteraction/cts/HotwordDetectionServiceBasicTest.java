@@ -463,6 +463,8 @@ public final class HotwordDetectionServiceBasicTest
             // TODO ntmyren: test TV indicator
         } else if (sPkgMgr.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
             // TODO ntmyren: test Auto indicator
+        } else if (sPkgMgr.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
+            // The privacy chips/indicators are not implemented on Wear
         } else {
             verifyMicrophoneChipHandheld(shouldBePresent);
         }
