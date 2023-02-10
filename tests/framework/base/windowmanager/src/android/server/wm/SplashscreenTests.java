@@ -147,6 +147,7 @@ public class SplashscreenTests extends ActivityManagerTestBase {
         // TODO(b/192431448): Allow Automotive to skip this test until Splash Screen is properly
         // applied insets by system bars in AAOS.
         assumeFalse(isCar());
+        assumeFalse(isLeanBack());
 
         launchActivityNoWait(SPLASHSCREEN_ACTIVITY, WINDOWING_MODE_FULLSCREEN);
         // The windowSplashScreenContent attribute is set to RED. We check that it is ignored.
@@ -402,6 +403,7 @@ public class SplashscreenTests extends ActivityManagerTestBase {
         // TODO(b/192431448): Allow Automotive to skip this test until Splash Screen is properly
         // applied insets by system bars in AAOS.
         assumeFalse(isCar());
+        assumeFalse(isLeanBack());
 
         launchActivityNoWait(SPLASH_SCREEN_REPLACE_ICON_ACTIVITY, WINDOWING_MODE_FULLSCREEN,
                 extraBool(DELAY_RESUME, true));
@@ -466,6 +468,7 @@ public class SplashscreenTests extends ActivityManagerTestBase {
         // TODO(b/192431448): Allow Automotive to skip this test until Splash Screen is properly
         // applied insets by system bars in AAOS.
         assumeFalse(isCar());
+        assumeFalse(isLeanBack());
 
         final LauncherApps launcherApps = mContext.getSystemService(LauncherApps.class);
         final ShortcutManager shortcutManager = mContext.getSystemService(ShortcutManager.class);
