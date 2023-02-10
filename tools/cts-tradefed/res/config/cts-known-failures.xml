@@ -311,4 +311,7 @@
     <option name="compatibility:exclude-filter" value="CtsTelephonyTestCases android.telephony.cts.VisualVoicemailServiceTest#testFilter_port_match" />
     <option name="compatibility:exclude-filter" value="CtsTelephonyTestCases android.telephony.cts.VisualVoicemailServiceTest#testFilter_port_mismatch" />
     <option name="compatibility:exclude-filter" value="CtsTelephonyTestCases android.telephony.cts.VisualVoicemailServiceTest#testFilter_port_anydata" />
+
+    <!-- b/266101051-->
+    <option name="compatibility:exclude-filter" value="CtsGameServiceTestCases" />
 </configuration>
