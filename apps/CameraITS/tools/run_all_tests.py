@@ -617,7 +617,6 @@ def main():
     os.mkdir(mobly_output_logs_path)
     tot_pass = 0
     for s in per_camera_scenes:
-      test_params_content['scene'] = s
       results[s]['TEST_STATUS'] = []
       results[s][METRICS_KEY] = []
 
@@ -632,7 +631,7 @@ def main():
       testing_scene = s
       if 'folded' in s:
         testing_scene = s.split('_folded')[0]
-
+      test_params_content['scene'] = testing_scene
       if auto_scene_switch:
         # Copy scene images onto the tablet
         if 'scene0' not in testing_scene:
