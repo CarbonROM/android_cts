@@ -90,6 +90,8 @@ class AutoRevokeTest {
 
     companion object {
         const val LOG_TAG = "AutoRevokeTest"
+        const val REQUEST_ALLOWLIST_BTN_TEXT = "Request whitelist"
+        const val ALLOWLIST_TEXTVIEW_STATUS = "Auto-revoke whitelisted: "
     }
 
     @Before
@@ -240,7 +242,14 @@ class AutoRevokeTest {
                 assertWhitelistState(false)
 
                 // Verify
-                waitFindObject(byTextIgnoreCase("Request whitelist")).click()
+                if (hasFeatureWatch()) {
+                    waitFindNode(hasTextThat(
+                            containsStringIgnoringCase(
+                                REQUEST_ALLOWLIST_BTN_TEXT))).click()
+                } else {
+                    waitFindObject(byTextIgnoreCase(
+                            REQUEST_ALLOWLIST_BTN_TEXT)).click()
+                }
                 waitFindObject(byTextIgnoreCase("Permissions")).click()
                 val autoRevokeEnabledToggle = getWhitelistToggle()
                 assertTrue(autoRevokeEnabledToggle.isChecked)
@@ -460,9 +469,14 @@ class AutoRevokeTest {
     }
 
     private fun assertWhitelistState(state: Boolean) {
-        assertThat(
-            waitFindObject(By.textStartsWith("Auto-revoke whitelisted: ")).text,
-            containsString(state.toString()))
+        if (hasFeatureWatch()) {
+            waitFindNode(hasTextThat(containsStringIgnoringCase(
+                    ALLOWLIST_TEXTVIEW_STATUS + state.toString())))
+        } else {
+            assertThat(
+                    waitFindObject(By.textStartsWith(ALLOWLIST_TEXTVIEW_STATUS)).text,
+                    containsString(state.toString()))
+        }
     }
 
     private fun getWhitelistToggle(): AccessibilityNodeInfo {
