@@ -16,6 +16,8 @@
 
 package android.view.accessibility.cts;
 
+import static android.accessibilityservice.cts.utils.ActivityLaunchUtils.launchActivityAndWaitForItToBeOnscreen;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -91,10 +93,11 @@ public class AccessibilityEventTest {
 
     @Before
     public void setUp() throws Throwable {
-        final Activity activity = mActivityRule.launchActivity(null);
-        mPackageName = activity.getApplicationContext().getPackageName();
         sInstrumentation = InstrumentationRegistry.getInstrumentation();
         sUiAutomation = sInstrumentation.getUiAutomation();
+        final Activity activity = launchActivityAndWaitForItToBeOnscreen(
+                sInstrumentation, sUiAutomation, mActivityRule);
+        mPackageName = activity.getApplicationContext().getPackageName();
         mInstrumentedAccessibilityServiceRule.enableService();
         sUiAutomation.executeAndWaitForEvent(() -> {
                     try {
