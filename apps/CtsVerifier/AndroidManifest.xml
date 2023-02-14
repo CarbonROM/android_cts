@@ -3026,8 +3026,7 @@
         <activity android:name=".camera.bokeh.CameraBokehActivity"
                   android:label="@string/camera_bokeh_test"
                   android:configChanges="keyboardHidden|screenSize"
-                  android:exported="true"
-                  android:screenOrientation="landscape">
+                  android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.cts.intent.category.MANUAL_TEST" />
