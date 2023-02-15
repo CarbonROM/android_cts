@@ -89,6 +89,7 @@ public class ASurfaceControlTestActivity extends Activity {
         getWindow().getDecorView().setPointerIcon(
                 PointerIcon.getSystemIcon(this, PointerIcon.TYPE_NULL));
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().setDecorFitsSystemWindows(false);
 
         mLayoutParams = new FrameLayout.LayoutParams(DEFAULT_LAYOUT_WIDTH, DEFAULT_LAYOUT_HEIGHT,
                 Gravity.LEFT | Gravity.TOP);
