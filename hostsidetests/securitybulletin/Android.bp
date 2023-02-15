@@ -23,7 +23,6 @@ java_test_host {
     java_resource_dirs: ["res"],
     // tag this module as a cts test artifact
     test_suites: [
-        "cts",
         "general-tests",
         "sts",
     ],
@@ -53,7 +52,6 @@ cc_defaults {
         },
     },
     test_suites: [
-        "cts",
         "sts",
         "general-tests",
     ],
