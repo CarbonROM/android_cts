@@ -1634,11 +1634,8 @@ public class TunerTest {
         mTuner.close();
         mTuner = null;
 
-        // check the sharee is also closed
-        // tune() would have failed even before close() but still..
-        // TODO: fix this once callback sharing is implemented
-        res = sharee.tune(feSettings);
-        assertEquals(Tuner.RESULT_UNAVAILABLE, res);
+        // check the frontend of sharee is also released
+        assertNull(sharee.getFrontendInfo());
 
         sharee.close();
 
@@ -1660,7 +1657,6 @@ public class TunerTest {
         assertNotNull(statusCapabilities);
         FrontendStatus status = mTuner.getFrontendStatus(statusCapabilities);
         assertNotNull(status);
-
     }
 
     @Test
