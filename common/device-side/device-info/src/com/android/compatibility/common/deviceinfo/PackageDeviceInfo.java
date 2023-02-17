@@ -47,8 +47,8 @@ public class PackageDeviceInfo extends DeviceInfo {
     private static final String PACKAGE = "package";
     private static final String NAME = "name";
     private static final String VERSION_NAME = "version_name";
+    private static final String DIR = "dir";
     private static final String SYSTEM_PRIV = "system_priv";
-    private static final String PRIV_APP_DIR = "/system/priv-app";
     private static final String MIN_SDK = "min_sdk";
     private static final String TARGET_SDK = "target_sdk";
 
@@ -179,8 +179,8 @@ public class PackageDeviceInfo extends DeviceInfo {
                                                   PackageInfo pkg) throws IOException {
         final ApplicationInfo appInfo = pkg.applicationInfo;
         if (appInfo != null) {
-            String dir = appInfo.sourceDir;
-            store.addResult(SYSTEM_PRIV, dir != null && dir.startsWith(PRIV_APP_DIR));
+            store.addResult(DIR, appInfo.sourceDir);
+            store.addResult(SYSTEM_PRIV, appInfo.isPrivilegedApp());
 
             store.addResult(MIN_SDK, appInfo.minSdkVersion);
             store.addResult(TARGET_SDK, appInfo.targetSdkVersion);
