@@ -41,10 +41,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.inputmethodservice.InputMethodService;
@@ -713,6 +715,8 @@ public class InputMethodServiceTest extends EndToEndImeTestBase {
 
     @Test
     public void testBatchEdit_commitAndSetComposingRegion_webView() throws Exception {
+        assumeTrue(hasFeatureWebView());
+
         getCommitAndSetComposingRegionTest(TIMEOUT,
                 "testBatchEdit_commitAndSetComposingRegion_webView/")
                 .setTestTextView(false)
@@ -729,6 +733,8 @@ public class InputMethodServiceTest extends EndToEndImeTestBase {
 
     @Test
     public void testBatchEdit_commitSpaceThenSetComposingRegion_webView() throws Exception {
+        assumeTrue(hasFeatureWebView());
+
         getCommitSpaceAndSetComposingRegionTest(TIMEOUT,
                 "testBatchEdit_commitSpaceThenSetComposingRegion_webView/")
                 .setTestTextView(false)
@@ -747,10 +753,18 @@ public class InputMethodServiceTest extends EndToEndImeTestBase {
     @Test
     public void testBatchEdit_getCommitSpaceAndSetComposingRegionTestInSelectionTest_webView()
             throws Exception {
+        assumeTrue(hasFeatureWebView());
+
         getCommitSpaceAndSetComposingRegionInSelectionTest(TIMEOUT,
                 "testBatchEdit_getCommitSpaceAndSetComposingRegionTestInSelectionTest_webView/")
                 .setTestTextView(false)
                 .runTest();
+    }
+
+    private boolean hasFeatureWebView() {
+        final PackageManager pm =
+                InstrumentationRegistry.getInstrumentation().getContext().getPackageManager();
+        return pm.hasSystemFeature(PackageManager.FEATURE_WEBVIEW);
     }
 
     @Test
