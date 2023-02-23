@@ -33,6 +33,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
+import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
 import android.app.Activity;
@@ -76,6 +77,7 @@ import androidx.annotation.Nullable;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 
 import com.android.compatibility.common.util.AppOpsUtils;
+import com.android.compatibility.common.util.FeatureUtil;
 import com.android.compatibility.common.util.SystemUtil;
 
 import org.junit.After;
@@ -805,6 +807,7 @@ public class WindowUntrustedTouchTest {
 
     @Test
     public void testWhenTextToastWindow_allowsTouch() throws Throwable {
+        assumeFalse("Watch does not support new Toast behavior yet.", FeatureUtil.isWatch());
         addToastOverlay(APP_A, /* custom */ false);
         Rect toast = mWmState.waitForResult("toast bounds",
                 state -> state.findFirstWindowWithType(LayoutParams.TYPE_TOAST).getFrame());
