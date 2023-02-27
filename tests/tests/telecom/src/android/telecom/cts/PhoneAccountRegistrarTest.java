@@ -47,12 +47,12 @@ public class PhoneAccountRegistrarTest extends BaseTelecomTestWithMockServices {
     private static final String RANDOM_CHAR_VALUE = "a";
     private static final String TEL_PREFIX = "tel:";
     private static final String TELECOM_CLEANUP_ACCTS_CMD = "telecom cleanup-orphan-phone-accounts";
-
+    public static final long SEED = 52L; // random seed chosen
     public static final int MAX_PHONE_ACCOUNT_REGISTRATIONS = 10; // mirrors constant in...
     // PhoneAccountRegistrar called MAX_PHONE_ACCOUNT_REGISTRATIONS
 
     // permissions
-    private static final String READ_PHONE_STATE_PERMISSION =
+    private static final String READ_PRIVILEGED_PHONE_STATE =
             "android.permission.READ_PRIVILEGED_PHONE_STATE";
     private static final String MODIFY_PHONE_STATE_PERMISSION =
             "android.permission.MODIFY_PHONE_STATE";
@@ -92,6 +92,86 @@ public class PhoneAccountRegistrarTest extends BaseTelecomTestWithMockServices {
         // tests.
         cleanupPhoneAccounts();
         super.tearDown();
+    }
+
+    /**
+     * Ensure an app does not register accounts over the upper bound limit by disabling them
+     */
+    public void testDisablingAccountsAfterRegStillThrowsException() throws Exception {
+        if (!mShouldTestTelecom) return;
+
+        // ensure the test starts without any phone accounts registered to the test package
+        cleanupPhoneAccounts();
+
+        // Create MAX_PHONE_ACCOUNT_REGISTRATIONS + 1 via helper function
+        ArrayList<PhoneAccount> accounts = TestUtils.generateRandomPhoneAccounts(SEED,
+                MAX_PHONE_ACCOUNT_REGISTRATIONS + 1, TestUtils.PACKAGE,
+                TestUtils.COMPONENT);
+
+        try {
+            // Try to register more phone accounts than allowed by the upper bound limit
+            for (PhoneAccount pa : accounts) {
+                mTelecomManager.registerPhoneAccount(pa);
+                TestUtils.disablePhoneAccount(getInstrumentation(), pa.getAccountHandle());
+                // verify the account is both registered and disabled
+                verifyAccountIsDisabled(pa);
+            }
+
+            // A successful test should never reach this line of execution.
+            // However, if it does, fail the test by throwing a fail(...)
+            fail("Test failed. The test did not throw an IllegalArgumentException when "
+                    + "registering phone accounts over the upper bound: "
+                    + "MAX_PHONE_ACCOUNT_REGISTRATIONS");
+        } catch (IllegalArgumentException e) {
+            // Assert the IllegalArgumentException was thrown
+            assertNotNull(e.toString());
+        } finally {
+            // Cleanup accounts registered
+            accounts.stream().forEach(d -> mTelecomManager.unregisterPhoneAccount(
+                    d.getAccountHandle()));
+        }
+    }
+
+    /**
+     * Ensure an app does not register accounts that will be auto-disabled upon registered and
+     * bypass the limit. Note: CAPABILITY_CALL_PROVIDER will register the account as disabled.
+     */
+    public void testDisabledAccountsThrowsException() throws Exception {
+        if (!mShouldTestTelecom) return;
+
+        // ensure the test starts without any phone accounts registered to the test package
+        cleanupPhoneAccounts();
+
+        // Create MAX_PHONE_ACCOUNT_REGISTRATIONS + 1
+        ArrayList<PhoneAccount> accounts = new ArrayList<>();
+        for (int i = 0; i < MAX_PHONE_ACCOUNT_REGISTRATIONS + 1; i++) {
+            accounts.add(new PhoneAccount.Builder(
+                    TestUtils.makePhoneAccountHandle(Integer.toString(i)),
+                    TestUtils.ACCOUNT_LABEL)
+                    .setCapabilities(CAPABILITY_CALL_PROVIDER)
+                    .build());
+        }
+
+        try {
+            // Try to register more phone accounts than allowed by the upper bound limit
+            for (PhoneAccount pa : accounts) {
+                mTelecomManager.registerPhoneAccount(pa);
+                // verify the account is both registered and disabled
+                verifyAccountIsDisabled(pa);
+            }
+            // A successful test should never reach this line of execution.
+            // However, if it does, fail the test by throwing a fail(...)
+            fail("Test failed. The test did not throw an IllegalArgumentException when "
+                    + "registering phone accounts over the upper bound: "
+                    + "MAX_PHONE_ACCOUNT_REGISTRATIONS");
+        } catch (IllegalArgumentException e) {
+            // Assert the IllegalArgumentException was thrown
+            assertNotNull(e.toString());
+        } finally {
+            // Cleanup accounts registered
+            accounts.stream().forEach(d -> mTelecomManager.unregisterPhoneAccount(
+                    d.getAccountHandle()));
+        }
     }
 
     /**
@@ -338,6 +418,12 @@ public class PhoneAccountRegistrarTest extends BaseTelecomTestWithMockServices {
         }
     }
 
+    public void verifyAccountIsDisabled(PhoneAccount account) {
+        PhoneAccount phoneAccount = mTelecomManager.getPhoneAccount(account.getAccountHandle());
+        assertNotNull(phoneAccount);
+        assertFalse(phoneAccount.isEnabled());
+    }
+
     public void verifyCanFetchCallCapableAccounts() {
         List<PhoneAccountHandle> res =
                 mTelecomManager.getCallCapablePhoneAccounts(true);
@@ -428,9 +514,10 @@ public class PhoneAccountRegistrarTest extends BaseTelecomTestWithMockServices {
             if (mTelecomManager != null) {
                 // Get all handles registered to the testing package
                 List<PhoneAccountHandle> handles =
-                        ShellIdentityUtils.invokeMethodWithShellPermissions(
-                                mTelecomManager, (tm) -> tm.getPhoneAccountsForPackage(),
-                                READ_PHONE_STATE_PERMISSION);
+                        ShellIdentityUtils.invokeMethodWithShellPermissions(mTelecomManager,
+                                (tm) -> tm.getPhoneAccountsForPackage(),
+                                READ_PRIVILEGED_PHONE_STATE);
+
                 // cleanup any extra phone accounts registered to the testing package
                 if (handles.size() > 0 && mTelecomManager != null) {
                     handles.stream().forEach(
@@ -452,9 +539,9 @@ public class PhoneAccountRegistrarTest extends BaseTelecomTestWithMockServices {
      */
     private int getNumberOfPhoneAccountsRegisteredToTestPackage() {
         if (mTelecomManager != null) {
-            return ShellIdentityUtils.invokeMethodWithShellPermissions(
-                    mTelecomManager, (tm) -> tm.getPhoneAccountsForPackage(),
-                    READ_PHONE_STATE_PERMISSION).size();
+            return ShellIdentityUtils.invokeMethodWithShellPermissions(mTelecomManager,
+                    (tm) -> tm.getPhoneAccountsForPackage(),
+                    READ_PRIVILEGED_PHONE_STATE).size();
         }
         return 0;
     }
