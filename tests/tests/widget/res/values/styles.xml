@@ -400,6 +400,7 @@
     </style>
 
     <style name="Theme.PopupWindowCtsActivity" parent="@android:style/Theme.Holo">
+        <item name="android:windowLayoutInDisplayCutoutMode">never</item>
     </style>
 
     <style name="TextView_FontResource">
