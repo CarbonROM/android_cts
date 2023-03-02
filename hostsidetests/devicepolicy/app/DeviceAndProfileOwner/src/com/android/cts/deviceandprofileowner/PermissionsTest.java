@@ -36,9 +36,11 @@ import android.app.UiAutomation;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.DeviceConfig;
 import android.support.test.uiautomator.By;
 import android.support.test.uiautomator.BySelector;
 import android.support.test.uiautomator.UiDevice;
@@ -46,7 +48,7 @@ import android.support.test.uiautomator.UiObject2;
 import android.util.Log;
 
 import com.android.compatibility.common.util.PollingCheck;
-
+import com.android.compatibility.common.util.SystemUtil;
 import com.android.cts.devicepolicy.PermissionBroadcastReceiver;
 import com.android.cts.devicepolicy.PermissionUtils;
 
@@ -105,6 +107,11 @@ public class PermissionsTest extends BaseDeviceAdminTest {
         mContext.registerReceiver(mReceiver, new IntentFilter(ACTION_PERMISSION_RESULT));
         mDevice = UiDevice.getInstance(getInstrumentation());
         mUiAutomation = getInstrumentation().getUiAutomation();
+        SystemUtil.runWithShellPermissionIdentity(() -> {
+            DeviceConfig.setProperty(DeviceConfig.NAMESPACE_PRIVACY,
+                    "safety_center_qs_tile_component_setting_flags",
+                    Integer.toString(PackageManager.DONT_KILL_APP), false);
+        });
     }
 
     @Override
