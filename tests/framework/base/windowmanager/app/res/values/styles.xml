@@ -101,4 +101,7 @@
         <item name="android:windowLayoutInDisplayCutoutMode">always</item>
         <item name="android:windowSoftInputMode">stateHidden</item>
     </style>
+    <style name="ShowWhenLockedDialogTheme" parent="@android:style/Theme.Material.Dialog">
+        <!-- no-op except on Wear, where dialog theme has been converted to non-floating -->
+    </style>
 </resources>
