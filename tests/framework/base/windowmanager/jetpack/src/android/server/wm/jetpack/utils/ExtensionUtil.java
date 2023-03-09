@@ -16,9 +16,6 @@
 
 package android.server.wm.jetpack.utils;
 
-import static android.server.wm.jetpack.utils.WindowManagerJetpackTestBase.getActivityBounds;
-import static android.server.wm.jetpack.utils.WindowManagerJetpackTestBase.getMaximumActivityBounds;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -38,8 +35,6 @@ import androidx.window.extensions.layout.FoldingFeature;
 import androidx.window.extensions.layout.WindowLayoutComponent;
 import androidx.window.extensions.layout.WindowLayoutInfo;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -109,7 +104,7 @@ public class ExtensionUtil {
 
     @Nullable
     public static WindowLayoutInfo getExtensionWindowLayoutInfo(Activity activity)
-            throws ExecutionException, InterruptedException, TimeoutException {
+            throws InterruptedException {
         WindowLayoutComponent windowLayoutComponent = getExtensionWindowLayoutComponent();
         if (windowLayoutComponent == null) {
             return null;
@@ -117,7 +112,14 @@ public class ExtensionUtil {
         TestValueCountJavaConsumer<WindowLayoutInfo> windowLayoutInfoConsumer =
                 new TestValueCountJavaConsumer<>();
         windowLayoutComponent.addWindowLayoutInfoListener(activity, windowLayoutInfoConsumer);
-        return windowLayoutInfoConsumer.waitAndGet();
+        WindowLayoutInfo info = windowLayoutInfoConsumer.waitAndGet();
+
+        // The default implementation only allows a single listener per activity. Since we are using
+        // a local windowLayoutInfoConsumer within this function, we must remember to clean up.
+        // Otherwise, subsequent calls to addWindowLayoutInfoListener with the same activity will
+        // fail to have its callback registered.
+        windowLayoutComponent.removeWindowLayoutInfoListener(windowLayoutInfoConsumer);
+        return info;
     }
 
     @NonNull
