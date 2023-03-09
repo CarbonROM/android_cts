@@ -167,7 +167,7 @@ public class ExtensionWindowLayoutComponentTest extends WindowManagerJetpackTest
 
     @Test
     public void testGetWindowLayoutInfo_configChanged_windowLayoutUpdates()
-            throws ExecutionException, InterruptedException, TimeoutException {
+            throws InterruptedException {
         mWindowLayoutInfo = getExtensionWindowLayoutInfo(mActivity);
         assumeHasDisplayFeatures(mWindowLayoutInfo);
 
@@ -197,7 +197,7 @@ public class ExtensionWindowLayoutComponentTest extends WindowManagerJetpackTest
 
     @Test
     public void testGetWindowLayoutInfo_windowRecreated_windowLayoutUpdates()
-            throws ExecutionException, InterruptedException, TimeoutException {
+            throws InterruptedException {
         mWindowLayoutInfo = getExtensionWindowLayoutInfo(mActivity);
         assumeHasDisplayFeatures(mWindowLayoutInfo);
 
