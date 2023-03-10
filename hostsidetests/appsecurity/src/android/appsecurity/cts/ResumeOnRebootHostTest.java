@@ -38,6 +38,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -73,6 +74,7 @@ public class ResumeOnRebootHostTest extends BaseHostJUnit4Test {
     private static final int UNLOCK_BROADCAST_WAIT_SECONDS = 10;
 
     private boolean mSupportsMultiUser;
+    private int initialUserId;
 
     @Rule
     public NormalizeScreenStateRule mNoDozeRule = new NormalizeScreenStateRule(this);
@@ -83,6 +85,7 @@ public class ResumeOnRebootHostTest extends BaseHostJUnit4Test {
         assertNotNull(getBuild());
 
         mSupportsMultiUser = getDevice().getMaxNumberOfUsersSupported() > 1;
+        initialUserId = getDevice().getCurrentUser();
 
         removeTestPackages();
         deviceDisableDeviceConfigSync();
@@ -91,7 +94,9 @@ public class ResumeOnRebootHostTest extends BaseHostJUnit4Test {
 
     @After
     public void tearDown() throws Exception {
+        getDevice().switchUser(initialUserId);
         removeTestPackages();
+        deviceCleanupServerBasedParameter();
         deviceRestoreDeviceConfigSync();
     }
 
@@ -122,17 +127,13 @@ public class ResumeOnRebootHostTest extends BaseHostJUnit4Test {
             runDeviceTestsAsUser("testVerifyUnlockedAndDismiss", initialUser);
             runDeviceTestsAsUser("testVerifyUnlockedAndDismiss", managedUserId);
         } finally {
-            try {
-                stopUserAsync(managedUserId);
-                removeUser(managedUserId);
+            stopUserAsync(managedUserId);
+            removeUser(managedUserId);
 
-                // Remove secure lock screens and tear down test app
-                runDeviceTestsAsUser("testTearDown", initialUser);
+            // Remove secure lock screens and tear down test app
+            runDeviceTestsAsUser("testTearDown", initialUser);
 
-                deviceClearLskf();
-            } finally {
-                removeTestPackages();
-            }
+            deviceClearLskf();
         }
     }
 
@@ -163,6 +164,7 @@ public class ResumeOnRebootHostTest extends BaseHostJUnit4Test {
 
             deviceLock(initialUser);
             deviceEnterLskf(initialUser);
+            Thread.sleep(Duration.ofSeconds(15).toMillis());
 
             deviceRebootAndApply();
 
@@ -174,17 +176,13 @@ public class ResumeOnRebootHostTest extends BaseHostJUnit4Test {
             switchUser(secondaryUser);
             runDeviceTestsAsUser("testVerifyLockedAndDismiss", secondaryUser);
         } finally {
-            try {
-                // Remove secure lock screens and tear down test app
-                switchUser(secondaryUser);
-                runDeviceTestsAsUser("testTearDown", secondaryUser);
-                switchUser(initialUser);
-                runDeviceTestsAsUser("testTearDown", initialUser);
+            // Remove secure lock screens and tear down test app
+            switchUser(secondaryUser);
+            runDeviceTestsAsUser("testTearDown", secondaryUser);
+            switchUser(initialUser);
+            runDeviceTestsAsUser("testTearDown", initialUser);
 
-                deviceClearLskf();
-            } finally {
-                removeTestPackages();
-            }
+            deviceClearLskf();
         }
     }
 
@@ -228,17 +226,13 @@ public class ResumeOnRebootHostTest extends BaseHostJUnit4Test {
             switchUser(secondaryUser);
             runDeviceTestsAsUser("testVerifyUnlockedAndDismiss", secondaryUser);
         } finally {
-            try {
-                // Remove secure lock screens and tear down test app
-                switchUser(secondaryUser);
-                runDeviceTestsAsUser("testTearDown", secondaryUser);
-                switchUser(initialUser);
-                runDeviceTestsAsUser("testTearDown", initialUser);
+            // Remove secure lock screens and tear down test app
+            switchUser(secondaryUser);
+            runDeviceTestsAsUser("testTearDown", secondaryUser);
+            switchUser(initialUser);
+            runDeviceTestsAsUser("testTearDown", initialUser);
 
-                deviceClearLskf();
-            } finally {
-                removeTestPackages();
-            }
+            deviceClearLskf();
         }
     }
 
@@ -261,17 +255,9 @@ public class ResumeOnRebootHostTest extends BaseHostJUnit4Test {
             runDeviceTestsAsUser("testVerifyUnlockedAndDismiss", initialUser);
             runDeviceTestsAsUser("testCheckServiceInteraction", initialUser);
         } finally {
-            try {
-                // Remove secure lock screens and tear down test app
-                runDeviceTestsAsUser("testTearDown", initialUser);
-
-                deviceClearLskf();
-            } finally {
-                removeTestPackages();
-
-                getDevice().rebootUntilOnline();
-                getDevice().waitForDeviceAvailable();
-            }
+            // Remove secure lock screens and tear down test app
+            runDeviceTestsAsUser("testTearDown", initialUser);
+            deviceClearLskf();
         }
     }
 
@@ -301,17 +287,9 @@ public class ResumeOnRebootHostTest extends BaseHostJUnit4Test {
             runDeviceTestsAsUser("testVerifyUnlockedAndDismiss", initialUser);
             runDeviceTestsAsUser("testCheckServiceInteraction", initialUser);
         } finally {
-            try {
-                // Remove secure lock screens and tear down test app
-                runDeviceTestsAsUser("testTearDown", initialUser);
-
-                deviceClearLskf();
-            } finally {
-                removeTestPackages();
-
-                getDevice().rebootUntilOnline();
-                getDevice().waitForDeviceAvailable();
-            }
+            // Remove secure lock screens and tear down test app
+            runDeviceTestsAsUser("testTearDown", initialUser);
+            deviceClearLskf();
         }
     }
 
@@ -340,17 +318,9 @@ public class ResumeOnRebootHostTest extends BaseHostJUnit4Test {
             runDeviceTestsAsUser("testVerifyUnlockedAndDismiss", initialUser);
             runDeviceTestsAsUser("testCheckServiceInteraction", initialUser);
         } finally {
-            try {
-                // Remove secure lock screens and tear down test app
-                runDeviceTestsAsUser("testTearDown", initialUser);
-
-                deviceClearLskf();
-            } finally {
-                removeTestPackages();
-
-                getDevice().rebootUntilOnline();
-                getDevice().waitForDeviceAvailable();
-            }
+            // Remove secure lock screens and tear down test app
+            runDeviceTestsAsUser("testTearDown", initialUser);
+            deviceClearLskf();
         }
     }
 
@@ -507,10 +477,8 @@ public class ResumeOnRebootHostTest extends BaseHostJUnit4Test {
      * Calls switch-user, but without trying to dismiss the keyguard.
      */
     private void switchUser(int userId) throws Exception {
-        getDevice().switchUser(userId);
-        HostSideTestUtils.waitUntil("Could not switch users", USER_SWITCH_TIMEOUT_SECONDS,
-                () -> getDevice().getCurrentUser() == userId);
-        Thread.sleep(USER_SWITCH_WAIT);
+        assumeTrue("Unable to switch to user " + userId,
+                getDevice().switchUser(userId, USER_SWITCH_TIMEOUT_SECONDS * 1000));
     }
 
     private void stopUserAsync(int userId) throws Exception {
