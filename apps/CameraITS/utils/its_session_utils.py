@@ -38,6 +38,15 @@ import opencv_processing_utils
 ANDROID13_API_LEVEL = 33
 LOAD_SCENE_DELAY_SEC = 3
 SUB_CAMERA_SEPARATOR = '.'
+DEFAULT_TABLET_BRIGHTNESS = 192  # 8-bit tablet 75% brightness
+ELEVEN_BIT_TABLET_BRIGHTNESS = 1536
+ELEVEN_BIT_TABLET_NAMES = ('nabu',)
+LEGACY_TABLET_BRIGHTNESS = 96
+LEGACY_TABLET_NAME = 'dragon'
+TABLET_REQUIREMENTS_URL = 'https://source.android.com/docs/compatibility/cts/camera-its-box#tablet-requirements'
+BRIGHTNESS_ERROR_MSG = ('Tablet brightness not set as per '
+                        f'{TABLET_REQUIREMENTS_URL} in the config file')
+
 _VALIDATE_LIGHTING_PATCH_H = 0.05
 _VALIDATE_LIGHTING_PATCH_W = 0.05
 _VALIDATE_LIGHTING_REGIONS = {
@@ -48,6 +57,27 @@ _VALIDATE_LIGHTING_REGIONS = {
                      1-_VALIDATE_LIGHTING_PATCH_H),
 }
 _VALIDATE_LIGHTING_THRESH = 0.05  # Determined empirically from scene[1:6] tests
+
+
+def validate_tablet_brightness(tablet_name, brightness):
+  """Ensures tablet brightness is set according to documentation.
+
+  https://source.android.com/docs/compatibility/cts/camera-its-box#tablet-requirements
+  Args:
+    tablet_name: tablet product name specified by `ro.build.product`.
+    brightness: brightness specified by config file.
+  """
+  name_to_brightness = {
+      LEGACY_TABLET_NAME: LEGACY_TABLET_BRIGHTNESS,
+  }
+  for name in ELEVEN_BIT_TABLET_NAMES:
+    name_to_brightness[name] = ELEVEN_BIT_TABLET_BRIGHTNESS
+  if tablet_name in name_to_brightness:
+    if brightness != name_to_brightness[tablet_name]:
+      raise AssertionError(BRIGHTNESS_ERROR_MSG)
+  else:
+    if brightness != DEFAULT_TABLET_BRIGHTNESS:
+      raise AssertionError(BRIGHTNESS_ERROR_MSG)
 
 
 class ItsSession(object):
