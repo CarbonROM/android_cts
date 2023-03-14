@@ -44,6 +44,7 @@ import com.android.cts.verifier.audio.audiolib.WaveformView;
 import com.android.cts.verifier.audio.sources.BlipAudioSourceProvider;
 
 import org.hyphonate.megaaudio.common.BuilderBase;
+import org.hyphonate.megaaudio.common.StreamBase;
 import org.hyphonate.megaaudio.duplex.DuplexAudioManager;
 import org.hyphonate.megaaudio.player.AudioSource;
 import org.hyphonate.megaaudio.player.AudioSourceProvider;
@@ -270,12 +271,18 @@ public class AudioTap2ToneActivity
             mDuplexAudioManager.setNumRecorderChannels(NUM_RECORD_CHANNELS);
         }
 
-        mDuplexAudioManager.setupStreams(mPlayerType, BuilderBase.TYPE_JAVA);
-        mDuplexAudioManager.start();
+        if (mDuplexAudioManager.setupStreams(BuilderBase.TYPE_OBOE, BuilderBase.TYPE_JAVA)
+                == StreamBase.OK) {
+            mDuplexAudioManager.start();
 
-        mBlipSource = (AudioSource) mDuplexAudioManager.getAudioSource();
+            mBlipSource = (AudioSource) mDuplexAudioManager.getAudioSource();
 
-        mIsRecording = true;
+            mIsRecording = true;
+            mResultsView.setText("Successfully opened streams");
+        } else {
+            mIsRecording = false;
+            mResultsView.setText(getString(R.string.audio_tap2tone_bad_streams));
+        }
         enableAudioButtons();
     }
 
