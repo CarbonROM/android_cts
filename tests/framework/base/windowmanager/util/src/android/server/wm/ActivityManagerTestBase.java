@@ -2025,6 +2025,7 @@ public abstract class ActivityManagerTestBase {
         static final int EQUALS = 1;
         static final int GREATER_THAN = 2;
         static final int LESS_THAN = 3;
+        static final int GREATER_THAN_OR_EQUALS = 4;
 
         final T mEvent;
         final int mRule;
@@ -2048,6 +2049,9 @@ public abstract class ActivityManagerTestBase {
                     case LESS_THAN:
                         mMessage = event + " must be less than " + count;
                         break;
+                    case GREATER_THAN_OR_EQUALS:
+                        mMessage = event + " must be greater than (or equals to) " + count;
+                        break;
                     default:
                         mMessage = "Don't care";
                 }
@@ -2065,6 +2069,8 @@ public abstract class ActivityManagerTestBase {
                     return value > mCount;
                 case LESS_THAN:
                     return value < mCount;
+                case GREATER_THAN_OR_EQUALS:
+                    return value >= mCount;
                 default:
             }
             throw new RuntimeException("Unknown CountSpec rule");
