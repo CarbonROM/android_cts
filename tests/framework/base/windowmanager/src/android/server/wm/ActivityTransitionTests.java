@@ -16,6 +16,7 @@
 
 package android.server.wm;
 
+import static android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.server.wm.ActivityTransitionTests.EdgeExtensionActivity.BOTTOM;
 import static android.server.wm.ActivityTransitionTests.EdgeExtensionActivity.DIRECTION_KEY;
@@ -114,7 +115,9 @@ public class ActivityTransitionTests extends ActivityManagerTestBase {
         final Intent intent = new Intent(mContext, LauncherActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-        return (LauncherActivity) instrumentation.startActivitySync(intent);
+        final ActivityOptions options = ActivityOptions.makeBasic();
+        options.setLaunchWindowingMode(WINDOWING_MODE_FULLSCREEN);
+        return (LauncherActivity) instrumentation.startActivitySync(intent, options.toBundle());
     }
 
     @Test
