@@ -193,8 +193,10 @@ public class BatterySaverLocationTest extends BatterySavingTestBase {
         // On again.
         runWithExpectingLocationCallback(() -> {
             turnOnScreen(true);
-            waitUntil("Kill switch still off", () -> getLocationGlobalKillSwitch() == 0);
+            waitUntil("Kill switch still on", () -> getLocationGlobalKillSwitch() == 0);
             assertNotEquals(LOCATION_MODE_OFF, getLocationMode());
+            waitUntil("Location is still not enabled",
+                () -> getLocationManager().isLocationEnabled() == true);
             assertTrue(getLocationManager().isLocationEnabled());
         });
 
@@ -211,6 +213,8 @@ public class BatterySaverLocationTest extends BatterySavingTestBase {
             enableBatterySaver(false);
             waitUntil("Kill switch still on", () -> getLocationGlobalKillSwitch() == 0);
             assertNotEquals(LOCATION_MODE_OFF, getLocationMode());
+            waitUntil("Location is still not enabled",
+                () -> getLocationManager().isLocationEnabled() == true);
             assertTrue(getLocationManager().isLocationEnabled());
         });
     }
