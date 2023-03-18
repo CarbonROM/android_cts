@@ -26,6 +26,7 @@ import static org.junit.Assume.assumeTrue;
 import android.compat.testing.Classpaths;
 
 import com.android.compatibility.common.util.ApiLevelUtil;
+import com.android.tradefed.device.DeviceNotAvailableException;
 import com.android.tradefed.log.LogUtil;
 import com.android.tradefed.log.LogUtil.CLog;
 import com.android.tradefed.testtype.DeviceJUnit4ClassRunner;
@@ -38,6 +39,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.google.common.collect.Sets;
 
 import org.jf.dexlib2.iface.ClassDef;
 import org.junit.Test;
@@ -194,6 +196,21 @@ public class StrictJavaPackagesTest extends BaseHostJUnit4Test {
                     "Lcom/android/internal/util/FrameworkStatsLog;"
             );
 
+    private static final Set<String> AUTOMOTIVE_HIDL_OVERLAP_BURNDOWN_LIST =
+        ImmutableSet.of(
+            "Landroid/hidl/base/V1_0/DebugInfo$Architecture;",
+            "Landroid/hidl/base/V1_0/IBase;",
+            "Landroid/hidl/base/V1_0/IBase$Proxy;",
+            "Landroid/hidl/base/V1_0/IBase$Stub;",
+            "Landroid/hidl/base/V1_0/DebugInfo;"
+        );
+
+    private static final String FEATURE_AUTOMOTIVE = "android.hardware.type.automotive";
+
+    private boolean hasFeature(String featureName) throws DeviceNotAvailableException {
+        return getDevice().executeShellCommand("pm list features").contains(featureName);
+    }
+
     /**
      * Ensure that there are no duplicate classes among jars listed in BOOTCLASSPATH.
      */
@@ -228,8 +245,15 @@ public class StrictJavaPackagesTest extends BaseHostJUnit4Test {
         jars.addAll(Classpaths.getJarsOnClasspath(getDevice(), SYSTEMSERVERCLASSPATH));
 
         Multimap<String, String> duplicates = getDuplicateClasses(jars.build());
-        Multimap<String, String> filtered = Multimaps.filterKeys(duplicates,
+        Multimap<String, String> filtered;
+        if (hasFeature(FEATURE_AUTOMOTIVE)) {
+            filtered = Multimaps.filterKeys(duplicates,
+                duplicate -> !(BCP_AND_SSCP_OVERLAP_BURNDOWN_LIST.contains(duplicate) ||
+                               AUTOMOTIVE_HIDL_OVERLAP_BURNDOWN_LIST.contains(duplicate)));
+        } else {
+            filtered = Multimaps.filterKeys(duplicates,
                 duplicate -> !BCP_AND_SSCP_OVERLAP_BURNDOWN_LIST.contains(duplicate));
+        }
 
         assertThat(filtered).isEmpty();
     }
