@@ -173,7 +173,9 @@ public class JobThrottlingTest {
         mWifiManager = mContext.getSystemService(WifiManager.class);
         mCm = mContext.getSystemService(ConnectivityManager.class);
         mHasWifi = mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI);
-        mInitialWiFiState = mWifiManager.isWifiEnabled();
+        if (mHasWifi) {
+            mInitialWiFiState = mWifiManager.isWifiEnabled();
+        }
         mInitialAirplaneModeState = isAirplaneModeOn();
         mInitialRestrictedBucketEnabled = Settings.Global.getString(mContext.getContentResolver(),
                 Settings.Global.ENABLE_RESTRICTED_BUCKET);
