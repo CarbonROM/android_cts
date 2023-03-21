@@ -312,8 +312,8 @@ public class PackageManagerTest {
         checkProviderInfoName(PROVIDER_NAME, providers);
     }
 
-    @Test
-    public void testEnforceIntentToMatchIntentFilter() {
+    // Disable the test due to feature revert
+    private void testEnforceIntentToMatchIntentFilter() {
         Intent intent = new Intent();
         List<ResolveInfo> results;
 
