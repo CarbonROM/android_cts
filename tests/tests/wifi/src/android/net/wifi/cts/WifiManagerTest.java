@@ -2159,6 +2159,10 @@ public class WifiManagerTest extends WifiJUnit3TestBase {
      */
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     public void testTetheredBridgedAp() throws Exception {
+        if (!WifiFeature.isWifiSupported(getContext())) {
+            // skip the test if WiFi is not supported
+            return;
+        }
         // check that softap bridged mode is supported by the device
         if (!mWifiManager.isBridgedApConcurrencySupported()) {
             return;
@@ -2220,6 +2224,11 @@ public class WifiManagerTest extends WifiJUnit3TestBase {
      */
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     public void testTetheredBridgedApWifiForcedChannel() throws Exception {
+        if (!WifiFeature.isWifiSupported(getContext())) {
+            // skip the test if WiFi is not supported
+            return;
+        }
+
         // check that softap bridged mode is supported by the device
         if (!mWifiManager.isBridgedApConcurrencySupported()) {
             return;
