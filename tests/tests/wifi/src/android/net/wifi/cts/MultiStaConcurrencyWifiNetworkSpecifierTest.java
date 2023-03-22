@@ -200,6 +200,10 @@ public class MultiStaConcurrencyWifiNetworkSpecifierTest extends WifiJUnit4TestB
 
     @After
     public void tearDown() throws Exception {
+        if (!WifiFeature.isWifiSupported(mContext)) {
+            return;
+        }
+
         // Re-enable networks.
         ShellIdentityUtils.invokeWithShellPermissions(
                 () -> {
