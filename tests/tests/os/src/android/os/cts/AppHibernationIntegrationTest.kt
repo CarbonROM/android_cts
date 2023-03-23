@@ -176,7 +176,6 @@ class AppHibernationIntegrationTest {
                 context.startActivity(intent)
 
                 waitForIdle()
-                UiAutomatorUtils.getUiDevice()
 
                 val packageManager = context.packageManager
                 val settingsPackage = intent.resolveActivity(packageManager).packageName
@@ -186,13 +185,13 @@ class AppHibernationIntegrationTest {
 
                 // Settings can have multiple scrollable containers so all of them should be
                 // searched.
-                var toggleFound = UiDevice.getInstance(instrumentation)
-                    .findObject(UiSelector().text(title))
-                    .waitForExists(WAIT_TIME_MS)
+                var toggleFound = UiAutomatorUtils.waitFindObjectOrNull(By.text(title)) != null
                 var i = 0
                 var scrollableObject = UiScrollable(UiSelector().scrollable(true).instance(i))
                 while (!toggleFound && scrollableObject.waitForExists(WAIT_TIME_MS)) {
-                    toggleFound = scrollableObject.scrollTextIntoView(title)
+                    // The following line should work for both handheld device and car settings.
+                    toggleFound = scrollableObject.scrollTextIntoView(title) ||
+                                  UiAutomatorUtils.waitFindObjectOrNull(By.text(title)) != null
                     scrollableObject = UiScrollable(UiSelector().scrollable(true).instance(++i))
                 }
 
