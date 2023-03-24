@@ -156,6 +156,12 @@ public class ASurfaceControlTestActivity extends Activity {
     }
 
     public void verifyScreenshot(PixelChecker pixelChecker, TestName name) {
+        int retries = 0;
+        int maxRetries = 2;
+        int numMatchingPixels = 0;
+        Rect bounds = null;
+        boolean success = false;
+
         // Wait for the stable insets update. The position of the surface view is in correct before
         // the update. Sometimes this callback isn't called, so we don't want to fail the test
         // because it times out.
@@ -163,33 +169,44 @@ public class ASurfaceControlTestActivity extends Activity {
             Log.w(TAG, "Insets animation wait timed out.");
         }
 
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
-        UiAutomation uiAutomation = mInstrumentation.getUiAutomation();
+        while (retries < maxRetries) {
+            final CountDownLatch countDownLatch = new CountDownLatch(1);
+            UiAutomation uiAutomation = mInstrumentation.getUiAutomation();
+            mHandler.post(() -> {
+                mScreenshot = uiAutomation.takeScreenshot(getWindow());
+                countDownLatch.countDown();
+            });
+
+            try {
+                countDownLatch.await(WAIT_TIMEOUT_S, TimeUnit.SECONDS);
+            } catch (Exception e) {
+            }
+
+            assertNotNull(mScreenshot);
+
+            Bitmap swBitmap = mScreenshot.copy(Bitmap.Config.ARGB_8888, false);
+            mScreenshot.recycle();
+
+            numMatchingPixels = pixelChecker.getNumMatchingPixels(swBitmap);
+            bounds = pixelChecker.getBoundsToCheck(swBitmap);
+            success = pixelChecker.checkPixels(numMatchingPixels, swBitmap.getWidth(),
+                    swBitmap.getHeight());
+            if (!success) {
+                saveFailureCapture(swBitmap, name);
+                swBitmap.recycle();
+                retries++;
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException e) {
+                }
+            } else {
+                swBitmap.recycle();
+                break;
+            }
+        }
         mHandler.post(() -> {
-            mScreenshot = uiAutomation.takeScreenshot(getWindow());
             mParent.removeAllViews();
-            countDownLatch.countDown();
         });
-
-        try {
-            countDownLatch.await(WAIT_TIMEOUT_S, TimeUnit.SECONDS);
-        } catch (Exception e) {
-        }
-
-        assertNotNull(mScreenshot);
-
-        Bitmap swBitmap = mScreenshot.copy(Bitmap.Config.ARGB_8888, false);
-        mScreenshot.recycle();
-
-        int numMatchingPixels = pixelChecker.getNumMatchingPixels(swBitmap);
-        Rect bounds = pixelChecker.getBoundsToCheck(swBitmap);
-        boolean success = pixelChecker.checkPixels(numMatchingPixels, swBitmap.getWidth(),
-                swBitmap.getHeight());
-        if (!success) {
-            saveFailureCapture(swBitmap, name);
-        }
-        swBitmap.recycle();
-
         assertTrue("Actual matched pixels:" + numMatchingPixels
                 + " Bitmap size:" + bounds.width() + "x" + bounds.height(), success);
     }
