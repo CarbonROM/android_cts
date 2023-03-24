@@ -22,6 +22,7 @@ import android.app.Instrumentation
 import android.app.UiAutomation
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Point
 import android.os.ParcelFileDescriptor
 import android.os.Process
 import android.provider.DeviceConfig
@@ -183,7 +184,12 @@ fun openUnusedAppsNotification() {
         waitFindObject(uiAutomation, By.text("Open")).click()
     } else {
         runShellCommandOrThrow(CMD_EXPAND_NOTIFICATIONS)
-        waitFindNotification(notifSelector, NOTIF_FIND_TIMEOUT).click()
+        val notification = waitFindNotification(notifSelector, NOTIF_FIND_TIMEOUT)
+        if (FeatureUtil.isAutomotive()) {
+            notification.click(Point(0, 0))
+        } else {
+            notification.click()
+        }
     }
 }
 
