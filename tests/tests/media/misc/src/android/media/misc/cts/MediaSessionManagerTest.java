@@ -166,8 +166,31 @@ public class MediaSessionManagerTest extends InstrumentationTestCase {
         assertTrue(keyEventSessionListener.mCountDownLatch
                 .await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertNull(keyEventSessionListener.mSessionToken);
+        assertEquals("", keyEventSessionListener.mPackageName);
+
         assertNull(mSessionManager.getMediaKeyEventSession());
         assertEquals("", mSessionManager.getMediaKeyEventSessionPackageName());
+    }
+
+    public void testOnMediaKeyEventSessionChangedListener_noSession_passesEmptyPackageAndNullToken()
+            throws InterruptedException {
+        // The permission can be held only on S+
+        if (!MediaUtils.check(sIsAtLeastS, "test invalid before Android 12")) return;
+
+        getInstrumentation().getUiAutomation().adoptShellPermissionIdentity(
+                Manifest.permission.MEDIA_CONTENT_CONTROL);
+
+        MediaKeyEventSessionListener keyEventSessionListener = new MediaKeyEventSessionListener();
+        mSessionManager.addOnMediaKeyEventSessionChangedListener(
+                Executors.newSingleThreadExecutor(), keyEventSessionListener);
+
+        assertTrue(keyEventSessionListener.mCountDownLatch
+                .await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertNull(keyEventSessionListener.mSessionToken);
+        assertEquals("", keyEventSessionListener.mPackageName);
+
+        // Clean up listener.
+        mSessionManager.removeOnMediaKeyEventSessionChangedListener(keyEventSessionListener);
     }
 
     private MediaSession createMediaKeySession() {
@@ -749,6 +772,7 @@ public class MediaSessionManagerTest extends InstrumentationTestCase {
             implements MediaSessionManager.OnMediaKeyEventSessionChangedListener {
         CountDownLatch mCountDownLatch;
         MediaSession.Token mSessionToken;
+        String mPackageName;
 
         MediaKeyEventSessionListener() {
             mCountDownLatch = new CountDownLatch(1);
@@ -757,12 +781,15 @@ public class MediaSessionManagerTest extends InstrumentationTestCase {
         void resetCountDownLatch() {
             mCountDownLatch = new CountDownLatch(1);
             mSessionToken = null;
+            mPackageName = null;
         }
 
         @Override
         public void onMediaKeyEventSessionChanged(String packageName,
                 MediaSession.Token sessionToken) {
+            assertNotNull("The package name cannot be null.", packageName);
             mSessionToken = sessionToken;
+            mPackageName = packageName;
             mCountDownLatch.countDown();
         }
     }
