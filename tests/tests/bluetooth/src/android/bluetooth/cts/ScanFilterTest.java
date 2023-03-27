@@ -42,9 +42,14 @@ public class ScanFilterTest extends AndroidTestCase {
 
     private ScanResult mScanResult;
     private ScanFilter.Builder mFilterBuilder;
+    private boolean mHasBluetoothLe;
 
     @Override
     protected void setUp() {
+        mHasBluetoothLe = TestUtils.isBleSupported(getContext());
+        if (!mHasBluetoothLe) {
+            return;
+        }
         byte[] scanRecord = new byte[] {
                 0x02, 0x01, 0x1a, // advertising flags
                 0x05, 0x02, 0x0b, 0x11, 0x0a, 0x11, // 16 bit service uuids
@@ -73,8 +78,9 @@ public class ScanFilterTest extends AndroidTestCase {
 
     @SmallTest
     public void testsetNameFilter() {
-        if (mFilterBuilder == null) return;
-
+        if (shouldSkipTest()) {
+            return;
+        }
         ScanFilter filter = mFilterBuilder.setDeviceName(LOCAL_NAME).build();
         assertEquals(LOCAL_NAME, filter.getDeviceName());
         assertTrue("setName filter fails", filter.matches(mScanResult));
@@ -85,8 +91,9 @@ public class ScanFilterTest extends AndroidTestCase {
 
     @SmallTest
     public void testDeviceAddressFilter() {
-        if (mFilterBuilder == null) return;
-
+        if (shouldSkipTest()) {
+            return;
+        }
         ScanFilter filter = mFilterBuilder.setDeviceAddress(DEVICE_MAC).build();
         assertEquals(DEVICE_MAC, filter.getDeviceAddress());
         assertTrue("device filter fails", filter.matches(mScanResult));
@@ -97,8 +104,9 @@ public class ScanFilterTest extends AndroidTestCase {
 
     @SmallTest
     public void testsetServiceUuidFilter() {
-        if (mFilterBuilder == null) return;
-
+        if (shouldSkipTest()) {
+            return;
+        }
         ScanFilter filter = mFilterBuilder.setServiceUuid(
                 ParcelUuid.fromString(UUID1)).build();
         assertEquals(UUID1, filter.getServiceUuid().toString());
@@ -120,8 +128,9 @@ public class ScanFilterTest extends AndroidTestCase {
 
     @SmallTest
     public void testsetServiceSolicitationUuidFilter() {
-        if (mFilterBuilder == null) return;
-
+        if (shouldSkipTest()) {
+            return;
+        }
         ScanFilter filter = mFilterBuilder.setServiceSolicitationUuid(
                 ParcelUuid.fromString(UUID1)).build();
         assertEquals(UUID1, filter.getServiceSolicitationUuid().toString());
@@ -142,8 +151,9 @@ public class ScanFilterTest extends AndroidTestCase {
 
     @SmallTest
     public void testsetServiceDataFilter() {
-        if (mFilterBuilder == null) return;
-
+        if (shouldSkipTest()) {
+            return;
+        }
         byte[] setServiceData = new byte[] {
                 0x50, 0x64 };
         ParcelUuid serviceDataUuid = ParcelUuid.fromString(UUID2);
@@ -175,8 +185,9 @@ public class ScanFilterTest extends AndroidTestCase {
 
     @SmallTest
     public void testManufacturerSpecificData() {
-        if (mFilterBuilder == null) return;
-
+        if (shouldSkipTest()) {
+            return;
+        }
         byte[] manufacturerData = new byte[] {
                 0x02, 0x15 };
         int manufacturerId = 0xE0;
@@ -212,8 +223,9 @@ public class ScanFilterTest extends AndroidTestCase {
 
     @SmallTest
     public void testReadWriteParcel() {
-        if (mFilterBuilder == null) return;
-
+        if (shouldSkipTest()) {
+            return;
+        }
         ScanFilter filter = mFilterBuilder.build();
         testReadWriteParcelForFilter(filter);
 
@@ -267,16 +279,26 @@ public class ScanFilterTest extends AndroidTestCase {
 
     @SmallTest
     public void testDescribeContents() {
+        if (!mHasBluetoothLe) {
+            return;
+        }
         final int expected = 0;
         assertEquals(expected, new ScanFilter.Builder().build().describeContents());
     }
 
     private void testReadWriteParcelForFilter(ScanFilter filter) {
+        if (!mHasBluetoothLe) {
+            return;
+        }
         Parcel parcel = Parcel.obtain();
         filter.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);
         ScanFilter filterFromParcel =
                 ScanFilter.CREATOR.createFromParcel(parcel);
         assertEquals(filter, filterFromParcel);
+    }
+
+    private boolean shouldSkipTest() {
+        return !mHasBluetoothLe || mFilterBuilder == null;
     }
 }
