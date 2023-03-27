@@ -26,8 +26,21 @@ import android.test.suitebuilder.annotation.SmallTest;
  */
 public class ScanSettingsTest extends AndroidTestCase {
 
+    private boolean mHasBluetoothLe;
+
+    @Override
+    protected void setUp() {
+        mHasBluetoothLe = TestUtils.isBleSupported(getContext());
+        if (!mHasBluetoothLe) {
+            return;
+        }
+    }
+
     @SmallTest
     public void testDefaultSettings() {
+        if (shouldSkipTest()) {
+            return;
+        }
         ScanSettings settings = new ScanSettings.Builder().build();
         assertEquals(ScanSettings.CALLBACK_TYPE_ALL_MATCHES, settings.getCallbackType());
         assertEquals(ScanSettings.SCAN_MODE_LOW_POWER, settings.getScanMode());
@@ -37,12 +50,18 @@ public class ScanSettingsTest extends AndroidTestCase {
 
     @SmallTest
     public void testDescribeContents() {
+        if (shouldSkipTest()) {
+            return;
+        }
         ScanSettings settings = new ScanSettings.Builder().build();
         assertEquals(0, settings.describeContents());
     }
 
     @SmallTest
     public void testReadWriteParcel() {
+        if (shouldSkipTest()) {
+            return;
+        }
         final long reportDelayMillis = 60 * 1000;
         Parcel parcel = Parcel.obtain();
         ScanSettings settings = new ScanSettings.Builder()
@@ -56,5 +75,9 @@ public class ScanSettingsTest extends AndroidTestCase {
         ScanSettings settingsFromParcel = ScanSettings.CREATOR.createFromParcel(parcel);
         assertEquals(reportDelayMillis, settingsFromParcel.getReportDelayMillis());
         assertEquals(ScanSettings.SCAN_MODE_LOW_LATENCY, settings.getScanMode());
+    }
+
+    private boolean shouldSkipTest() {
+        return !mHasBluetoothLe;
     }
 }

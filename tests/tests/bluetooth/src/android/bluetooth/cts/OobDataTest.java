@@ -22,20 +22,23 @@ import android.bluetooth.OobData;
 import android.content.pm.PackageManager;
 import android.test.AndroidTestCase;
 
-import java.util.Arrays;
-
 public class OobDataTest extends AndroidTestCase {
 
     private boolean mHasBluetooth;
+    private boolean mHasBluetoothLe;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         mHasBluetooth = getContext().getPackageManager().hasSystemFeature(
                 PackageManager.FEATURE_BLUETOOTH);
+        mHasBluetoothLe = TestUtils.isBleSupported(getContext());
     }
 
     public void testClassicBuilder() {
+        if (!mHasBluetooth) {
+            return;
+        }
         byte[] defaultRandomizerHash = new byte[OobData.RANDOMIZER_OCTETS];
         byte[] defaultClassOfDevice = new byte[OobData.CLASS_OF_DEVICE_OCTETS];
         // Default device name: "Bluetooth Device"
@@ -106,6 +109,9 @@ public class OobDataTest extends AndroidTestCase {
     }
 
     public void testLEBuilder() {
+        if (!mHasBluetoothLe) {
+            return;
+        }
         byte[] defaultRandomizerHash = new byte[OobData.RANDOMIZER_OCTETS];
         byte[] defaultClassOfDevice = new byte[OobData.CLASS_OF_DEVICE_OCTETS];
         byte[] defaultClassicLength = new byte[OobData.OOB_LENGTH_OCTETS];

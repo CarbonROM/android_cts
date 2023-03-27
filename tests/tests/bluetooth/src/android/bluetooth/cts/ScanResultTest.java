@@ -19,7 +19,6 @@ package android.bluetooth.cts;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.ScanResult;
-import android.content.pm.PackageManager;
 import android.os.Parcel;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -37,14 +36,24 @@ public class ScanResultTest extends AndroidTestCase {
     private static final int RSSI = -10;
     private static final long TIMESTAMP_NANOS = 10000L;
 
+    private boolean mHasBluetoothLe;
+
+    @Override
+    protected void setUp() {
+        mHasBluetoothLe = TestUtils.isBleSupported(getContext());
+        if (!mHasBluetoothLe) {
+            return;
+        }
+    }
+
     /**
      * Test read and write parcel of ScanResult
      */
     @SmallTest
     public void testScanResultParceling() {
-        if (! mContext.getPackageManager().
-                  hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)) return;
-
+        if (shouldSkipTest()) {
+            return;
+        }
         BluetoothDevice device =
                 BluetoothAdapter.getDefaultAdapter().getRemoteDevice(DEVICE_ADDRESS);
         ScanResult result = new ScanResult(device, TestUtils.parseScanRecord(SCAN_RECORD), RSSI,
@@ -63,13 +72,17 @@ public class ScanResultTest extends AndroidTestCase {
 
     @SmallTest
     public void testDescribeContents() {
-        if (! mContext.getPackageManager().
-                  hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)) return;
-
+        if (shouldSkipTest()) {
+            return;
+        }
         BluetoothDevice device =
                 BluetoothAdapter.getDefaultAdapter().getRemoteDevice(DEVICE_ADDRESS);
         ScanResult result = new ScanResult(device, TestUtils.parseScanRecord(SCAN_RECORD), RSSI,
                 TIMESTAMP_NANOS);
         assertEquals(0, result.describeContents());
+    }
+
+    private boolean shouldSkipTest() {
+        return !mHasBluetoothLe;
     }
 }

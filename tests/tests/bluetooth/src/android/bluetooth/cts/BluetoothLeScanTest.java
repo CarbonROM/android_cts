@@ -68,12 +68,14 @@ public class BluetoothLeScanTest extends AndroidTestCase {
 
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothLeScanner mScanner;
+    private boolean mHasBluetoothLe;
     // Whether location is on before running the tests.
     private boolean mLocationOn;
 
     @Override
     public void setUp() {
-        if (!TestUtils.isBleSupported(getContext())) {
+        mHasBluetoothLe = TestUtils.isBleSupported(getContext());
+        if (!mHasBluetoothLe) {
             return;
         }
         BluetoothManager manager = (BluetoothManager) mContext.getSystemService(
@@ -93,9 +95,8 @@ public class BluetoothLeScanTest extends AndroidTestCase {
 
     @Override
     public void tearDown() {
-        if (!TestUtils.isBleSupported(getContext())) {
-          // mBluetoothAdapter == null.
-          return;
+        if (!mHasBluetoothLe) {
+            return;
         }
 
         if (!mLocationOn) {
@@ -109,7 +110,7 @@ public class BluetoothLeScanTest extends AndroidTestCase {
      */
     @MediumTest
     public void testBasicBleScan() {
-        if (!TestUtils.isBleSupported(getContext())) {
+        if (shouldSkipTest()) {
             return;
         }
         long scanStartMillis = SystemClock.elapsedRealtime();
@@ -126,10 +127,9 @@ public class BluetoothLeScanTest extends AndroidTestCase {
      */
     @MediumTest
     public void testScanFilter() {
-        if (!TestUtils.isBleSupported(getContext())) {
+        if (shouldSkipTest()) {
             return;
         }
-
         List<ScanFilter> filters = new ArrayList<ScanFilter>();
         ScanFilter filter = createScanFilter();
         if (filter == null) {
@@ -190,7 +190,7 @@ public class BluetoothLeScanTest extends AndroidTestCase {
 //     */
 //    @MediumTest
 //    public void testOpportunisticScan() {
-//        if (!TestUtils.isBleSupported(getContext())) {
+//        if (shouldSkipTest()) {
 //            return;
 //        }
 //        ScanSettings opportunisticScanSettings = new ScanSettings.Builder()
@@ -240,7 +240,7 @@ public class BluetoothLeScanTest extends AndroidTestCase {
      */
     @MediumTest
     public void testBatchScan() {
-        if (!TestUtils.isBleSupported(getContext()) || !isBleBatchScanSupported()) {
+        if (shouldSkipTest() || !isBleBatchScanSupported()) {
             Log.d(TAG, "BLE or BLE batching not suppported");
             return;
         }
@@ -271,7 +271,7 @@ public class BluetoothLeScanTest extends AndroidTestCase {
      */
     @MediumTest
     public void testStartScanPendingIntent_nullnull() throws Exception {
-        if (!TestUtils.isBleSupported(getContext()) || !isBleBatchScanSupported()) {
+        if (shouldSkipTest() || !isBleBatchScanSupported()) {
             Log.d(TAG, "BLE or BLE batching not suppported");
             return;
         }
@@ -291,7 +291,7 @@ public class BluetoothLeScanTest extends AndroidTestCase {
      */
     @MediumTest
     public void testStartScanPendingIntent() throws Exception {
-        if (!TestUtils.isBleSupported(getContext()) || !isBleBatchScanSupported()) {
+        if (shouldSkipTest() || !isBleBatchScanSupported()) {
             Log.d(TAG, "BLE or BLE batching not suppported");
             return;
         }
@@ -327,6 +327,10 @@ public class BluetoothLeScanTest extends AndroidTestCase {
             assertTrue("Invalid timestamp: " + timestampMillis + " should be <= " + scanEndMillis,
                     timestampMillis <= scanEndMillis);
         }
+    }
+
+    private boolean shouldSkipTest() {
+        return !mHasBluetoothLe;
     }
 
     // Helper class for BLE scan callback.
