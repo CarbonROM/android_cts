@@ -43,6 +43,8 @@ import android.test.UiThreadTest;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 
+import androidx.test.filters.SdkSuppress;
+
 import com.android.compatibility.common.util.ApiLevelUtil;
 import com.android.compatibility.common.util.MediaUtils;
 import com.android.compatibility.common.util.SystemUtil;
@@ -166,17 +168,19 @@ public class MediaSessionManagerTest extends InstrumentationTestCase {
         assertTrue(keyEventSessionListener.mCountDownLatch
                 .await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertNull(keyEventSessionListener.mSessionToken);
-        assertEquals("", keyEventSessionListener.mPackageName);
+        if (ApiLevelUtil.isAfter(Build.VERSION_CODES.TIRAMISU)) {
+            assertEquals("", keyEventSessionListener.mPackageName);
+        }
 
         assertNull(mSessionManager.getMediaKeyEventSession());
         assertEquals("", mSessionManager.getMediaKeyEventSessionPackageName());
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    @NonMediaMainlineTest
     public void testOnMediaKeyEventSessionChangedListener_noSession_passesEmptyPackageAndNullToken()
             throws InterruptedException {
         // The permission can be held only on S+
-        if (!MediaUtils.check(sIsAtLeastS, "test invalid before Android 12")) return;
-
         getInstrumentation().getUiAutomation().adoptShellPermissionIdentity(
                 Manifest.permission.MEDIA_CONTENT_CONTROL);
 
@@ -787,7 +791,9 @@ public class MediaSessionManagerTest extends InstrumentationTestCase {
         @Override
         public void onMediaKeyEventSessionChanged(String packageName,
                 MediaSession.Token sessionToken) {
-            assertNotNull("The package name cannot be null.", packageName);
+            if (ApiLevelUtil.isAfter(Build.VERSION_CODES.TIRAMISU)) {
+                assertNotNull("The package name cannot be null.", packageName);
+            }
             mSessionToken = sessionToken;
             mPackageName = packageName;
             mCountDownLatch.countDown();
