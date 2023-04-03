@@ -62,6 +62,7 @@ import android.server.wm.overlay.R;
 import android.server.wm.settings.SettingsSession;
 import android.server.wm.shared.BlockingResultReceiver;
 import android.server.wm.shared.IUntrustedTouchTestService;
+import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.view.Display;
@@ -70,6 +71,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
+import android.view.accessibility.AccessibilityWindowInfo;
 import android.widget.Toast;
 
 import androidx.annotation.AnimRes;
@@ -1034,6 +1036,13 @@ public class WindowUntrustedTouchTest {
 
     private void addActivity(ComponentName component, @Nullable Bundle extras,
             @Nullable Bundle options) {
+        final int focusedWindowIdBeforeStart =
+                mInstrumentation.getUiAutomation().getWindows()
+                        .stream()
+                        .filter(AccessibilityWindowInfo::isFocused)
+                        .mapToInt(AccessibilityWindowInfo::getId)
+                        .findFirst().orElse(-1);
+
         Intent intent = new Intent();
         intent.setComponent(component);
         if (extras != null) {
@@ -1042,10 +1051,35 @@ public class WindowUntrustedTouchTest {
         mActivity.startActivity(intent, options);
         String packageName = component.getPackageName();
         String activity = ComponentNameUtils.getActivityName(component);
+        final boolean transparent = extras != null
+                && extras.getFloat(Components.OverlayActivity.EXTRA_OPACITY, 1.f) == 0;
         if (!mWmState.waitFor("activity window " + activity,
-                state -> activity.equals(state.getFocusedActivity())
-                        && state.hasActivityState(component, STATE_RESUMED)
-                        && state.isWindowSurfaceShown(activity))) {
+                state -> {
+                    if (!TextUtils.equals(activity, state.getFocusedActivity())
+                            || !state.hasActivityState(component, STATE_RESUMED)
+                            || !state.isWindowSurfaceShown(activity)) {
+                        return false;
+                    }
+
+                    // We need to make sure that InputFlinger has populated window info before
+                    // proceeding. This checks AccessibilityWindowInfo because it is accessible from
+                    // test and information comes from input.
+
+                    if (transparent) {
+                        // TODO: window with opacity=0 is not exposed to a11y. Skip checking them.
+                        //  This can be resolved by directly querying WindowInfo.
+                        return true;
+                    }
+                    return mInstrumentation.getUiAutomation().getWindows()
+                            .stream()
+                            .anyMatch(w -> {
+                                Rect rect = new Rect();
+                                w.getBoundsInScreen(rect);
+                                return w.isFocused()
+                                        && w.getId() != focusedWindowIdBeforeStart
+                                        && rect.equals(state.getActivity(component).getBounds());
+                            });
+                })) {
             fail("Activity from app " + packageName + " did not appear on time");
         }
     }
