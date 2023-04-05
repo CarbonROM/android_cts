@@ -602,6 +602,8 @@ abstract class CodecTestBase {
             ApiLevelUtil.isFirstApiAfter(Build.VERSION_CODES.S_V2);
     public static final boolean VNDK_IS_AT_LEAST_T =
             SystemProperties.getInt("ro.vndk.version", 0) > Build.VERSION_CODES.S_V2;
+    public static final boolean BOARD_SDK_IS_AT_LEAST_T =
+            SystemProperties.getInt("ro.board.api_level", 0) > Build.VERSION_CODES.S_V2;
     public static final boolean IS_HDR_EDITING_SUPPORTED = isHDREditingSupported();
     private static final String LOG_TAG = CodecTestBase.class.getSimpleName();
     enum SupportClass {
