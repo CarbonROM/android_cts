@@ -180,7 +180,7 @@ public class CodecInfoTest {
         Assume.assumeTrue("Test is applicable for video codecs", mMediaType.startsWith("video/"));
         MediaCodecInfo.CodecCapabilities caps = mCodecInfo.getCapabilitiesForType(mMediaType);
         int[] HdrProfileArray = mProfileHdrMap.get(mMediaType);
-        if (FIRST_SDK_IS_AT_LEAST_T && VNDK_IS_AT_LEAST_T
+        if (FIRST_SDK_IS_AT_LEAST_T && VNDK_IS_AT_LEAST_T && BOARD_SDK_IS_AT_LEAST_T
                         && HdrProfileArray != null && DISPLAY_HDR_TYPES.length > 0) {
             for (CodecProfileLevel pl : caps.profileLevels) {
                 if (IntStream.of(HdrProfileArray).anyMatch(x -> x == pl.profile)) {
