@@ -114,7 +114,6 @@ public class AnalogHeadsetAudioActivity
     private static final String KEY_KEYCODE_VOLUME_DOWN = "keycode_volume_down";
 
     public AnalogHeadsetAudioActivity() {
-        super();
     }
 
     @Override
@@ -206,9 +205,11 @@ public class AnalogHeadsetAudioActivity
         }
     }
 
-    //
-    // PassFailButtons Overrides
-    //
+    @Override
+    public boolean requiresReportLog() {
+        return true;
+    }
+
     @Override
     public String getReportFileName() { return PassFailButtons.AUDIO_TESTS_REPORT_LOG_NAME; }
 
