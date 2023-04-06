@@ -80,6 +80,9 @@ class PermissionHistoryTest : BasePermissionHubTest() {
 
     @Before
     fun setUpTest() {
+        // Wear does not currently support the permission dashboard
+        assumeFalse(isWatch)
+
         SystemUtil.runWithShellPermissionIdentity {
             was7DayToggleEnabled = DeviceConfig.getBoolean(NAMESPACE_PRIVACY,
                     PRIV_DASH_7_DAY_ENABLED, false)
