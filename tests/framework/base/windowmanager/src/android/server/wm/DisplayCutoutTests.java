@@ -81,6 +81,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -130,6 +131,10 @@ public class DisplayCutoutTests {
 
     @Parameter(1)
     public String orientationName;
+
+    @ClassRule
+    public static SetRequestedOrientationRule sSetRequestedOrientationRule =
+            new SetRequestedOrientationRule();
 
     @Rule
     public final ErrorCollector mErrorCollector = new ErrorCollector();
