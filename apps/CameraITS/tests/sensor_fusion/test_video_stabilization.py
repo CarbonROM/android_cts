@@ -41,6 +41,7 @@ _NUM_ROTATIONS = 24
 _RADS_TO_DEGS = 180/math.pi
 _SEC_TO_NSEC = 1E9
 _START_FRAME = 30  # give 3A 1s to warm up
+_TABLET_SERVO_SPEED = 20
 _VIDEO_DELAY_TIME = 5.5  # seconds
 _VIDEO_DURATION = 5.5  # seconds
 _VIDEO_QUALITIES_TESTED = ('CIF:3', '480P:4', '720P:5', '1080P:6', 'QVGA:7',
@@ -78,7 +79,7 @@ def _conv_acceleration_to_movement(gyro_events):
   return np.array(gyro_rotations)
 
 
-def _collect_data(cam, video_profile, video_quality, rot_rig):
+def _collect_data(cam, tablet_device, video_profile, video_quality, rot_rig):
   """Capture a new set of data from the device.
 
   Captures camera frames while the user is moving the device in the prescribed
@@ -86,6 +87,7 @@ def _collect_data(cam, video_profile, video_quality, rot_rig):
 
   Args:
     cam: camera object
+    tablet_device: boolean; based on config.yml
     video_profile: str; number of video profile
     video_quality: str; key string for video quality. ie. 1080P
     rot_rig: dict with 'cntl' and 'ch' defined
@@ -98,10 +100,16 @@ def _collect_data(cam, video_profile, video_quality, rot_rig):
   props = cam.override_with_hidden_physical_camera_props(props)
 
   # Start camera vibration
+  if tablet_device:
+    servo_speed = _TABLET_SERVO_SPEED
+  else:
+    servo_speed = _ARDUINO_SERVO_SPEED
+
   p = multiprocessing.Process(
       target=sensor_fusion_utils.rotation_rig,
       args=(rot_rig['cntl'], rot_rig['ch'], _NUM_ROTATIONS,
-            _ARDUINO_ANGLES, _ARDUINO_SERVO_SPEED, _ARDUINO_MOVE_TIME,))
+            _ARDUINO_ANGLES, servo_speed, _ARDUINO_MOVE_TIME,))
+
   p.start()
 
   cam.start_sensor_events()
@@ -201,7 +209,7 @@ class VideoStabilizationTest(its_base_test.ItsBaseTest):
 
         # Record video
         recording_obj = _collect_data(
-            cam, video_profile, video_quality, rot_rig)
+            cam, self.tablet_device, video_profile, video_quality, rot_rig)
 
         # Grab the video from the save location on DUT
         self.dut.adb.pull([recording_obj['recordedOutputPath'], log_path])
