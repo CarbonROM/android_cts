@@ -33,6 +33,7 @@ android_test {
         "ctstestrunner-axt",
         "hamcrest-library",
         "CtsAccessibilityCommon",
+        "CtsAccessibilityServiceUtils",
     ],
     libs: ["android.test.base"],
     // Tag this module as a cts test artifact
